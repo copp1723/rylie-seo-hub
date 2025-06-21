@@ -8,18 +8,15 @@ export async function POST(request: NextRequest) {
     // Demo mode: Use mock user for development
     const isDemoMode = process.env.NODE_ENV === "development"
     let userId = null
-    let agencyId = null
     
     if (isDemoMode) {
       userId = "demo-user-1"
-      agencyId = "demo-agency-1"
     } else {
       const session = await auth()
       if (!session?.user?.id) {
         return new Response('Unauthorized', { status: 401 })
       }
       userId = session.user.id
-      agencyId = session.user.agencyId
     }
 
     const { message, conversationId, model = 'openai/gpt-4-turbo-preview' } = await request.json()
@@ -39,7 +36,7 @@ export async function POST(request: NextRequest) {
         include: {
           messages: {
             orderBy: { createdAt: 'asc' },
-            take: 20,
+            take: 20, // Last 20 messages for context
           },
         },
       })
@@ -51,7 +48,6 @@ export async function POST(request: NextRequest) {
       conversation = await prisma.conversation.create({
         data: {
           userId: userId,
-          agencyId: agencyId,
           model,
           title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),
         },
@@ -77,7 +73,7 @@ export async function POST(request: NextRequest) {
         role: 'system' as const,
         content: `You are Rylie, an AI SEO assistant. You help automotive dealerships with their SEO needs. Be helpful, professional, and focus on actionable SEO advice. Keep responses concise but informative.`,
       },
-      ...conversation.messages.map(msg => ({
+      ...conversation.messages.map((msg: any) => ({
         role: msg.role.toLowerCase() as 'user' | 'assistant',
         content: msg.content,
       })),

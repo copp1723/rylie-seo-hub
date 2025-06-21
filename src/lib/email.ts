@@ -12,7 +12,7 @@ class EmailService {
 
   constructor() {
     // Mailgun SMTP configuration
-    this.transporter = nodemailer.createTransporter({
+    this.transporter = nodemailer.createTransport({
       host: 'smtp.mailgun.org',
       port: 587,
       secure: false,
@@ -37,7 +37,7 @@ class EmailService {
       return { success: true, messageId: info.messageId }
     } catch (error) {
       console.error('Email sending failed:', error)
-      return { success: false, error: error.message }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 
@@ -112,7 +112,7 @@ class EmailService {
             
             <h3>Recommendations:</h3>
             <ul>
-              ${reportData.recommendations?.map(rec => `<li>${rec}</li>`).join('') || '<li>Continue optimizing your content for better search visibility.</li>'}
+              ${reportData.recommendations?.map((rec: string) => `<li>${rec}</li>`).join('') || '<li>Continue optimizing your content for better search visibility.</li>'}
             </ul>
             
             <p>

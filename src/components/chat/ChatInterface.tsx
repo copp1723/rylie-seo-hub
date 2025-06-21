@@ -38,6 +38,9 @@ interface Conversation {
   id: string
   title: string
   model: string
+  messageCount: number
+  lastMessage?: string
+  lastMessageAt?: string
   createdAt: string
   updatedAt: string
   messages: Message[]

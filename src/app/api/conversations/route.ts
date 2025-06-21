@@ -65,18 +65,15 @@ export async function POST(request: NextRequest) {
     // Demo mode: Use mock user for development
     const isDemoMode = process.env.NODE_ENV === "development"
     let userId = null
-    let agencyId = null
     
     if (isDemoMode) {
       userId = "demo-user-1"
-      agencyId = "demo-agency-1"
     } else {
       const session = await auth()
       if (!session?.user?.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
       userId = session.user.id
-      agencyId = session.user.agencyId
     }
 
     const { title, model = 'openai/gpt-4-turbo-preview' } = await request.json()
@@ -85,7 +82,6 @@ export async function POST(request: NextRequest) {
       data: {
         title: title || 'New Conversation',
         userId: userId,
-        agencyId: agencyId,
         model,
       },
     })
