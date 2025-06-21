@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { Card } from "@/components/ui/card"
-import { Bot } from "lucide-react"
+import { Card } from '@/components/ui/card'
+import { Bot } from 'lucide-react'
 
 export default function TypingIndicator() {
   return (
@@ -27,4 +27,3 @@ export default function TypingIndicator() {
     </div>
   )
 }
-

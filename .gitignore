@@ -3,11 +3,14 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Next.js
 .next/
 out/
 build/
+dist/
 
 # Environment variables
 .env
@@ -18,31 +21,52 @@ build/
 
 # Database
 *.db
-*.db-journal
-dev.db*
+*.sqlite
+*.sqlite3
 
 # Logs
-logs
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Runtime data
-pids
+pids/
 *.pid
 *.seed
 *.pid.lock
 
 # Coverage directory used by tools like istanbul
 coverage/
+*.lcov
 
 # nyc test coverage
-.nyc_output
+.nyc_output/
 
 # Dependency directories
 node_modules/
 jspm_packages/
 
+# TypeScript cache
+*.tsbuildinfo
+
 # Optional npm cache directory
 .npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
 
 # Optional REPL history
 .node_repl_history
@@ -53,40 +77,36 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
 
-# next.js build output
+# Next.js build output
 .next
+out
 
-# nuxt.js build output
+# Nuxt.js build / generate output
 .nuxt
+dist
 
-# vuepress build output
-.vuepress/dist
+# Gatsby files
+.cache/
+public
 
-# Serverless directories
-.serverless
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
+# Storybook build outputs
+.out
+.storybook-out
 
 # Temporary folders
 tmp/
 temp/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # OS generated files
 .DS_Store
@@ -97,13 +117,59 @@ temp/
 ehthumbs.db
 Thumbs.db
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Vercel
+.vercel
+
+# Sentry
+.sentryclirc
+
+# Local development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage/
+.nyc_output/
 
 # Prisma
-prisma/migrations/
+prisma/dev.db*
+
+# Screenshots and uploads
+screenshots/
+uploads/
+
+# Backup files
+*.backup
+*.bak
+
+# Lock files (keep package-lock.json for consistency)
+yarn.lock
+pnpm-lock.yaml
+
+# Build artifacts
+*.tgz
+*.tar.gz
+
+# IDE files
+*.sublime-project
+*.sublime-workspace
+
+# Local configuration
+config/local.json
+config/development.json
+config/production.json
+
+# Certificates
+*.pem
+*.key
+*.crt
+
+# Documentation build
+docs/build/
+
+# Temporary files
+*.tmp
+*.temp
 

@@ -1,25 +1,25 @@
-"use client"
+'use client'
 
-import { useState, useEffect, useRef } from "react"
-import { User } from "next-auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
-import { 
-  Menu, 
-  Send, 
-  Settings, 
-  LogOut, 
-  MessageSquare, 
+import { useState, useEffect, useRef } from 'react'
+import { User } from 'next-auth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card } from '@/components/ui/card'
+import {
+  Menu,
+  Send,
+  Settings,
+  LogOut,
+  MessageSquare,
   Plus,
   ChevronDown,
-  Loader2
-} from "lucide-react"
-import { signOut } from "next-auth/react"
-import Sidebar from "./Sidebar"
-import MessageBubble from "./MessageBubble"
-import ModelSelector from "./ModelSelector"
-import TypingIndicator from "./TypingIndicator"
+  Loader2,
+} from 'lucide-react'
+import { signOut } from 'next-auth/react'
+import Sidebar from './Sidebar'
+import MessageBubble from './MessageBubble'
+import ModelSelector from './ModelSelector'
+import TypingIndicator from './TypingIndicator'
 
 interface ChatInterfaceProps {
   user: User
@@ -27,7 +27,7 @@ interface ChatInterfaceProps {
 
 interface Message {
   id: string
-  role: "USER" | "ASSISTANT"
+  role: 'USER' | 'ASSISTANT'
   content: string
   createdAt: string
   model?: string
@@ -51,12 +51,12 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
-  const [inputMessage, setInputMessage] = useState("")
+  const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
-  const [selectedModel, setSelectedModel] = useState("openai/gpt-4-turbo-preview")
+  const [selectedModel, setSelectedModel] = useState('openai/gpt-4-turbo-preview')
   const [availableModels, setAvailableModels] = useState([])
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
 
@@ -72,30 +72,30 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
   }, [messages, isTyping])
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const loadConversations = async () => {
     try {
-      const response = await fetch("/api/conversations")
+      const response = await fetch('/api/conversations')
       if (response.ok) {
         const data = await response.json()
         setConversations(data.conversations || [])
       }
     } catch (error) {
-      console.error("Failed to load conversations:", error)
+      console.error('Failed to load conversations:', error)
     }
   }
 
   const loadModels = async () => {
     try {
-      const response = await fetch("/api/models")
+      const response = await fetch('/api/models')
       if (response.ok) {
         const data = await response.json()
         setAvailableModels(data.models || [])
       }
     } catch (error) {
-      console.error("Failed to load models:", error)
+      console.error('Failed to load models:', error)
     }
   }
 
@@ -109,7 +109,7 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
         setSelectedModel(data.conversation.model)
       }
     } catch (error) {
-      console.error("Failed to load conversation:", error)
+      console.error('Failed to load conversation:', error)
     }
   }
 
@@ -123,14 +123,14 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
     if (!inputMessage.trim() || isLoading) return
 
     const userMessage = inputMessage.trim()
-    setInputMessage("")
+    setInputMessage('')
     setIsLoading(true)
     setIsTyping(true)
 
     // Add user message to UI immediately
     const tempUserMessage: Message = {
       id: `temp-${Date.now()}`,
-      role: "USER",
+      role: 'USER',
       content: userMessage,
       createdAt: new Date().toISOString(),
     }
@@ -140,10 +140,10 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
       // Create abort controller for this request
       abortControllerRef.current = new AbortController()
 
-      const response = await fetch("/api/chat/stream", {
-        method: "POST",
+      const response = await fetch('/api/chat/stream', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message: userMessage,
@@ -154,62 +154,58 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to send message")
+        throw new Error('Failed to send message')
       }
 
       const reader = response.body?.getReader()
-      if (!reader) throw new Error("No response body")
+      if (!reader) throw new Error('No response body')
 
-      let assistantMessage = ""
-      let assistantMessageId = ""
+      let assistantMessage = ''
+      let assistantMessageId = ''
 
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
         const chunk = new TextDecoder().decode(value)
-        const lines = chunk.split("\n")
+        const lines = chunk.split('\n')
 
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
+          if (line.startsWith('data: ')) {
             const data = line.slice(6)
-            if (data === "[DONE]") continue
+            if (data === '[DONE]') continue
 
             try {
               const parsed = JSON.parse(data)
-              
-              if (parsed.type === "conversation" && !currentConversation) {
+
+              if (parsed.type === 'conversation' && !currentConversation) {
                 setCurrentConversation(parsed.data)
                 loadConversations() // Refresh sidebar
               }
-              
-              if (parsed.type === "userMessage") {
+
+              if (parsed.type === 'userMessage') {
                 // Update the temp message with real ID
-                setMessages(prev => 
-                  prev.map(msg => 
-                    msg.id === tempUserMessage.id 
-                      ? { ...msg, id: parsed.data.id }
-                      : msg
+                setMessages(prev =>
+                  prev.map(msg =>
+                    msg.id === tempUserMessage.id ? { ...msg, id: parsed.data.id } : msg
                   )
                 )
               }
-              
-              if (parsed.type === "chunk") {
+
+              if (parsed.type === 'chunk') {
                 assistantMessage += parsed.data.content
-                
+
                 // Update or add assistant message
                 setMessages(prev => {
                   const lastMessage = prev[prev.length - 1]
-                  if (lastMessage?.role === "ASSISTANT" && !assistantMessageId) {
-                    return prev.map((msg, index) => 
-                      index === prev.length - 1 
-                        ? { ...msg, content: assistantMessage }
-                        : msg
+                  if (lastMessage?.role === 'ASSISTANT' && !assistantMessageId) {
+                    return prev.map((msg, index) =>
+                      index === prev.length - 1 ? { ...msg, content: assistantMessage } : msg
                     )
-                  } else if (lastMessage?.role !== "ASSISTANT") {
+                  } else if (lastMessage?.role !== 'ASSISTANT') {
                     const newAssistantMessage: Message = {
                       id: `streaming-${Date.now()}`,
-                      role: "ASSISTANT",
+                      role: 'ASSISTANT',
                       content: assistantMessage,
                       createdAt: new Date().toISOString(),
                       model: selectedModel,
@@ -219,17 +215,17 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
                   return prev
                 })
               }
-              
-              if (parsed.type === "complete") {
+
+              if (parsed.type === 'complete') {
                 assistantMessageId = parsed.data.id
-                setMessages(prev => 
-                  prev.map(msg => 
-                    msg.role === "ASSISTANT" && msg.id.startsWith("streaming-")
-                      ? { 
-                          ...msg, 
+                setMessages(prev =>
+                  prev.map(msg =>
+                    msg.role === 'ASSISTANT' && msg.id.startsWith('streaming-')
+                      ? {
+                          ...msg,
                           id: assistantMessageId,
                           tokens: parsed.data.tokens,
-                          model: parsed.data.model 
+                          model: parsed.data.model,
                         }
                       : msg
                   )
@@ -242,8 +238,8 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
         }
       }
     } catch (error: any) {
-      if (error.name !== "AbortError") {
-        console.error("Failed to send message:", error)
+      if (error.name !== 'AbortError') {
+        console.error('Failed to send message:', error)
         // Remove the temp user message on error
         setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id))
       }
@@ -255,7 +251,7 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
     }
@@ -289,7 +285,7 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
             </Button>
             <div>
               <h1 className="font-semibold text-lg">
-                {currentConversation?.title || "New Conversation"}
+                {currentConversation?.title || 'New Conversation'}
               </h1>
               <ModelSelector
                 models={availableModels}
@@ -299,16 +295,12 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
               />
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="icon">
               <Settings className="h-5 w-5" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => signOut()}
-            >
+            <Button variant="ghost" size="icon" onClick={() => signOut()}>
               <LogOut className="h-5 w-5" />
             </Button>
           </div>
@@ -328,11 +320,11 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
             </div>
           ) : (
             <>
-              {messages.map((message) => (
+              {messages.map(message => (
                 <MessageBubble
                   key={message.id}
                   message={message}
-                  isUser={message.role === "USER"}
+                  isUser={message.role === 'USER'}
                 />
               ))}
               {isTyping && <TypingIndicator />}
@@ -346,17 +338,13 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
           <div className="flex space-x-2">
             <Input
               value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
+              onChange={e => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask about SEO strategies, content ideas, or technical improvements..."
               disabled={isLoading}
               className="flex-1"
             />
-            <Button
-              onClick={sendMessage}
-              disabled={isLoading || !inputMessage.trim()}
-              size="icon"
-            >
+            <Button onClick={sendMessage} disabled={isLoading || !inputMessage.trim()} size="icon">
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -372,4 +360,3 @@ export default function ChatInterface({ user }: ChatInterfaceProps) {
     </div>
   )
 }
-

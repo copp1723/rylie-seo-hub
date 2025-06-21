@@ -1,218 +1,312 @@
-# 🚀 Rylie SEO Hub - AI-Powered SEO Assistant
+# Rylie SEO Hub
 
-> **White-label SEO assistant for automotive dealerships**
+> AI-Powered SEO Assistant for Automotive Dealerships
 
-A production-ready SaaS platform that allows agencies to provide AI-powered SEO assistance to their automotive dealership clients under their own brand.
+A professional, white-label SaaS platform that provides automotive dealerships with intelligent SEO strategies, real-time optimization, and data-driven insights powered by advanced AI models.
 
-## ✨ Features
+## 🚀 Features
 
-### 🎨 **White-Label Theming**
-- Custom company branding
-- Color scheme customization
-- Logo upload support
-- Real-time theme preview
-- 5 preset themes included
+### Core Functionality
+- **AI-Powered SEO Analysis** - Advanced algorithms analyze content and provide actionable recommendations
+- **Multi-Model Chat Interface** - Access to multiple AI models (GPT-4, Claude, Gemini) for diverse insights
+- **Real-Time Analytics** - Monitor SEO performance with live analytics and competitive intelligence
+- **White-Label Theming** - Fully customizable platform that matches your agency's brand
 
-### 🤖 **AI-Powered Chat**
-- Multiple AI models (GPT-4, Claude, Gemini)
-- Automotive SEO expertise
-- Conversation persistence
-- Streaming responses
-- Model selection per conversation
+### Enterprise Features
+- **Multi-Tenant Architecture** - Complete data isolation for multiple agencies
+- **Role-Based Access Control** - Admin, user, and viewer permissions within agencies
+- **Feature Flag System** - Progressive rollouts and A/B testing capabilities
+- **Usage Tracking & Billing** - Per-agency metrics for accurate billing and analytics
+- **Enterprise Observability** - Sentry error tracking and PostHog analytics integration
 
-### 📧 **Professional Email System**
-- Welcome emails for new users
-- SEO report delivery
-- Custom domain support (mail.onerylie.com)
-- Automated notifications
-
-### 📱 **Mobile-First Design**
-- Responsive layout
-- Touch-optimized interface
-- Mobile menu navigation
-- Cross-device compatibility
+### Technical Highlights
+- **Modern Tech Stack** - Next.js 15, TypeScript, Prisma, PostgreSQL
+- **Professional UI** - Responsive design with Tailwind CSS and Radix UI components
+- **Production Ready** - Comprehensive error handling, logging, and monitoring
+- **Scalable Architecture** - Designed to handle 50+ agencies with thousands of users
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS, Radix UI, Lucide Icons
 - **Backend**: Next.js API Routes, Prisma ORM
-- **Database**: PostgreSQL (SQLite for development)
+- **Database**: PostgreSQL (production), SQLite (development)
 - **Authentication**: NextAuth.js with Google OAuth
-- **AI**: OpenRouter API (multiple models)
-- **Email**: Mailgun
-- **Styling**: Tailwind CSS, Radix UI
-- **Deployment**: Render.com
+- **AI Integration**: OpenRouter API (GPT-4, Claude, Gemini)
+- **Observability**: Sentry (error tracking), PostHog (analytics)
+- **Email**: Nodemailer with Mailgun
+- **File Upload**: Cloudinary integration
+
+## 📋 Prerequisites
+
+- Node.js 18.0.0 or higher
+- npm 8.0.0 or higher
+- PostgreSQL 14+ (for production)
+- Git
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18+
-- npm 8+
-- PostgreSQL (for production)
+### 1. Clone the Repository
 
-### Development Setup
+```bash
+git clone https://github.com/copp1723/rylie-seo-hub.git
+cd rylie-seo-hub
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/copp1723/rylie-seo-hub.git
-   cd rylie-seo-hub
-   ```
+### 2. Install Dependencies
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env.local
-   # Edit .env.local with your credentials
-   ```
+### 3. Environment Setup
 
-4. **Set up database**
-   ```bash
-   npm run db:push
-   ```
+Copy the example environment file and configure your variables:
 
-5. **Start development server**
-   ```bash
-   npm run dev
-   ```
+```bash
+cp .env.example .env.local
+```
 
-Visit `http://localhost:3001` to see the application.
-
-## 🌐 Production Deployment
-
-### Render.com Deployment
-
-1. **Create Render account** and connect GitHub
-2. **Create Web Service** with these settings:
-   - Build Command: `npm install && npm run build`
-   - Start Command: `npm start`
-   - Environment: Node.js
-
-3. **Add PostgreSQL database** in Render dashboard
-
-4. **Configure environment variables** (see `.env.example`)
-
-5. **Deploy** - Render will automatically build and deploy
-
-### Environment Variables
+Edit `.env.local` with your configuration:
 
 ```env
 # Database
-DATABASE_URL=postgresql://username:password@hostname:port/database
+DATABASE_URL="postgresql://username:password@localhost:5432/rylie_seo_hub"
 
 # NextAuth.js
-NEXTAUTH_SECRET=your-production-secret
-NEXTAUTH_URL=https://your-domain.com
+NEXTAUTH_SECRET="your-super-secret-nextauth-secret-key-here"
+NEXTAUTH_URL="http://localhost:3001"
 
-# Google OAuth
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+# Google OAuth (required for authentication)
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-# OpenRouter AI
-OPENROUTER_API_KEY=your-openrouter-api-key
-OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+# OpenRouter AI (required for chat functionality)
+OPENROUTER_API_KEY="your-openrouter-api-key"
+OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
 
-# Mailgun Email
-MAILGUN_API_KEY=your-mailgun-api-key
-MAILGUN_DOMAIN=your-mailgun-domain
+# Optional: Email Service (Mailgun)
+MAILGUN_API_KEY="your-mailgun-api-key"
+MAILGUN_DOMAIN="your-mailgun-domain"
 
-# Production
-NODE_ENV=production
+# Optional: Observability
+SENTRY_DSN="your-sentry-dsn"
+NEXT_PUBLIC_POSTHOG_KEY="your-posthog-key"
+NEXT_PUBLIC_POSTHOG_HOST="https://app.posthog.com"
+
+# App Configuration
+APP_NAME="Rylie SEO Hub"
+APP_URL="http://localhost:3001"
+NODE_ENV="development"
 ```
 
-## 🎯 Business Model
+### 4. Database Setup
 
-### Target Market
-- **SEO Agencies** serving automotive dealerships
-- **Digital Marketing Companies** 
-- **Automotive Industry Consultants**
-
-### Pricing Strategy
-- **Starter**: $99/month (5 dealerships)
-- **Professional**: $299/month (20 dealerships)
-- **Enterprise**: $599/month (unlimited)
-
-### Revenue Potential
-- 100 agencies × $299/month = **$29,900/month**
-- High retention due to white-label value
-- Scalable with minimal overhead
-
-## 🔧 Development
-
-### Database Operations
+#### For Development (SQLite)
 ```bash
-# Push schema changes
-npm run db:push
-
-# Open database studio
-npm run db:studio
-
 # Generate Prisma client
 npm run db:generate
+
+# Push schema to database
+npm run db:push
 ```
 
-### Code Structure
+#### For Production (PostgreSQL)
+```bash
+# Install PostgreSQL (Ubuntu/Debian)
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+
+# Create database
+sudo -u postgres createdb rylie_seo_hub
+
+# Run migrations
+npm run db:migrate
+```
+
+### 5. Start Development Server
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:3001`
+
+## 🔧 Configuration
+
+### Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing one
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials
+5. Add authorized redirect URIs:
+   - `http://localhost:3001/api/auth/callback/google` (development)
+   - `https://yourdomain.com/api/auth/callback/google` (production)
+
+### OpenRouter API Setup
+
+1. Sign up at [OpenRouter](https://openrouter.ai/)
+2. Generate an API key
+3. Add the key to your environment variables
+
+### Database Configuration
+
+#### Development
+The app uses SQLite by default for development. No additional setup required.
+
+#### Production
+For production, use PostgreSQL:
+
+```env
+DATABASE_URL="postgresql://username:password@host:port/database"
+```
+
+## 📁 Project Structure
+
 ```
 src/
-├── app/                 # Next.js app router
-│   ├── api/            # API routes
-│   ├── chat/           # Chat interface
-│   └── theme/          # Theme customization
-├── components/         # React components
-│   ├── auth/          # Authentication
-│   ├── chat/          # Chat interface
-│   ├── theme/         # Theming
-│   └── ui/            # Reusable UI
-└── lib/               # Utilities
-    ├── auth.ts        # NextAuth config
-    ├── ai.ts          # AI integration
-    ├── email.ts       # Email service
-    └── prisma.ts      # Database client
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── chat/              # Chat interface
+│   ├── theme/             # Theme customization
+│   └── admin/             # Admin dashboard
+├── components/            # React components
+│   ├── auth/              # Authentication components
+│   ├── chat/              # Chat interface components
+│   ├── theme/             # Theme components
+│   └── ui/                # Reusable UI components
+├── lib/                   # Utility libraries
+│   ├── auth.ts            # Authentication configuration
+│   ├── prisma.ts          # Database client
+│   ├── ai.ts              # AI service integration
+│   ├── errors.ts          # Error handling utilities
+│   ├── utils.ts           # Common utilities
+│   └── observability.ts   # Monitoring and analytics
+└── prisma/                # Database schema and migrations
 ```
 
-## 📊 Features Roadmap
+## 🚀 Deployment
 
-### ✅ **MVP Complete**
-- White-label theming
-- AI chat functionality
-- User authentication
-- Email integration
-- Mobile responsiveness
+### Vercel (Recommended)
 
-### 🔄 **In Progress**
-- SuperMemory integration
-- Advanced analytics
-- Custom AI prompts
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Configure environment variables in Vercel dashboard
+4. Deploy automatically on push to main branch
 
-### 📋 **Planned**
-- Admin dashboard
-- Usage analytics
-- Multi-language support
-- Advanced reporting
-- API access for agencies
+### Manual Deployment
+
+```bash
+# Build the application
+npm run build
+
+# Start production server
+npm start
+```
+
+### Environment Variables for Production
+
+Ensure all required environment variables are set:
+
+- `DATABASE_URL` - PostgreSQL connection string
+- `NEXTAUTH_SECRET` - Random secret for NextAuth.js
+- `NEXTAUTH_URL` - Your production domain
+- `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET` - Google OAuth credentials
+- `OPENROUTER_API_KEY` - OpenRouter API key
+
+## 🧪 Development
+
+### Available Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run lint:fix     # Fix ESLint errors
+npm run format       # Format code with Prettier
+npm run type-check   # Run TypeScript type checking
+npm run db:generate  # Generate Prisma client
+npm run db:push      # Push schema changes to database
+npm run db:migrate   # Run database migrations
+npm run db:studio    # Open Prisma Studio
+```
+
+### Code Quality
+
+The project includes:
+- **ESLint** for code linting
+- **Prettier** for code formatting
+- **TypeScript** for type safety
+- **Husky** for pre-commit hooks (optional)
+
+Format code before committing:
+```bash
+npm run format
+npm run lint:fix
+```
+
+## 🏗️ Architecture
+
+### Multi-Tenant Design
+- **Agency-based isolation** - Each agency has complete data separation
+- **Role-based access** - Admin, user, viewer roles within agencies
+- **Usage tracking** - Per-agency metrics for billing and analytics
+- **Feature flags** - Agency-specific feature rollouts
+
+### Security Features
+- **Authentication** via NextAuth.js with Google OAuth
+- **Authorization** with role-based access control
+- **Data isolation** prevents cross-tenant data access
+- **Rate limiting** on API endpoints
+- **Input validation** with Zod schemas
+
+### Observability
+- **Error tracking** with Sentry
+- **User analytics** with PostHog
+- **Structured logging** for debugging
+- **Performance monitoring** for optimization
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Guidelines
+
+- Follow TypeScript best practices
+- Use Prettier for code formatting
+- Write meaningful commit messages
+- Add tests for new features
+- Update documentation as needed
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-- **Documentation**: [docs.onerylie.com](https://docs.onerylie.com)
-- **Email**: support@onerylie.com
-- **Issues**: [GitHub Issues](https://github.com/copp1723/rylie-seo-hub/issues)
+For support and questions:
+
+- **Documentation**: Check this README and inline code comments
+- **Issues**: Open an issue on GitHub
+- **Email**: Contact the development team
+
+## 🔄 Changelog
+
+### v1.0.0 (Current)
+- Initial release with core SEO assistant functionality
+- Multi-tenant architecture with agency isolation
+- Feature flag system for progressive rollouts
+- Professional UI with white-label theming
+- Enterprise observability with Sentry and PostHog
+- Multi-model AI chat interface
 
 ---
 
-**Built with ❤️ for the automotive SEO industry**
+**Built with ❤️ by SEO Werks**
 

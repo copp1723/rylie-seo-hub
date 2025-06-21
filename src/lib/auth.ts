@@ -1,7 +1,7 @@
-import NextAuth from "next-auth"
-import Google from "next-auth/providers/google"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "./prisma"
+import NextAuth from 'next-auth'
+import Google from 'next-auth/providers/google'
+import { PrismaAdapter } from '@auth/prisma-adapter'
+import { prisma } from './prisma'
 
 // Production-ready auth configuration
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -13,7 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   pages: {
-    signIn: "/",
+    signIn: '/',
   },
   callbacks: {
     session: ({ session, user }) => ({
@@ -25,4 +25,3 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   },
 })
-

@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -46,20 +43,13 @@ export async function GET(
         })),
       },
     })
-
   } catch (error) {
     console.error('Get Conversation Error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch conversation' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch conversation' }, { status: 500 })
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -85,13 +75,8 @@ export async function DELETE(
       success: true,
       message: 'Conversation deleted',
     })
-
   } catch (error) {
     console.error('Delete Conversation Error:', error)
-    return NextResponse.json(
-      { error: 'Failed to delete conversation' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to delete conversation' }, { status: 500 })
   }
 }
-

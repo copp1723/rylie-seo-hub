@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { ChevronDown, Check, Zap, DollarSign } from "lucide-react"
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { ChevronDown, Check, Zap, DollarSign } from 'lucide-react'
 
 interface AIModel {
   id: string
@@ -32,11 +32,7 @@ export default function ModelSelector({
   const currentModel = models.find(m => m.id === selectedModel)
 
   if (models.length === 0) {
-    return (
-      <div className="text-xs text-muted-foreground">
-        Loading models...
-      </div>
-    )
+    return <div className="text-xs text-muted-foreground">Loading models...</div>
   }
 
   return (
@@ -50,7 +46,7 @@ export default function ModelSelector({
       >
         <div className="flex items-center space-x-1">
           <Zap className="h-3 w-3" />
-          <span>{currentModel?.name || "Select Model"}</span>
+          <span>{currentModel?.name || 'Select Model'}</span>
           <ChevronDown className="h-3 w-3" />
         </div>
       </Button>
@@ -58,15 +54,12 @@ export default function ModelSelector({
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div 
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
-          
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+
           {/* Dropdown */}
           <Card className="absolute top-full left-0 mt-1 w-80 max-h-96 overflow-y-auto z-50 p-2">
             <div className="space-y-1">
-              {models.map((model) => (
+              {models.map(model => (
                 <Button
                   key={model.id}
                   variant="ghost"
@@ -80,17 +73,11 @@ export default function ModelSelector({
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
                         <span className="font-medium text-sm">{model.name}</span>
-                        {model.id === selectedModel && (
-                          <Check className="h-4 w-4 text-primary" />
-                        )}
+                        {model.id === selectedModel && <Check className="h-4 w-4 text-primary" />}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {model.description}
-                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">{model.description}</p>
                       <div className="flex items-center space-x-3 mt-2">
-                        <span className="text-xs text-muted-foreground">
-                          {model.provider}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{model.provider}</span>
                         <div className="flex items-center space-x-1">
                           <DollarSign className="h-3 w-3 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">
@@ -109,4 +96,3 @@ export default function ModelSelector({
     </div>
   )
 }
-

@@ -16,42 +16,42 @@ export interface AIModel {
 
 export const availableModels: AIModel[] = [
   {
-    id: "openai/gpt-4-turbo-preview",
-    name: "GPT-4 Turbo",
-    provider: "OpenAI",
-    description: "Most capable model for complex reasoning",
+    id: 'openai/gpt-4-turbo-preview',
+    name: 'GPT-4 Turbo',
+    provider: 'OpenAI',
+    description: 'Most capable model for complex reasoning',
     maxTokens: 128000,
     costPer1kTokens: 0.01,
   },
   {
-    id: "openai/gpt-3.5-turbo",
-    name: "GPT-3.5 Turbo",
-    provider: "OpenAI", 
-    description: "Fast and efficient for most tasks",
+    id: 'openai/gpt-3.5-turbo',
+    name: 'GPT-3.5 Turbo',
+    provider: 'OpenAI',
+    description: 'Fast and efficient for most tasks',
     maxTokens: 16385,
     costPer1kTokens: 0.0005,
   },
   {
-    id: "anthropic/claude-3-opus",
-    name: "Claude 3 Opus",
-    provider: "Anthropic",
-    description: "Excellent for detailed analysis",
+    id: 'anthropic/claude-3-opus',
+    name: 'Claude 3 Opus',
+    provider: 'Anthropic',
+    description: 'Excellent for detailed analysis',
     maxTokens: 200000,
     costPer1kTokens: 0.015,
   },
   {
-    id: "anthropic/claude-3-sonnet",
-    name: "Claude 3 Sonnet", 
-    provider: "Anthropic",
-    description: "Balanced performance",
+    id: 'anthropic/claude-3-sonnet',
+    name: 'Claude 3 Sonnet',
+    provider: 'Anthropic',
+    description: 'Balanced performance',
     maxTokens: 200000,
     costPer1kTokens: 0.003,
   },
   {
-    id: "anthropic/claude-3-haiku",
-    name: "Claude 3 Haiku",
-    provider: "Anthropic",
-    description: "Fast and cost-effective",
+    id: 'anthropic/claude-3-haiku',
+    name: 'Claude 3 Haiku',
+    provider: 'Anthropic',
+    description: 'Fast and cost-effective',
     maxTokens: 200000,
     costPer1kTokens: 0.00025,
   },
@@ -72,7 +72,7 @@ export interface StreamResponse {
 export class AIService {
   async generateResponse(
     messages: ChatMessage[],
-    model: string = "openai/gpt-4-turbo-preview",
+    model: string = 'openai/gpt-4-turbo-preview',
     stream: boolean = false
   ) {
     try {
@@ -103,7 +103,7 @@ export class AIService {
 
   async *streamResponse(
     messages: ChatMessage[],
-    model: string = "openai/gpt-4-turbo-preview"
+    model: string = 'openai/gpt-4-turbo-preview'
   ): AsyncGenerator<StreamResponse> {
     try {
       const stream = await openai.chat.completions.create({
@@ -115,11 +115,11 @@ export class AIService {
       })
 
       let fullContent = ''
-      
+
       for await (const chunk of stream) {
         const content = chunk.choices[0]?.delta?.content || ''
         fullContent += content
-        
+
         yield {
           content,
           done: false,
@@ -161,4 +161,3 @@ export class AIService {
 }
 
 export const aiService = new AIService()
-

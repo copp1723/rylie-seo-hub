@@ -6,11 +6,11 @@ import { aiService } from '@/lib/ai'
 export async function POST(request: NextRequest) {
   try {
     // Demo mode: Use mock user for development
-    const isDemoMode = process.env.NODE_ENV === "development"
+    const isDemoMode = process.env.NODE_ENV === 'development'
     let userId = null
-    
+
     if (isDemoMode) {
-      userId = "demo-user-1"
+      userId = 'demo-user-1'
     } else {
       const session = await auth()
       if (!session?.user?.id) {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
           },
         },
       })
-      
+
       if (!conversation) {
         return new Response('Conversation not found', { status: 404 })
       }
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         role: 'system' as const,
         content: `You are Rylie, an AI SEO assistant. You help automotive dealerships with their SEO needs. Be helpful, professional, and focus on actionable SEO advice. Keep responses concise but informative.`,
       },
-      ...conversation.messages.map((msg: any) => ({
+      ...conversation.messages.map((msg: { role: string; content: string }) => ({
         role: msg.role.toLowerCase() as 'user' | 'assistant',
         content: msg.content,
       })),
@@ -93,31 +93,35 @@ export async function POST(request: NextRequest) {
         try {
           // Send initial data
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({
-              type: 'conversation',
-              data: {
-                id: conversation.id,
-                title: conversation.title,
-              }
-            })}\n\n`)
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: 'conversation',
+                data: {
+                  id: conversation.id,
+                  title: conversation.title,
+                },
+              })}\n\n`
+            )
           )
 
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({
-              type: 'userMessage',
-              data: {
-                id: userMessage.id,
-                content: userMessage.content,
-                createdAt: userMessage.createdAt,
-              }
-            })}\n\n`)
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: 'userMessage',
+                data: {
+                  id: userMessage.id,
+                  content: userMessage.content,
+                  createdAt: userMessage.createdAt,
+                },
+              })}\n\n`
+            )
           )
 
           // Stream AI response
           for await (const chunk of aiService.streamResponse(chatMessages, model)) {
             if (chunk.done) {
               totalTokens = chunk.tokens || 0
-              
+
               // Save complete AI message
               const assistantMessage = await prisma.message.create({
                 data: {
@@ -127,42 +131,48 @@ export async function POST(request: NextRequest) {
                   content: fullResponse,
                   model: chunk.model,
                   tokens: totalTokens,
-                  cost: aiService.getModel(model)?.costPer1kTokens ? 
-                    (totalTokens / 1000) * aiService.getModel(model)!.costPer1kTokens : 0,
+                  cost: aiService.getModel(model)?.costPer1kTokens
+                    ? (totalTokens / 1000) * aiService.getModel(model)!.costPer1kTokens
+                    : 0,
                 },
               })
 
               controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({
-                  type: 'complete',
-                  data: {
-                    id: assistantMessage.id,
-                    tokens: totalTokens,
-                    model: chunk.model,
-                  }
-                })}\n\n`)
+                encoder.encode(
+                  `data: ${JSON.stringify({
+                    type: 'complete',
+                    data: {
+                      id: assistantMessage.id,
+                      tokens: totalTokens,
+                      model: chunk.model,
+                    },
+                  })}\n\n`
+                )
               )
             } else {
               fullResponse += chunk.content
               controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({
-                  type: 'chunk',
-                  data: { content: chunk.content }
-                })}\n\n`)
+                encoder.encode(
+                  `data: ${JSON.stringify({
+                    type: 'chunk',
+                    data: { content: chunk.content },
+                  })}\n\n`
+                )
               )
             }
           }
 
           controller.enqueue(encoder.encode('data: [DONE]\n\n'))
           controller.close()
-
         } catch (error) {
           console.error('Streaming error:', error)
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({
-              type: 'error',
-              data: { message: 'Failed to generate response' }
-            })}\n\n`)
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: 'error',
+                data: { message: 'Failed to generate response' },
+              })}\n\n`
+            )
           )
           controller.close()
         }
@@ -173,13 +183,11 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
       },
     })
-
   } catch (error) {
     console.error('Stream API Error:', error)
     return new Response('Internal Server Error', { status: 500 })
   }
 }
-

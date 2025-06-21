@@ -1,18 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { themeUpdateSchema, validateRequest } from '@/lib/validation'
+import { rateLimits } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
-    // Demo mode: Use mock user for development
-    const isDemoMode = process.env.NODE_ENV === "development"
-    let userId = null
-    
-    if (isDemoMode) {
-      userId = "demo-user-1"
-    } else {
-      // In production, get from session
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    // Apply rate limiting
+    const rateLimitResult = await rateLimits.api(request)
+    if (rateLimitResult) {
+      return rateLimitResult
     }
+
+    // Authenticate user
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Authentication required',
+        },
+        { status: 401 }
+      )
+    }
+    const userId = session.user.id
 
     // Get or create user
     let user = await prisma.user.findUnique({
@@ -33,11 +44,11 @@ export async function GET(request: NextRequest) {
       user = await prisma.user.create({
         data: {
           id: userId,
-          name: "Demo User",
-          email: "demo@rylie-seo.com",
-          companyName: "Rylie SEO Hub",
-          primaryColor: "#3b82f6",
-          secondaryColor: "#1e40af",
+          name: 'Demo User',
+          email: 'demo@rylie-seo.com',
+          companyName: 'Rylie SEO Hub',
+          primaryColor: '#3b82f6',
+          secondaryColor: '#1e40af',
         },
         select: {
           id: true,
@@ -54,36 +65,58 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       theme: {
-        companyName: user.companyName || "Rylie SEO Hub",
-        primaryColor: user.primaryColor || "#3b82f6",
-        secondaryColor: user.secondaryColor || "#1e40af",
+        companyName: user.companyName || 'Rylie SEO Hub',
+        primaryColor: user.primaryColor || '#3b82f6',
+        secondaryColor: user.secondaryColor || '#1e40af',
         logo: user.logo,
       },
     })
-
   } catch (error) {
     console.error('Get Theme Error:', error)
-    return NextResponse.json(
-      { error: 'Failed to get theme' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to get theme' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Demo mode: Use mock user for development
-    const isDemoMode = process.env.NODE_ENV === "development"
-    let userId = null
-    
-    if (isDemoMode) {
-      userId = "demo-user-1"
-    } else {
-      // In production, get from session
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    // Apply rate limiting
+    const rateLimitResult = await rateLimits.api(request)
+    if (rateLimitResult) {
+      return rateLimitResult
     }
 
-    const { companyName, primaryColor, secondaryColor, logo } = await request.json()
+    // Authenticate user
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Authentication required',
+        },
+        { status: 401 }
+      )
+    }
+    const userId = session.user.id
+
+    // Validate request body
+    const body = await request.json()
+    const validation = validateRequest(themeUpdateSchema, body)
+
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: validation.error,
+          details: validation.details.errors.map(err => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
+        },
+        { status: 400 }
+      )
+    }
+
+    const { companyName, primaryColor, secondaryColor, logo } = validation.data
 
     // Update user theme
     const updatedUser = await prisma.user.upsert({
@@ -96,11 +129,11 @@ export async function POST(request: NextRequest) {
       },
       create: {
         id: userId,
-        name: "Demo User",
-        email: "demo@rylie-seo.com",
-        companyName: companyName || "Rylie SEO Hub",
-        primaryColor: primaryColor || "#3b82f6",
-        secondaryColor: secondaryColor || "#1e40af",
+        name: 'Demo User',
+        email: 'demo@rylie-seo.com',
+        companyName: companyName || 'Rylie SEO Hub',
+        primaryColor: primaryColor || '#3b82f6',
+        secondaryColor: secondaryColor || '#1e40af',
         logo: logo,
       },
       select: {
@@ -120,13 +153,8 @@ export async function POST(request: NextRequest) {
         logo: updatedUser.logo,
       },
     })
-
   } catch (error) {
     console.error('Update Theme Error:', error)
-    return NextResponse.json(
-      { error: 'Failed to update theme' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to update theme' }, { status: 500 })
   }
 }
-
