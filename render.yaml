@@ -1,0 +1,94 @@
+services:
+  # Main Web Application
+  - type: web
+    name: rylie-seo-hub
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm ci && npm run build && npx prisma generate && npx prisma db push
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXTAUTH_URL
+        fromService:
+          type: web
+          name: rylie-seo-hub
+          property: host
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rylie-seo-hub-db
+          property: connectionString
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: APP_NAME
+        value: "Rylie SEO Hub"
+      # Required: Google OAuth (user must set these)
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # Required: OpenRouter AI (user must set this)
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_BASE_URL
+        value: "https://openrouter.ai/api/v1"
+      # Optional: Email Service (Mailgun)
+      - key: MAILGUN_API_KEY
+        sync: false
+      - key: MAILGUN_DOMAIN
+        sync: false
+      # Optional: Observability
+      - key: SENTRY_DSN
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_KEY
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_HOST
+        value: "https://app.posthog.com"
+    autoDeploy: true
+    rootDir: .
+    
+  # PostgreSQL Database
+databases:
+  - name: rylie-seo-hub-db
+    databaseName: rylie_seo_hub
+    user: rylie_user
+    plan: starter
+    region: oregon
+    postgresMajorVersion: 15
+
+# Environment Groups (for easier management)
+envVarGroups:
+  - name: auth-config
+    envVars:
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+        
+  - name: ai-config
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_BASE_URL
+        value: "https://openrouter.ai/api/v1"
+        
+  - name: email-config
+    envVars:
+      - key: MAILGUN_API_KEY
+        sync: false
+      - key: MAILGUN_DOMAIN
+        sync: false
+        
+  - name: observability-config
+    envVars:
+      - key: SENTRY_DSN
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_KEY
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_HOST
+        value: "https://app.posthog.com"
+
