@@ -54,7 +54,7 @@ databases:
   - name: rylie-seo-hub-db
     databaseName: rylie_seo_hub
     user: rylie_user
-    plan: starter
+    plan: pro
     region: oregon
     postgresMajorVersion: 15
 
