@@ -75,6 +75,27 @@
       'calt' 1;
   }
 
+  /* CRITICAL FIX: Force all text to use proper colors - NO PINK TEXT */
+  body * {
+    color: inherit !important;
+  }
+  
+  /* Ensure specific elements use foreground color */
+  p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label {
+    @apply text-foreground !important;
+  }
+  
+  /* Fix any potential pink/light colored text */
+  [style*="color: pink"],
+  [style*="color: #FFC0CB"],
+  [style*="color: #FFB6C1"],
+  [style*="color: #FF69B4"],
+  [style*="color: #FF1493"],
+  [style*="color: rgb(255"],
+  [style*="color: rgba(255"] {
+    color: rgb(15 23 42) !important;
+  }
+
   /* Professional Typography Scale */
   h1 {
     @apply text-4xl font-bold tracking-tight lg:text-5xl;
@@ -308,4 +329,23 @@
   .focus-ring-inset {
     @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-inset;
   }
+}
+
+/* OVERRIDE ANY PINK/LIGHT TEXT GLOBALLY */
+.text-pink-50, .text-pink-100, .text-pink-200, .text-pink-300,
+.text-pink-400, .text-pink-500, .text-pink-600, .text-pink-700,
+.text-pink-800, .text-pink-900,
+[class*="text-pink"] {
+  @apply text-foreground !important;
+}
+
+/* Ensure theme colors override any problematic colors */
+.text-primary { @apply !text-primary; }
+.text-secondary { @apply !text-secondary-foreground; }
+.text-muted { @apply !text-muted-foreground; }
+.text-accent { @apply !text-accent-foreground; }
+
+/* Global text color enforcement */
+* {
+  color: inherit;
 }
