@@ -57,8 +57,6 @@ export class GA4Service {
       }
       
       return allProperties
-
-      return response.data.properties || []
     } catch (error: any) {
       console.error('Error listing GA4 properties:', error)
       console.error('Error details:', {
