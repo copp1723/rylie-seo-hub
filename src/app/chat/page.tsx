@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/chat/Sidebar'
@@ -8,7 +8,7 @@ import { ChatInterface } from '@/components/chat/ChatInterface'
 
 export default function ChatPage() {
   const { data: session, status } = useSession()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -19,9 +19,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-      if (window.innerWidth < 768) {
-        setSidebarOpen(false)
+      const mobile = window.innerWidth < 1024
+      setIsMobile(mobile)
+      if (!mobile) {
+        setSidebarOpen(true)
       }
     }
 
@@ -46,52 +47,32 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-screen bg-background flex overflow-hidden">
+    <div className="chat-page">
       {/* Mobile Sidebar Overlay */}
       {isMobile && sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div
-        className={`
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        ${isMobile ? 'fixed z-50' : 'relative'}
-        transition-transform duration-300 ease-in-out
-        w-64 h-full
-      `}
-      >
-        <Sidebar onClose={() => setSidebarOpen(false)} />
+      <div className={`sidebar-professional ${sidebarOpen ? 'open' : ''}`}>
+        <Sidebar 
+          isOpen={sidebarOpen}
+          onClose={() => isMobile && setSidebarOpen(false)} 
+        />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="main-content">
         {/* Header */}
-        <header className="h-16 border-b bg-card/50 backdrop-blur-sm flex items-center px-4 lg:px-6">
+        <header className="page-header">
           <div className="flex items-center space-x-4">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-accent rounded-lg transition-colors md:hidden"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-
-            {/* Desktop Sidebar Toggle */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-accent rounded-lg transition-colors hidden md:flex"
-              title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+              className="mobile-menu-toggle"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
