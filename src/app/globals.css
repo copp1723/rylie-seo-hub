@@ -2,64 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Modern Design System for Rylie SEO Hub */
+/* Modern Professional Design System for Rylie SEO Hub */
 
 @layer base {
   :root {
-    /* Professional Color Palette */
-    --background: 255 255 255;
-    --foreground: 15 23 42;
-    --card: 255 255 255;
-    --card-foreground: 15 23 42;
-    --popover: 255 255 255;
-    --popover-foreground: 15 23 42;
-    --primary: 59 130 246;
-    --primary-foreground: 255 255 255;
-    --secondary: 241 245 249;
-    --secondary-foreground: 51 65 85;
-    --muted: 248 250 252;
-    --muted-foreground: 100 116 139;
-    --accent: 241 245 249;
-    --accent-foreground: 51 65 85;
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
-    --border: 226 232 240;
-    --input: 226 232 240;
-    --ring: 59 130 246;
+    /* Professional Color Palette - Clean & Modern */
+    --background: 0 0% 100%; /* white */
+    --foreground: 222.2 84% 4.9%; /* near black */
+    --card: 0 0% 100%; /* white */
+    --card-foreground: 222.2 84% 4.9%; /* near black */
+    --popover: 0 0% 100%; /* white */
+    --popover-foreground: 222.2 84% 4.9%; /* near black */
+    
+    /* Professional Blue Primary */
+    --primary: 221.2 83.2% 53.3%; /* #3B82F6 */
+    --primary-foreground: 210 40% 98%; /* white */
+    
+    /* Subtle Gray Secondary */
+    --secondary: 210 40% 96.1%; /* #F1F5F9 */
+    --secondary-foreground: 222.2 47.4% 11.2%; /* dark */
+    
+    /* Muted Colors */
+    --muted: 210 40% 96.1%; /* #F1F5F9 */
+    --muted-foreground: 215.4 16.3% 46.9%; /* #64748B */
+    
+    /* Accent Colors */
+    --accent: 210 40% 96.1%; /* #F1F5F9 */
+    --accent-foreground: 222.2 47.4% 11.2%; /* dark */
+    
+    /* Status Colors */
+    --destructive: 0 84.2% 60.2%; /* red */
+    --destructive-foreground: 210 40% 98%; /* white */
+    
+    /* UI Elements */
+    --border: 214.3 31.8% 91.4%; /* #E2E8F0 */
+    --input: 214.3 31.8% 91.4%; /* #E2E8F0 */
+    --ring: 221.2 83.2% 53.3%; /* primary blue */
     --radius: 0.5rem;
-
-    /* Professional Gradients */
-    --gradient-primary: linear-gradient(135deg, rgb(59 130 246) 0%, rgb(37 99 235) 100%);
-    --gradient-secondary: linear-gradient(135deg, rgb(241 245 249) 0%, rgb(226 232 240) 100%);
-    --gradient-accent: linear-gradient(135deg, rgb(99 102 241) 0%, rgb(59 130 246) 100%);
-
-    /* Shadows */
+    
+    /* Professional Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   }
 
   .dark {
-    --background: 2 6 23;
-    --foreground: 248 250 252;
-    --card: 2 6 23;
-    --card-foreground: 248 250 252;
-    --popover: 2 6 23;
-    --popover-foreground: 248 250 252;
-    --primary: 59 130 246;
-    --primary-foreground: 15 23 42;
-    --secondary: 30 41 59;
-    --secondary-foreground: 226 232 240;
-    --muted: 30 41 59;
-    --muted-foreground: 148 163 184;
-    --accent: 30 41 59;
-    --accent-foreground: 226 232 240;
-    --destructive: 220 38 38;
-    --destructive-foreground: 248 250 252;
-    --border: 30 41 59;
-    --input: 30 41 59;
-    --ring: 59 130 246;
+    /* Professional Dark Mode */
+    --background: 222.2 84% 4.9%; /* #020617 */
+    --foreground: 210 40% 98%; /* #F8FAFC */
+    --card: 222.2 84% 4.9%; /* #020617 */
+    --card-foreground: 210 40% 98%; /* #F8FAFC */
+    --popover: 222.2 84% 4.9%; /* #020617 */
+    --popover-foreground: 210 40% 98%; /* #F8FAFC */
+    
+    --primary: 217.2 91.2% 59.8%; /* #5B8DEF */
+    --primary-foreground: 222.2 47.4% 11.2%; /* dark */
+    
+    --secondary: 217.2 32.6% 17.5%; /* #1E293B */
+    --secondary-foreground: 210 40% 98%; /* light */
+    
+    --muted: 217.2 32.6% 17.5%; /* #1E293B */
+    --muted-foreground: 215 20.2% 65.1%; /* #94A3B8 */
+    
+    --accent: 217.2 32.6% 17.5%; /* #1E293B */
+    --accent-foreground: 210 40% 98%; /* light */
+    
+    --destructive: 0 62.8% 30.6%; /* dark red */
+    --destructive-foreground: 210 40% 98%; /* light */
+    
+    --border: 217.2 32.6% 17.5%; /* #1E293B */
+    --input: 217.2 32.6% 17.5%; /* #1E293B */
+    --ring: 217.2 91.2% 59.8%; /* primary blue */
   }
 }
 
@@ -67,115 +81,170 @@
   * {
     @apply border-border;
   }
-
+  
+  html {
+    -webkit-text-size-adjust: 100%;
+    font-feature-settings: normal;
+  }
+  
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* CRITICAL FIX: Force all text to use proper colors - NO PINK TEXT */
-  body * {
-    color: inherit !important;
+  /* CRITICAL: Override ALL color inheritance to ensure proper contrast */
+  * {
+    color: inherit;
   }
   
-  /* Ensure specific elements use foreground color */
-  p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label {
-    @apply text-foreground !important;
+  /* Force proper text colors on all elements */
+  h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, label, li, td, th {
+    @apply text-foreground;
   }
   
-  /* Fix any potential pink/light colored text */
-  [style*="color: pink"],
-  [style*="color: #FFC0CB"],
-  [style*="color: #FFB6C1"],
-  [style*="color: #FF69B4"],
-  [style*="color: #FF1493"],
-  [style*="color: rgb(255"],
-  [style*="color: rgba(255"] {
-    color: rgb(15 23 42) !important;
-  }
-
-  /* Professional Typography Scale */
+  /* Typography Scale */
   h1 {
-    @apply text-4xl font-bold tracking-tight lg:text-5xl;
+    @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl;
   }
 
   h2 {
-    @apply text-3xl font-semibold tracking-tight;
+    @apply scroll-m-20 text-3xl font-semibold tracking-tight;
   }
 
   h3 {
-    @apply text-2xl font-semibold tracking-tight;
+    @apply scroll-m-20 text-2xl font-semibold tracking-tight;
   }
 
   h4 {
-    @apply text-xl font-semibold tracking-tight;
+    @apply scroll-m-20 text-xl font-semibold tracking-tight;
   }
 
   h5 {
-    @apply text-lg font-medium;
+    @apply scroll-m-20 text-lg font-semibold;
   }
 
   h6 {
-    @apply text-base font-medium;
+    @apply scroll-m-20 text-base font-semibold;
   }
 
   p {
-    @apply leading-7 text-muted-foreground;
+    @apply leading-7 [&:not(:first-child)]:mt-6;
   }
 
-  /* Professional Link Styles */
+  /* Links */
   a {
-    @apply text-primary hover:text-primary/80 transition-colors duration-200;
+    @apply text-primary hover:text-primary/80 transition-colors;
   }
 
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-muted;
+    @apply bg-muted/30;
+    border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full;
+    @apply bg-muted-foreground/20;
+    border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
+    @apply bg-muted-foreground/30;
   }
 }
 
 @layer components {
-  /* Professional Card Component */
-  .card-professional {
-    @apply bg-card text-card-foreground rounded-lg border shadow-md hover:shadow-lg transition-all duration-300;
+  /* Modern Card Component */
+  .card {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
   }
 
-  /* Modern Button Variants */
+  .card-header {
+    @apply flex flex-col space-y-1.5 p-6;
+  }
+
+  .card-title {
+    @apply text-2xl font-semibold leading-none tracking-tight;
+  }
+
+  .card-description {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .card-content {
+    @apply p-6 pt-0;
+  }
+
+  .card-footer {
+    @apply flex items-center p-6 pt-0;
+  }
+
+  /* Professional Sidebar - Fixed and Modern */
+  .sidebar-professional {
+    @apply fixed left-0 top-0 h-full w-64 bg-card border-r border-border flex flex-col z-50;
+  }
+
+  .sidebar-header {
+    @apply p-6 border-b border-border;
+  }
+
+  .sidebar-nav {
+    @apply flex-1 p-4 overflow-y-auto;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200;
+    @apply text-muted-foreground hover:text-foreground hover:bg-accent;
+  }
+
+  .sidebar-item.active {
+    @apply bg-primary text-primary-foreground shadow-sm;
+  }
+
+  /* Modern Button Styles */
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground;
+    @apply hover:bg-primary/90 px-4 py-2 text-sm font-medium;
+    @apply shadow-sm transition-all duration-200 hover:shadow-md;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply disabled:pointer-events-none disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 px-6 py-3 rounded-lg font-medium transition-all duration-200;
+    @apply inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground;
+    @apply hover:bg-secondary/80 px-4 py-2 text-sm font-medium;
+    @apply transition-all duration-200;
   }
 
   .btn-ghost {
-    @apply hover:bg-accent hover:text-accent-foreground px-6 py-3 rounded-lg font-medium transition-all duration-200;
+    @apply inline-flex items-center justify-center rounded-md;
+    @apply hover:bg-accent hover:text-accent-foreground px-4 py-2 text-sm font-medium;
+    @apply transition-all duration-200;
   }
 
   /* Professional Input Styles */
-  .input-professional {
-    @apply flex h-12 w-full rounded-lg border border-input bg-background px-4 py-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200;
+  .input {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2;
+    @apply text-sm ring-offset-background;
+    @apply file:border-0 file:bg-transparent file:text-sm file:font-medium;
+    @apply placeholder:text-muted-foreground;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
   }
 
-  /* Modern Chat Interface */
-  .chat-container {
-    @apply flex flex-col h-full bg-background;
+  /* Modern Chat Layout */
+  .chat-layout {
+    @apply flex h-screen bg-background;
+  }
+
+  .chat-main {
+    @apply flex-1 flex flex-col ml-64; /* Account for sidebar width */
   }
 
   .chat-header {
@@ -183,169 +252,231 @@
   }
 
   .chat-messages {
-    @apply flex-1 overflow-y-auto p-4 space-y-4;
+    @apply flex-1 overflow-y-auto p-6 space-y-4;
   }
 
   .chat-input-area {
     @apply p-4 border-t bg-card/30 backdrop-blur-sm;
   }
 
+  /* Message Bubbles */
   .message-user {
-    @apply ml-auto max-w-[80%] bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-3 shadow-sm;
+    @apply ml-auto max-w-[70%] bg-primary text-primary-foreground;
+    @apply rounded-2xl rounded-br-sm px-4 py-2.5 shadow-sm;
   }
 
   .message-assistant {
-    @apply mr-auto max-w-[80%] bg-card border rounded-2xl rounded-bl-md px-4 py-3 shadow-sm;
-  }
-
-  /* Professional Sidebar */
-  .sidebar-professional {
-    @apply w-64 bg-card border-r flex flex-col h-full;
-  }
-
-  .sidebar-header {
-    @apply p-6 border-b;
-  }
-
-  .sidebar-nav {
-    @apply flex-1 p-4 space-y-2;
-  }
-
-  .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-accent hover:text-accent-foreground;
-  }
-
-  .sidebar-item.active {
-    @apply bg-primary text-primary-foreground shadow-sm;
+    @apply mr-auto max-w-[70%] bg-card border;
+    @apply rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm;
   }
 
   /* Loading States */
   .loading-spinner {
-    @apply animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent;
+    @apply animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent;
   }
 
-  .loading-dots {
-    @apply flex space-x-1;
-  }
-
-  .loading-dot {
-    @apply w-2 h-2 bg-primary rounded-full animate-pulse;
-  }
-
-  /* Professional Form Elements */
+  /* Professional Form Groups */
   .form-group {
     @apply space-y-2;
   }
 
   .form-label {
-    @apply text-sm font-medium text-foreground;
+    @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
   }
 
-  .form-error {
-    @apply text-sm text-destructive;
-  }
-
-  .form-help {
+  .form-description {
     @apply text-sm text-muted-foreground;
   }
 
-  /* Modern Dashboard Layout */
-  .dashboard-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  .form-message {
+    @apply text-sm font-medium text-destructive;
   }
 
-  .dashboard-card {
-    @apply card-professional p-6;
+  /* Responsive Container */
+  .container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
-  .dashboard-stat {
-    @apply text-2xl font-bold text-foreground;
+  /* Professional Badge */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    @apply transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
   }
 
-  .dashboard-stat-label {
-    @apply text-sm text-muted-foreground;
+  .badge-primary {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .badge-secondary {
+    @apply bg-secondary text-secondary-foreground;
+  }
+
+  .badge-destructive {
+    @apply bg-destructive text-destructive-foreground;
+  }
+
+  /* Modern Alert */
+  .alert {
+    @apply relative w-full rounded-lg border p-4;
+  }
+
+  .alert-primary {
+    @apply border-primary/50 text-primary bg-primary/10;
+  }
+
+  .alert-destructive {
+    @apply border-destructive/50 text-destructive bg-destructive/10;
+  }
+}
+
+@layer utilities {
+  /* Text Utilities */
+  .text-balance {
+    text-wrap: balance;
   }
 
   /* Professional Animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-from-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-in-from-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-in-from-top {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in-from-bottom {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .animate-in {
+    animation-duration: 300ms;
+    animation-fill-mode: both;
+  }
+
   .fade-in {
-    @apply animate-in fade-in-0 duration-300;
+    animation-name: fade-in;
   }
 
   .slide-in-from-left {
-    @apply animate-in slide-in-from-left-4 duration-300;
+    animation-name: slide-in-from-left;
   }
 
   .slide-in-from-right {
-    @apply animate-in slide-in-from-right-4 duration-300;
+    animation-name: slide-in-from-right;
+  }
+
+  .slide-in-from-top {
+    animation-name: slide-in-from-top;
   }
 
   .slide-in-from-bottom {
-    @apply animate-in slide-in-from-bottom-4 duration-300;
+    animation-name: slide-in-from-bottom;
   }
 
-  /* Responsive Utilities */
-  .container-professional {
-    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  /* Focus Visible */
+  .focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  .section-padding {
-    @apply py-12 lg:py-16;
-  }
-
-  /* Professional Gradients */
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-
-  .gradient-secondary {
-    background: var(--gradient-secondary);
-  }
-
-  .gradient-accent {
-    background: var(--gradient-accent);
-  }
-
-  /* Glass Effect */
-  .glass-effect {
-    @apply bg-background/80 backdrop-blur-md border border-border/50;
-  }
-
-  /* Professional Hover Effects */
+  /* Hover Effects */
   .hover-lift {
-    @apply transition-transform duration-200 hover:-translate-y-1;
+    @apply transition-transform duration-200 hover:-translate-y-0.5;
   }
 
   .hover-glow {
     @apply transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/25;
   }
-}
 
-/* Professional Focus Styles */
-@layer utilities {
-  .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent;
   }
 
-  .focus-ring-inset {
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-inset;
+  /* Glass Effect */
+  .glass {
+    @apply bg-background/80 backdrop-blur-md;
   }
 }
 
-/* OVERRIDE ANY PINK/LIGHT TEXT GLOBALLY */
-.text-pink-50, .text-pink-100, .text-pink-200, .text-pink-300,
-.text-pink-400, .text-pink-500, .text-pink-600, .text-pink-700,
-.text-pink-800, .text-pink-900,
-[class*="text-pink"] {
-  @apply text-foreground !important;
+/* OVERRIDE ANY PROBLEMATIC COLORS GLOBALLY */
+[class*="text-pink"],
+[class*="bg-pink"],
+[style*="color: pink"],
+[style*="color: #FFC0CB"],
+[style*="color: #FFB6C1"],
+[style*="color: #FF69B4"],
+[style*="color: #FF1493"],
+[style*="color: rgb(255"],
+[style*="color: rgba(255"] {
+  color: rgb(var(--foreground)) !important;
 }
 
-/* Ensure theme colors override any problematic colors */
-.text-primary { @apply !text-primary; }
-.text-secondary { @apply !text-secondary-foreground; }
-.text-muted { @apply !text-muted-foreground; }
-.text-accent { @apply !text-accent-foreground; }
+/* Ensure proper layout structure */
+#__next {
+  @apply min-h-screen flex flex-col;
+}
 
-/* Global text color enforcement */
-* {
-  color: inherit;
+main {
+  @apply flex-1;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .sidebar-professional {
+    @apply transform -translate-x-full transition-transform duration-300;
+  }
+  
+  .sidebar-professional.open {
+    @apply translate-x-0;
+  }
+  
+  .chat-main {
+    @apply ml-0;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .sidebar-professional,
+  .chat-header,
+  .chat-input-area {
+    @apply hidden;
+  }
+  
+  .chat-main {
+    @apply ml-0;
+  }
 }
