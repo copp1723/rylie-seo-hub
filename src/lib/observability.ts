@@ -216,3 +216,14 @@ export const clearUserContext = () => {
   Sentry.setUser(null)
   trackEvent('user_session_end')
 }
+
+// Export observability object for backward compatibility
+export const observability = {
+  logger,
+  trackEvent,
+  performanceTracker,
+  withErrorBoundary,
+  initSentry,
+  setUserContext,
+  clearUserContext,
+}
