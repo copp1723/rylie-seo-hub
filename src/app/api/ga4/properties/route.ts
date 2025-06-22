@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { GA4Service } from '@/lib/ga4'
-import { prisma } from '@/lib/prisma'
+import { getValidGoogleAccessToken } from '@/lib/google-auth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,24 +11,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
-    // Get user's access token from account
-    const account = await prisma.account.findFirst({
-      where: {
-        userId: session.user.id,
-        provider: 'google',
-      },
-      select: {
-        access_token: true,
-        refresh_token: true,
-      },
-    })
-    
-    if (!account?.access_token) {
-      return NextResponse.json({ error: 'No Google account connected' }, { status: 400 })
-    }
+    // Get a valid access token (will refresh if needed)
+    const accessToken = await getValidGoogleAccessToken(session.user.id)
     
     // List GA4 properties
-    const ga4 = new GA4Service(account.access_token)
+    const ga4 = new GA4Service(accessToken)
     const properties = await ga4.listProperties()
     
     return NextResponse.json({
@@ -39,10 +26,20 @@ export async function GET(request: NextRequest) {
         fullName: prop.name,
       })),
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('GA4 properties error:', error)
+    
+    // Return more specific error messages
+    if (error.message?.includes('No Google account connected')) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    } else if (error.message?.includes('Authentication failed') || error.message?.includes('Token expired')) {
+      return NextResponse.json({ error: error.message }, { status: 401 })
+    } else if (error.message?.includes('Access denied') || error.message?.includes('Insufficient permissions')) {
+      return NextResponse.json({ error: error.message }, { status: 403 })
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to fetch GA4 properties' },
+      { error: error.message || 'Failed to fetch GA4 properties' },
       { status: 500 }
     )
   }

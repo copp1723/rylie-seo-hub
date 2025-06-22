@@ -10,7 +10,10 @@ export class GA4Service {
   constructor(accessToken?: string) {
     if (accessToken) {
       // OAuth access token
-      this.auth = new google.auth.OAuth2()
+      this.auth = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET
+      )
       this.auth.setCredentials({ access_token: accessToken })
     } else if (process.env.GA4_SERVICE_ACCOUNT_KEY) {
       // Service account
@@ -39,9 +42,25 @@ export class GA4Service {
       })
 
       return response.data.properties || []
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error listing GA4 properties:', error)
-      throw new Error('Failed to list GA4 properties')
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        errors: error.errors,
+      })
+      
+      // Provide more specific error messages
+      if (error.code === 401) {
+        throw new Error('Authentication failed. Please reconnect your Google account.')
+      } else if (error.code === 403) {
+        throw new Error('Access denied. Please ensure you have granted analytics permissions.')
+      } else if (error.message?.includes('Request had insufficient authentication scopes')) {
+        throw new Error('Insufficient permissions. Please reconnect with analytics permissions.')
+      }
+      
+      throw new Error(`Failed to list GA4 properties: ${error.message || 'Unknown error'}`)
     }
   }
 
