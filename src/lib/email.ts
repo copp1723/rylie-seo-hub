@@ -1,4 +1,4 @@
-import * as nodemailer from 'nodemailer'
+const nodemailer = require('nodemailer')
 
 interface EmailOptions {
   to: string
@@ -8,7 +8,7 @@ interface EmailOptions {
 }
 
 class EmailService {
-  private transporter: nodemailer.Transporter
+  private transporter: any
 
   constructor() {
     // Mailgun SMTP configuration
