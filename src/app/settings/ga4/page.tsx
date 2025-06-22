@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Alert } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 
 export default function GA4SettingsPage() {
   const { data: session } = useSession()
@@ -13,6 +14,32 @@ export default function GA4SettingsPage() {
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [currentConnection, setCurrentConnection] = useState<any>(null)
+  const [checkingConnection, setCheckingConnection] = useState(true)
+  
+  // Check current GA4 connection status
+  useEffect(() => {
+    checkCurrentConnection()
+  }, [])
+  
+  const checkCurrentConnection = async () => {
+    try {
+      const response = await fetch('/api/user/settings')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.ga4PropertyId) {
+          setCurrentConnection({
+            propertyId: data.ga4PropertyId,
+            propertyName: data.ga4PropertyName || data.ga4PropertyId
+          })
+        }
+      }
+    } catch (err) {
+      console.error('Failed to check GA4 connection:', err)
+    } finally {
+      setCheckingConnection(false)
+    }
+  }
   
   const fetchProperties = async () => {
     setLoading(true)
@@ -59,9 +86,40 @@ export default function GA4SettingsPage() {
       }
       
       setSuccess(true)
+      setCurrentConnection({
+        propertyId: property.id,
+        propertyName: property.name
+      })
       setTimeout(() => setSuccess(false), 5000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to connect GA4 property')
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  const disconnectProperty = async () => {
+    if (!confirm('Are you sure you want to disconnect your GA4 property?')) return
+    
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const response = await fetch('/api/ga4/disconnect', {
+        method: 'POST',
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to disconnect property')
+      }
+      
+      setCurrentConnection(null)
+      setSelectedProperty(null)
+      setProperties([])
+      setSuccess(true)
+      setTimeout(() => setSuccess(false), 5000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to disconnect GA4 property')
     } finally {
       setLoading(false)
     }
@@ -82,13 +140,58 @@ export default function GA4SettingsPage() {
         )}
         
         {success && (
-          <Alert>
-            <p>GA4 property connected successfully!</p>
+          <Alert className="bg-green-50 border-green-200">
+            <p className="text-green-800">
+              {currentConnection ? 'GA4 property connected successfully!' : 'GA4 property disconnected successfully!'}
+            </p>
           </Alert>
         )}
         
+        {/* Current Connection Status */}
+        {!checkingConnection && (
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Connection Status</h2>
+                {currentConnection ? (
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-green-100 text-green-800">Connected</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {currentConnection.propertyName}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Property ID: {currentConnection.propertyId}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-2">
+                    <Badge variant="secondary">Not Connected</Badge>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Connect a GA4 property to enable analytics insights
+                    </p>
+                  </div>
+                )}
+              </div>
+              {currentConnection && (
+                <Button 
+                  variant="outline" 
+                  onClick={disconnectProperty}
+                  disabled={loading}
+                  className="text-destructive hover:text-destructive"
+                >
+                  Disconnect
+                </Button>
+              )}
+            </div>
+          </Card>
+        )}
+        
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Connect GA4 Property</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            {currentConnection ? 'Change GA4 Property' : 'Connect GA4 Property'}
+          </h2>
           
           <div className="space-y-4">
             <div>
@@ -122,7 +225,7 @@ export default function GA4SettingsPage() {
                   disabled={!selectedProperty || loading}
                   className="w-full"
                 >
-                  Connect Selected Property
+                  {currentConnection ? 'Update Property Connection' : 'Connect Selected Property'}
                 </Button>
               </div>
             )}
