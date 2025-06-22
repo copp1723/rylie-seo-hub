@@ -64,9 +64,8 @@ export default function ThemeCustomizer() {
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
-          applyTheme(data.theme)
-          // Show success feedback
-          console.log('Theme saved successfully!')
+          applyTheme(theme)
+          // Show success message
         }
       }
     } catch (error) {
@@ -77,37 +76,29 @@ export default function ThemeCustomizer() {
   }
 
   const applyTheme = (themeData: Theme) => {
-    // Apply CSS custom properties for real-time theming
     const root = document.documentElement
     root.style.setProperty('--primary', themeData.primaryColor)
-    root.style.setProperty('--primary-foreground', '#ffffff')
     root.style.setProperty('--secondary', themeData.secondaryColor)
-    root.style.setProperty('--secondary-foreground', '#ffffff')
   }
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const resetToDefault = () => {
+    const defaultTheme = {
+      companyName: 'Rylie SEO Hub',
+      primaryColor: '#3b82f6',
+      secondaryColor: '#1e40af',
+    }
+    setTheme(defaultTheme)
+    applyTheme(defaultTheme)
+  }
+
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-    if (!allowedTypes.includes(file.type)) {
-      alert('Invalid file type. Only JPEG, PNG, and WebP images are allowed.')
-      return
-    }
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024 // 5MB
-    if (file.size > maxSize) {
-      alert('File too large. Maximum size is 5MB.')
-      return
-    }
-
     try {
       setIsUploading(true)
-      
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('logo', file)
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -117,47 +108,21 @@ export default function ThemeCustomizer() {
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
-          setTheme({ ...theme, logo: data.data.url })
-          console.log('Logo uploaded successfully!')
-        } else {
-          alert(data.error || 'Failed to upload logo')
+          setTheme(prev => ({ ...prev, logo: data.url }))
         }
-      } else {
-        const errorData = await response.json()
-        alert(errorData.error || 'Failed to upload logo')
       }
     } catch (error) {
-      console.error('Upload error:', error)
-      alert('Failed to upload logo')
+      console.error('Failed to upload logo:', error)
     } finally {
       setIsUploading(false)
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
     }
   }
 
   const removeLogo = () => {
-    setTheme({ ...theme, logo: undefined })
+    setTheme(prev => ({ ...prev, logo: undefined }))
   }
 
-  const triggerFileUpload = () => {
-    fileInputRef.current?.click()
-  }
-
-  const resetToDefault = () => {
-    const defaultTheme = {
-      companyName: 'Rylie SEO Hub',
-      primaryColor: '#3b82f6',
-      secondaryColor: '#1e40af',
-      logo: undefined,
-    }
-    setTheme(defaultTheme)
-    applyTheme(defaultTheme)
-  }
-
-  const presetThemes = [
+  const colorPresets = [
     { name: 'Default Blue', primary: '#3b82f6', secondary: '#1e40af' },
     { name: 'Purple Pro', primary: '#8b5cf6', secondary: '#7c3aed' },
     { name: 'Green Growth', primary: '#10b981', secondary: '#059669' },
@@ -201,7 +166,6 @@ export default function ThemeCustomizer() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Company Branding */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -209,125 +173,88 @@ export default function ThemeCustomizer() {
               Company Branding
             </CardTitle>
             <CardDescription>
-              Customize your agency name and logo
-        {/* Logo Upload */}
-        {logoUploadEnabled && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Image className="h-5 w-5" />
-                Company Logo
-              </CardTitle>
-              <CardDescription>
-                Upload your company logo to replace the default branding
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {theme.logo ? (
-                  // Show current logo with option to change
-                  <div className="flex items-center gap-4 p-4 border rounded-lg">
-                    <img 
-                      src={theme.logo} 
-                      alt="Company Logo" 
-                      className="h-12 w-auto max-w-[200px] object-contain"
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Current Logo</p>
-                      <p className="text-xs text-muted-foreground">Click to change or remove</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => setTheme(prev => ({ ...prev, logo: undefined }))}
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Remove
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={triggerFileUpload}
-                        disabled={isUploading}
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Change Logo
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  // Show upload area
-                  <div 
-                    className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center cursor-pointer hover:border-muted-foreground/50 transition-colors"
-                    onClick={triggerFileUpload}
-                  >
-                    {isUploading ? (
-                      <div className="space-y-2">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                        <p className="text-sm text-muted-foreground">Uploading...</p>
-                      </div>
-                    ) : (
-                      <>
-                        <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Click to upload logo or drag and drop
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          PNG, JPG, WebP up to 5MB
-                        </p>
-                        <Button variant="outline" size="sm" className="mt-2" disabled={isUploading}>
-                          Choose File
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                )}
-                
-                {/* Hidden file input */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/jpg,image/png,image/webp"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Color Customization */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Color Scheme</CardTitle>
-            <CardDescription>
-              Choose your brand colors
+              Set your agency's name and visual identity
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                Primary Color
-              </label>
+              <label className="text-sm font-medium mb-2 block">Company Name</label>
+              <Input
+                value={theme.companyName}
+                onChange={(e) => setTheme(prev => ({ ...prev, companyName: e.target.value }))}
+                placeholder="Your Agency Name"
+              />
+            </div>
+
+            {logoUploadEnabled && (
+              <div>
+                <label className="text-sm font-medium mb-2 block">Company Logo</label>
+                {theme.logo ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={theme.logo}
+                      alt="Company Logo"
+                      className="h-20 w-auto border rounded-lg"
+                    />
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                      onClick={removeLogo}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                    <Image className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mb-2">Upload your logo</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {isUploading ? 'Uploading...' : 'Choose File'}
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="h-5 w-5" />
+              Color Scheme
+            </CardTitle>
+            <CardDescription>
+              Choose colors that match your brand
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Primary Color</label>
               <div className="flex gap-2">
                 <Input
                   type="color"
                   value={theme.primaryColor}
-                  onChange={(e) => {
-                    const newTheme = { ...theme, primaryColor: e.target.value }
-                    setTheme(newTheme)
-                    applyTheme(newTheme)
-                  }}
+                  onChange={(e) => setTheme(prev => ({ ...prev, primaryColor: e.target.value }))}
                   className="w-16 h-10 p-1 border rounded"
                 />
                 <Input
                   value={theme.primaryColor}
-                  onChange={(e) => {
-                    const newTheme = { ...theme, primaryColor: e.target.value }
-                    setTheme(newTheme)
-                    applyTheme(newTheme)
-                  }}
+                  onChange={(e) => setTheme(prev => ({ ...prev, primaryColor: e.target.value }))}
                   placeholder="#3b82f6"
                   className="flex-1"
                 />
@@ -335,27 +262,17 @@ export default function ThemeCustomizer() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                Secondary Color
-              </label>
+              <label className="text-sm font-medium mb-2 block">Secondary Color</label>
               <div className="flex gap-2">
                 <Input
                   type="color"
                   value={theme.secondaryColor}
-                  onChange={(e) => {
-                    const newTheme = { ...theme, secondaryColor: e.target.value }
-                    setTheme(newTheme)
-                    applyTheme(newTheme)
-                  }}
+                  onChange={(e) => setTheme(prev => ({ ...prev, secondaryColor: e.target.value }))}
                   className="w-16 h-10 p-1 border rounded"
                 />
                 <Input
                   value={theme.secondaryColor}
-                  onChange={(e) => {
-                    const newTheme = { ...theme, secondaryColor: e.target.value }
-                    setTheme(newTheme)
-                    applyTheme(newTheme)
-                  }}
+                  onChange={(e) => setTheme(prev => ({ ...prev, secondaryColor: e.target.value }))}
                   placeholder="#1e40af"
                   className="flex-1"
                 />
@@ -363,31 +280,27 @@ export default function ThemeCustomizer() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                Quick Presets
-              </label>
+              <label className="text-sm font-medium mb-2 block">Color Presets</label>
               <div className="grid grid-cols-2 gap-2">
-                {presetThemes.map((preset) => (
+                {colorPresets.map((preset) => (
                   <Button
                     key={preset.name}
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      const newTheme = {
-                        ...theme,
-                        primaryColor: preset.primary,
-                        secondaryColor: preset.secondary,
-                      }
-                      setTheme(newTheme)
-                      applyTheme(newTheme)
-                    }}
+                    onClick={() => setTheme(prev => ({
+                      ...prev,
+                      primaryColor: preset.primary,
+                      secondaryColor: preset.secondary
+                    }))}
                     className="justify-start"
                   >
-                    <div
-                      className="w-4 h-4 rounded mr-2"
-                      style={{ backgroundColor: preset.primary }}
-                    />
-                    {preset.name}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-4 h-4 rounded-full border"
+                        style={{ backgroundColor: preset.primary }}
+                      />
+                      <span className="text-xs">{preset.name}</span>
+                    </div>
                   </Button>
                 ))}
               </div>
@@ -396,35 +309,38 @@ export default function ThemeCustomizer() {
         </Card>
       </div>
 
-      {/* Live Preview */}
       <Card>
         <CardHeader>
-          <CardTitle>Live Preview</CardTitle>
+          <CardTitle>Preview</CardTitle>
           <CardDescription>
-            See how your theme looks in real-time
+            See how your branding will look
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="border rounded-lg p-4 bg-background">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold" style={{ color: theme.primaryColor }}>
+          <div 
+            className="border rounded-lg p-6 bg-gradient-to-br from-background to-muted"
+            style={{
+              borderColor: theme.primaryColor + '20',
+              background: `linear-gradient(135deg, ${theme.primaryColor}10, ${theme.secondaryColor}10)`
+            }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              {theme.logo && (
+                <img src={theme.logo} alt="Logo" className="h-8 w-auto" />
+              )}
+              <h2 className="text-2xl font-bold" style={{ color: theme.primaryColor }}>
                 {theme.companyName}
               </h2>
+            </div>
+            <p className="text-muted-foreground mb-4">
+              AI-Powered SEO Assistant for Modern Agencies
+            </p>
+            <div className="flex gap-2">
               <Button style={{ backgroundColor: theme.primaryColor }}>
-                Primary Button
+                Get Started
               </Button>
-            </div>
-            <div className="space-y-2">
-              <div className="h-2 bg-muted rounded" />
-              <div className="h-2 bg-muted rounded w-3/4" />
-              <div className="h-2 bg-muted rounded w-1/2" />
-            </div>
-            <div className="mt-4 flex gap-2">
               <Button variant="outline" style={{ borderColor: theme.secondaryColor, color: theme.secondaryColor }}>
-                Secondary
-              </Button>
-              <Button variant="ghost">
-                Ghost Button
+                Learn More
               </Button>
             </div>
           </div>
