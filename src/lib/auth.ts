@@ -6,6 +6,7 @@ import { prisma } from './prisma'
 // Production-ready auth configuration
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  trustHost: true, // Trust the host in production
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
