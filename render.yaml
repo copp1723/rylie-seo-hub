@@ -3,7 +3,7 @@ services:
   - type: web
     name: rylie-seo-hub
     runtime: node
-    plan: starter
+    plan: professional
     region: oregon
     buildCommand: npm ci && npm run build && npx prisma generate && npx prisma db push
     startCommand: npm start
