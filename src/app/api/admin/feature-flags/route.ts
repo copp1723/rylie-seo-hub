@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { featureFlags } from '@/lib/feature-flags'
+import { auth } from '@/lib/auth'
+import { FeatureFlag, getFeatureFlag, updateFeatureFlag, getAllFeatureFlags } from '@/lib/feature-flags'
 import { z } from 'zod'
 import { observability } from '@/lib/observability'
 
@@ -15,7 +14,7 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now()
 
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
 
     if (!session?.user) {
       observability.logEvent('feature_flags_unauthorized_access', {
@@ -39,7 +38,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ flags })
   } catch (error) {
     observability.logError('feature_flags_get_error', error as Error, {
-      userId: (await getServerSession(authOptions))?.user?.id,
+      userId: (await auth())?.user?.id,
       duration: Date.now() - startTime,
     })
 
@@ -51,7 +50,7 @@ export async function PUT(request: NextRequest) {
   const startTime = Date.now()
 
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -95,7 +94,7 @@ export async function PUT(request: NextRequest) {
     }
 
     observability.logError('feature_flags_update_error', error as Error, {
-      userId: (await getServerSession(authOptions))?.user?.id,
+      userId: (await auth())?.user?.id,
       duration: Date.now() - startTime,
     })
 

@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { observability } from '@/lib/observability'
 
@@ -31,7 +30,7 @@ export async function getTenantContext(request?: NextRequest): Promise<TenantCon
 
   try {
     // Get user session
-    const session = await getServerSession(authOptions)
+    const session = await auth()
 
     if (!session?.user?.id) {
       observability.logEvent('tenant_context_no_session', {

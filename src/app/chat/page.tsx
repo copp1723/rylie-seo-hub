@@ -151,7 +151,7 @@ export default function ChatPage() {
 
         {/* Chat Interface */}
         <div className="flex-1 overflow-hidden">
-          <ChatInterface />
+          <ChatInterface user={session.user} />
         </div>
       </div>
     </div>

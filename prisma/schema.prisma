@@ -51,8 +51,8 @@ model User {
   image         String?
   
   // Multi-tenant relationship
-  agencyId      String
-  agency        Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  agencyId      String?
+  agency        Agency?   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   
   // User role within agency
   role          String    @default("user") // admin, user, viewer

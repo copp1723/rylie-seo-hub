@@ -192,3 +192,28 @@ export function slugify(text: string): string {
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
 }
+
+/**
+ * Format time for display in chat messages
+ */
+export function formatTime(date: string | Date): string {
+  const d = new Date(date)
+  const now = new Date()
+  const diffInMs = now.getTime() - d.getTime()
+  const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
+  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+
+  if (diffInMinutes < 1) {
+    return 'Just now'
+  } else if (diffInMinutes < 60) {
+    return `${diffInMinutes}m ago`
+  } else if (diffInHours < 24) {
+    return `${diffInHours}h ago`
+  } else if (diffInDays < 7) {
+    return `${diffInDays}d ago`
+  } else {
+    return d.toLocaleDateString()
+  }
+}
+

@@ -16,7 +16,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
-import Sidebar from './Sidebar'
+import { Sidebar } from './Sidebar'
 import MessageBubble from './MessageBubble'
 import ModelSelector from './ModelSelector'
 import TypingIndicator from './TypingIndicator'
@@ -46,7 +46,7 @@ interface Conversation {
   messages: Message[]
 }
 
-export default function ChatInterface({ user }: ChatInterfaceProps) {
+export function ChatInterface({ user }: ChatInterfaceProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
