@@ -68,76 +68,78 @@ export default function GA4SettingsPage() {
   }
   
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">GA4 Integration</h1>
-        <p className="text-muted-foreground">Connect your Google Analytics 4 property to enable SEO insights</p>
-      </div>
-      
-      {error && (
-        <Alert variant="destructive">
-          <p>{error}</p>
-        </Alert>
-      )}
-      
-      {success && (
-        <Alert>
-          <p>GA4 property connected successfully!</p>
-        </Alert>
-      )}
-      
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Connect GA4 Property</h2>
+    <div className="settings-page">
+      <div className="container max-w-4xl py-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">GA4 Integration</h1>
+          <p className="text-muted-foreground">Connect your Google Analytics 4 property to enable SEO insights</p>
+        </div>
         
-        <div className="space-y-4">
-          <div>
-            <Button onClick={fetchProperties} disabled={loading}>
-              {loading ? 'Loading...' : 'Load GA4 Properties'}
-            </Button>
-          </div>
+        {error && (
+          <Alert variant="destructive">
+            <p>{error}</p>
+          </Alert>
+        )}
+        
+        {success && (
+          <Alert>
+            <p>GA4 property connected successfully!</p>
+          </Alert>
+        )}
+        
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Connect GA4 Property</h2>
           
-          {properties.length > 0 && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Select a property:
-                </label>
-                <select
-                  className="w-full p-2 border rounded-md"
-                  value={selectedProperty || ''}
-                  onChange={(e) => setSelectedProperty(e.target.value)}
-                >
-                  <option value="">Choose a property...</option>
-                  {properties.map((property) => (
-                    <option key={property.id} value={property.id}>
-                      {property.name} (ID: {property.id})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <Button 
-                onClick={connectProperty} 
-                disabled={!selectedProperty || loading}
-                className="w-full"
-              >
-                Connect Selected Property
+          <div className="space-y-4">
+            <div>
+              <Button onClick={fetchProperties} disabled={loading}>
+                {loading ? 'Loading...' : 'Load GA4 Properties'}
               </Button>
             </div>
-          )}
-        </div>
-      </Card>
-      
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">How it works</h2>
-        <ol className="list-decimal list-inside space-y-2 text-sm">
-          <li>Click "Load GA4 Properties" to see your available properties</li>
-          <li>Select the property for your dealership website</li>
-          <li>Click "Connect Selected Property" to save the connection</li>
-          <li>The AI assistant will now have access to your real GA4 data</li>
-          <li>Ask questions about your SEO performance in the chat!</li>
-        </ol>
-      </Card>
+            
+            {properties.length > 0 && (
+              <div className="space-y-4">
+                <div className="form-group">
+                  <label className="form-label">
+                    Select a property:
+                  </label>
+                  <select
+                    className="input w-full"
+                    value={selectedProperty || ''}
+                    onChange={(e) => setSelectedProperty(e.target.value)}
+                  >
+                    <option value="">Choose a property...</option>
+                    {properties.map((property) => (
+                      <option key={property.id} value={property.id}>
+                        {property.name} (ID: {property.id})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <Button 
+                  onClick={connectProperty} 
+                  disabled={!selectedProperty || loading}
+                  className="w-full"
+                >
+                  Connect Selected Property
+                </Button>
+              </div>
+            )}
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">How it works</h2>
+          <ol className="list-decimal list-inside space-y-2 text-sm">
+            <li>Click "Load GA4 Properties" to see your available properties</li>
+            <li>Select the property for your dealership website</li>
+            <li>Click "Connect Selected Property" to save the connection</li>
+            <li>The AI assistant will now have access to your real GA4 data</li>
+            <li>Ask questions about your SEO performance in the chat!</li>
+          </ol>
+        </Card>
+      </div>
     </div>
   )
 }
