@@ -37,9 +37,26 @@ export class GA4Service {
    */
   async listProperties() {
     try {
-      const response = await this.analyticsadmin.properties.list({
-        filter: 'ancestor:accounts/-', // List all properties
-      })
+      // First list all accounts the user has access to
+      const accountsResponse = await this.analyticsadmin.accounts.list({})
+      const accounts = accountsResponse.data.accounts || []
+      
+      if (accounts.length === 0) {
+        console.log('No GA4 accounts found for user')
+        return []
+      }
+      
+      // List properties for each account
+      const allProperties = []
+      for (const account of accounts) {
+        const propertiesResponse = await this.analyticsadmin.properties.list({
+          filter: `parent:${account.name}`,
+        })
+        const properties = propertiesResponse.data.properties || []
+        allProperties.push(...properties)
+      }
+      
+      return allProperties
 
       return response.data.properties || []
     } catch (error: any) {
