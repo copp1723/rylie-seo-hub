@@ -42,5 +42,9 @@ export default async function SuperAdminPage() {
     prisma.conversation.count(),
   ])
   
-  return <SuperAdminDashboard agencies={agencies} users={users} totalConversations={totalConversations} />
+  return (
+    <div className="admin-page">
+      <SuperAdminDashboard agencies={agencies} users={users} totalConversations={totalConversations} />
+    </div>
+  )
 }
