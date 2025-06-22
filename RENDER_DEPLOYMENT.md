@@ -154,15 +154,20 @@ Before going live:
 
 ## 💰 **Cost Estimation**
 
-**Starter Plan (Recommended for MVP):**
-- Web Service: $7/month
-- PostgreSQL: $7/month
-- **Total: ~$14/month**
+**Basic Plan (Recommended for MVP):**
+- Web Service (Standard): $25/month
+- PostgreSQL (Basic): $15/month
+- **Total: ~$40/month**
 
-**Standard Plan (Production Ready):**
-- Web Service: $25/month
-- PostgreSQL: $20/month
-- **Total: ~$45/month**
+**Production Plan:**
+- Web Service (Standard): $25/month
+- PostgreSQL (Standard): $50/month
+- **Total: ~$75/month**
+
+**Enterprise Plan:**
+- Web Service (Pro): $85/month
+- PostgreSQL (Premium): $200/month
+- **Total: ~$285/month**
 
 ---
 

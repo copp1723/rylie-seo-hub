@@ -3,7 +3,7 @@ services:
   - type: web
     name: rylie-seo-hub
     runtime: node
-    plan: starter
+    plan: standard
     region: oregon
     buildCommand: npm ci && npm run build && npx prisma generate && npx prisma db push
     startCommand: npm start
@@ -49,12 +49,12 @@ services:
     autoDeploy: true
     rootDir: .
     
-  # PostgreSQL Database
+# PostgreSQL Database with current valid plans
 databases:
   - name: rylie-seo-hub-db
     databaseName: rylie_seo_hub
     user: rylie_user
-    plan: starter
+    plan: basic  # Current valid plan: basic, standard, or premium
     region: oregon
     postgresMajorVersion: 15
 
