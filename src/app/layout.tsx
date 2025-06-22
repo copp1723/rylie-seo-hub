@@ -6,7 +6,11 @@ import { auth } from '@/lib/auth'
 import { ObservabilityProvider } from '@/components/ObservabilityProvider'
 import { FeatureFlagProvider } from '@/components/FeatureFlagProvider'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'Rylie SEO Hub - AI-Powered SEO Assistant',
@@ -17,11 +21,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await auth()
 
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className={`${inter.variable} font-sans`}>
+      <body className="min-h-screen bg-background font-sans antialiased">
         <SessionProvider session={session}>
           <ObservabilityProvider>
-            <FeatureFlagProvider>{children}</FeatureFlagProvider>
+            <FeatureFlagProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <main className="flex-1">{children}</main>
+              </div>
+            </FeatureFlagProvider>
           </ObservabilityProvider>
         </SessionProvider>
       </body>
