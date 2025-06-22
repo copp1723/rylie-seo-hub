@@ -13,14 +13,14 @@ export interface ErrorResponse {
   success: false
   error: string
   code?: string
-  details?: any
+  details?: Record<string, unknown>
   timestamp: string
 }
 
 /**
  * Standard success response structure
  */
-export interface SuccessResponse<T = any> {
+export interface SuccessResponse<T = Record<string, unknown>> {
   success: true
   data: T
   timestamp: string
@@ -29,7 +29,7 @@ export interface SuccessResponse<T = any> {
 /**
  * API Response type
  */
-export type ApiResponse<T = any> = SuccessResponse<T> | ErrorResponse
+export type ApiResponse<T = Record<string, unknown>> = SuccessResponse<T> | ErrorResponse
 
 /**
  * Custom error classes for different types of errors
@@ -55,7 +55,7 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, _details?: Record<string, unknown>) {
     super(message, 'VALIDATION_ERROR', 400)
     this.name = 'ValidationError'
   }
@@ -102,7 +102,7 @@ export class ExternalServiceError extends AppError {
 export function createErrorResponse(
   error: string | Error | AppError,
   code?: string,
-  details?: any
+  details?: Record<string, unknown>
 ): ErrorResponse {
   let message: string
   let errorCode: string
@@ -167,7 +167,7 @@ export function handleApiError(error: unknown, context?: string): NextResponse {
 /**
  * Async error wrapper for API routes
  */
-export function withErrorHandling<T extends any[], R>(
+export function withErrorHandling<T extends unknown[], R>(
   handler: (...args: T) => Promise<R>,
   context?: string
 ) {
@@ -183,7 +183,7 @@ export function withErrorHandling<T extends any[], R>(
 /**
  * Validate required fields in request body
  */
-export function validateRequiredFields(data: Record<string, any>, requiredFields: string[]): void {
+export function validateRequiredFields(data: Record<string, unknown>, requiredFields: string[]): void {
   const missingFields = requiredFields.filter(
     field => data[field] === undefined || data[field] === null || data[field] === ''
   )

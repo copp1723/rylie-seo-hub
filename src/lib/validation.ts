@@ -72,7 +72,7 @@ export interface ValidationError {
 }
 
 // Success response type
-export interface SuccessResponse<T = any> {
+export interface SuccessResponse<T = Record<string, unknown>> {
   success: true
   data: T
 }

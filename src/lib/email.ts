@@ -90,7 +90,7 @@ class EmailService {
     return this.sendEmail({ to: userEmail, subject, html })
   }
 
-  async sendSEOReport(userEmail: string, reportData: any, companyName?: string) {
+  async sendSEOReport(userEmail: string, reportData: Record<string, unknown>, companyName?: string) {
     const subject = `Your SEO Report from ${companyName || 'Rylie SEO Hub'}`
     const html = `
       <!DOCTYPE html>

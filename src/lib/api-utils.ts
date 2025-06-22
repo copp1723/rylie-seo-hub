@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createSuccessResponse, createErrorResponse, type ApiResponse } from '@/lib/errors'
+import { createSuccessResponse, createErrorResponse } from '@/lib/errors'
 
 /**
  * Create a successful API response
@@ -21,7 +21,7 @@ export function apiError(
   message: string,
   status: number = 500,
   code?: string,
-  details?: any
+  details?: Record<string, unknown>
 ): NextResponse {
   const response = createErrorResponse(message, code, details)
   return NextResponse.json(response, { status })
@@ -30,7 +30,7 @@ export function apiError(
 /**
  * Create a validation error response
  */
-export function apiValidationError(message: string, details?: any): NextResponse {
+export function apiValidationError(message: string, details?: Record<string, unknown>): NextResponse {
   return apiError(message, 400, 'VALIDATION_ERROR', details)
 }
 
@@ -72,11 +72,11 @@ export function apiServerError(message: string = 'Internal server error'): NextR
 /**
  * Parse and validate JSON request body
  */
-export async function parseRequestBody<T = any>(request: Request): Promise<T> {
+export async function parseRequestBody<T = Record<string, unknown>>(request: Request): Promise<T> {
   try {
     const body = await request.json()
     return body as T
-  } catch (error) {
+  } catch {
     throw new Error('Invalid JSON in request body')
   }
 }

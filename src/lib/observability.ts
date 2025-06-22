@@ -5,8 +5,8 @@ import React from 'react'
 declare global {
   interface Window {
     posthog?: {
-      capture: (event: string, properties?: Record<string, any>) => void
-      identify: (userId: string, properties?: Record<string, any>) => void
+      capture: (event: string, properties?: Record<string, unknown>) => void
+      identify: (userId: string, properties?: Record<string, unknown>) => void
       debug: () => void
     }
   }
@@ -14,7 +14,7 @@ declare global {
 
 // Structured logging system
 export const logger = {
-  info: (message: string, meta?: Record<string, any>) => {
+  info: (message: string, meta?: Record<string, unknown>) => {
     const logEntry = {
       level: 'info',
       message,
@@ -25,7 +25,7 @@ export const logger = {
     console.log(JSON.stringify(logEntry))
   },
 
-  error: (message: string, error?: Error | unknown, meta?: Record<string, any>) => {
+  error: (message: string, error?: Error | unknown, meta?: Record<string, unknown>) => {
     const errorMessage = error instanceof Error ? error.message : String(error)
     const errorStack = error instanceof Error ? error.stack : undefined
 
@@ -44,14 +44,14 @@ export const logger = {
     if (error instanceof Error) {
       Sentry.captureException(error, {
         tags: { service: 'rylie-seo-hub' },
-        extra: meta as Record<string, any>,
+        extra: meta as Record<string, unknown>,
       })
     } else {
       Sentry.captureMessage(message, 'error')
     }
   },
 
-  warn: (message: string, meta?: Record<string, any>) => {
+  warn: (message: string, meta?: Record<string, unknown>) => {
     const logEntry = {
       level: 'warn',
       message,
@@ -62,7 +62,7 @@ export const logger = {
     console.warn(JSON.stringify(logEntry))
   },
 
-  business: (event: string, properties: Record<string, any>) => {
+  business: (event: string, properties: Record<string, unknown>) => {
     const logEntry = {
       level: 'business',
       event,
@@ -80,7 +80,7 @@ export const logger = {
 }
 
 // Business event tracking
-export const trackEvent = (event: string, properties: Record<string, any> = {}) => {
+export const trackEvent = (event: string, properties: Record<string, unknown> = {}) => {
   try {
     // Log for server-side tracking
     logger.business(event, properties)
@@ -102,7 +102,7 @@ export const performanceTracker = {
   startTimer: (operation: string) => {
     const startTime = Date.now()
     return {
-      end: (metadata?: Record<string, any>) => {
+      end: (metadata?: Record<string, unknown>) => {
         const duration = Date.now() - startTime
         logger.info(`Performance: ${operation}`, {
           operation,
@@ -124,7 +124,7 @@ export const performanceTracker = {
     }
   },
 
-  trackApiCall: async (endpoint: string, method: string, fn: () => Promise<any>) => {
+  trackApiCall: async (endpoint: string, method: string, fn: () => Promise<unknown>) => {
     const timer = performanceTracker.startTimer(`API ${method} ${endpoint}`)
     try {
       const result = await fn()
@@ -139,9 +139,9 @@ export const performanceTracker = {
 }
 
 // Error boundary for React components
-export const withErrorBoundary = (Component: React.ComponentType<any>) => {
+export const withErrorBoundary = (Component: React.ComponentType<unknown>) => {
   return Sentry.withErrorBoundary(Component, {
-    fallback: ({ error, resetError }: any) => {
+    fallback: ({ error, resetError }: { error: Error; resetError: () => void }) => {
       return React.createElement('div', { className: 'p-6 text-center' }, [
         React.createElement(
           'h2',
@@ -170,7 +170,7 @@ export const withErrorBoundary = (Component: React.ComponentType<any>) => {
         ),
       ])
     },
-    beforeCapture: (scope, error, errorInfo) => {
+    beforeCapture: (scope, _error, errorInfo) => {
       scope.setTag('component', 'error-boundary')
       scope.setExtra('errorInfo', errorInfo)
     },

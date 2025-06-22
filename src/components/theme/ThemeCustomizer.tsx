@@ -150,7 +150,7 @@ export default function ThemeCustomizer() {
             White-Label Theming
           </h1>
           <p className="text-muted-foreground mt-2">
-            Customize your agency's branding and colors
+            Customize your agency&apos;s branding and colors
           </p>
         </div>
         <div className="flex gap-2">
@@ -173,7 +173,7 @@ export default function ThemeCustomizer() {
               Company Branding
             </CardTitle>
             <CardDescription>
-              Set your agency's name and visual identity
+              Set your agency&apos;s name and visual identity
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
