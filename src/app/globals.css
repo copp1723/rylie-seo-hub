@@ -6,10 +6,10 @@
 
 @layer base {
   :root {
-    /* Professional Color Palette - Clean & Modern */
-    --background: 0 0% 100%; /* white */
+    /* Professional Color Palette - Softer, easier on the eyes */
+    --background: 210 20% 98%; /* #FAFBFC - very light blue-gray */
     --foreground: 222.2 84% 4.9%; /* near black */
-    --card: 0 0% 100%; /* white */
+    --card: 0 0% 100%; /* white cards on soft background */
     --card-foreground: 222.2 84% 4.9%; /* near black */
     --popover: 0 0% 100%; /* white */
     --popover-foreground: 222.2 84% 4.9%; /* near black */
@@ -19,15 +19,15 @@
     --primary-foreground: 210 40% 98%; /* white */
     
     /* Subtle Gray Secondary */
-    --secondary: 210 40% 96.1%; /* #F1F5F9 */
+    --secondary: 220 14.3% 95.9%; /* #F4F6F8 - blue-tinted gray */
     --secondary-foreground: 222.2 47.4% 11.2%; /* dark */
     
     /* Muted Colors */
-    --muted: 210 40% 96.1%; /* #F1F5F9 */
+    --muted: 220 14.3% 95.9%; /* #F4F6F8 */
     --muted-foreground: 215.4 16.3% 46.9%; /* #64748B */
     
     /* Accent Colors */
-    --accent: 210 40% 96.1%; /* #F1F5F9 */
+    --accent: 220 14.3% 95.9%; /* #F4F6F8 */
     --accent-foreground: 222.2 47.4% 11.2%; /* dark */
     
     /* Status Colors */
@@ -35,38 +35,38 @@
     --destructive-foreground: 210 40% 98%; /* white */
     
     /* UI Elements */
-    --border: 214.3 31.8% 91.4%; /* #E2E8F0 */
-    --input: 214.3 31.8% 91.4%; /* #E2E8F0 */
+    --border: 220 13% 91%; /* #E1E7EF - softer borders */
+    --input: 220 13% 91%; /* #E1E7EF */
     --ring: 221.2 83.2% 53.3%; /* primary blue */
     --radius: 0.5rem;
   }
 
   .dark {
-    /* Professional Dark Mode */
-    --background: 222.2 84% 4.9%; /* #020617 */
+    /* Professional Dark Mode - Not pure black */
+    --background: 222 47.4% 11.2%; /* #0F172A - blue-black */
     --foreground: 210 40% 98%; /* #F8FAFC */
-    --card: 222.2 84% 4.9%; /* #020617 */
+    --card: 222 41% 15%; /* #1A2332 - elevated surface */
     --card-foreground: 210 40% 98%; /* #F8FAFC */
-    --popover: 222.2 84% 4.9%; /* #020617 */
+    --popover: 222 41% 15%; /* #1A2332 */
     --popover-foreground: 210 40% 98%; /* #F8FAFC */
     
     --primary: 217.2 91.2% 59.8%; /* #5B8DEF */
     --primary-foreground: 222.2 47.4% 11.2%; /* dark */
     
-    --secondary: 217.2 32.6% 17.5%; /* #1E293B */
+    --secondary: 222 41% 20%; /* #1E293B - lighter than background */
     --secondary-foreground: 210 40% 98%; /* light */
     
-    --muted: 217.2 32.6% 17.5%; /* #1E293B */
+    --muted: 222 41% 20%; /* #1E293B */
     --muted-foreground: 215 20.2% 65.1%; /* #94A3B8 */
     
-    --accent: 217.2 32.6% 17.5%; /* #1E293B */
+    --accent: 222 41% 20%; /* #1E293B */
     --accent-foreground: 210 40% 98%; /* light */
     
     --destructive: 0 62.8% 30.6%; /* dark red */
     --destructive-foreground: 210 40% 98%; /* light */
     
-    --border: 217.2 32.6% 17.5%; /* #1E293B */
-    --input: 217.2 32.6% 17.5%; /* #1E293B */
+    --border: 222 41% 20%; /* #1E293B */
+    --input: 222 41% 20%; /* #1E293B */
     --ring: 217.2 91.2% 59.8%; /* primary blue */
   }
 }
@@ -171,9 +171,9 @@
     @apply p-6 pt-0;
   }
 
-  /* Professional Sidebar - Responsive & Fixed */
+  /* Professional Sidebar - Softer background */
   .sidebar-professional {
-    @apply w-64 bg-white border-r border-border flex flex-col h-screen;
+    @apply w-64 bg-white dark:bg-card border-r border-border flex flex-col h-screen;
     @apply lg:relative lg:translate-x-0;
     @apply fixed lg:sticky top-0 left-0 z-40;
     @apply transition-transform duration-300 ease-in-out;
@@ -185,7 +185,7 @@
   }
 
   .sidebar-header {
-    @apply p-6 border-b border-border flex-shrink-0;
+    @apply p-6 border-b border-border flex-shrink-0 bg-gradient-to-br from-primary/5 to-primary/10;
   }
 
   .sidebar-nav {
@@ -193,7 +193,7 @@
   }
 
   .sidebar-footer {
-    @apply p-4 border-t border-border flex-shrink-0;
+    @apply p-4 border-t border-border flex-shrink-0 bg-muted/30;
   }
 
   .sidebar-item {
@@ -211,7 +211,7 @@
   }
 
   .page-header {
-    @apply flex items-center justify-between p-6 border-b bg-card/50 backdrop-blur-sm flex-shrink-0;
+    @apply flex items-center justify-between p-6 border-b bg-white dark:bg-card/50 backdrop-blur-sm flex-shrink-0;
   }
 
   .page-content {
@@ -232,7 +232,7 @@
   }
 
   .chat-input-area {
-    @apply p-4 border-t bg-card/30 backdrop-blur-sm flex-shrink-0;
+    @apply p-4 border-t bg-white dark:bg-card/30 backdrop-blur-sm flex-shrink-0;
   }
 
   /* Modern Button Styles */
@@ -260,7 +260,7 @@
 
   /* Professional Input Styles */
   .input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2;
+    @apply flex h-10 w-full rounded-md border border-input bg-white dark:bg-background px-3 py-2;
     @apply text-sm ring-offset-background;
     @apply file:border-0 file:bg-transparent file:text-sm file:font-medium;
     @apply placeholder:text-muted-foreground;
@@ -269,7 +269,7 @@
   }
 
   .textarea {
-    @apply flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2;
+    @apply flex min-h-[80px] w-full rounded-md border border-input bg-white dark:bg-background px-3 py-2;
     @apply text-sm ring-offset-background placeholder:text-muted-foreground;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
     @apply disabled:cursor-not-allowed disabled:opacity-50;
@@ -282,7 +282,7 @@
   }
 
   .message-assistant {
-    @apply mr-auto max-w-[70%] bg-card border;
+    @apply mr-auto max-w-[70%] bg-white dark:bg-card border;
     @apply rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm;
   }
 
@@ -292,15 +292,15 @@
   }
 
   .stat-card {
-    @apply card p-6;
+    @apply card p-6 bg-white dark:bg-card hover:shadow-md transition-shadow;
   }
 
   .stat-value {
-    @apply text-3xl font-bold;
+    @apply text-3xl font-bold mt-2;
   }
 
   .stat-label {
-    @apply text-sm text-muted-foreground mt-1;
+    @apply text-sm text-muted-foreground;
   }
 
   /* Tables */
@@ -309,7 +309,7 @@
   }
 
   .table-header {
-    @apply [&_tr]:border-b;
+    @apply [&_tr]:border-b bg-muted/50;
   }
 
   .table-body {
@@ -360,15 +360,15 @@
   }
 
   .badge-success {
-    @apply bg-green-100 text-green-800;
+    @apply bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400;
   }
 
   .badge-warning {
-    @apply bg-yellow-100 text-yellow-800;
+    @apply bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400;
   }
 
   .badge-danger {
-    @apply bg-red-100 text-red-800;
+    @apply bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400;
   }
 
   /* Mobile Menu Toggle */
@@ -388,6 +388,16 @@
   /* Responsive Container */
   .container {
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Pattern backgrounds for visual interest */
+  .pattern-dots {
+    background-image: radial-gradient(circle, rgb(var(--primary) / 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .gradient-subtle {
+    @apply bg-gradient-to-br from-background via-background to-primary/5;
   }
 }
 
@@ -458,11 +468,19 @@
 }
 
 .admin-page {
-  @apply flex h-screen overflow-hidden bg-gray-50;
+  @apply flex h-screen overflow-hidden;
 }
 
 .settings-page {
   @apply min-h-screen bg-background;
+}
+
+/* Add subtle gradients and patterns */
+.hero-pattern {
+  background-color: rgb(var(--background));
+  background-image: 
+    radial-gradient(at 47% 33%, hsl(var(--primary) / 0.1) 0, transparent 59%),
+    radial-gradient(at 82% 65%, hsl(var(--accent) / 0.1) 0, transparent 55%);
 }
 
 /* Mobile Responsive */
