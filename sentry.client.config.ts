@@ -26,5 +26,5 @@ const sentryOptions = {
   hideSourceMaps: true,
 }
 
-export default withSentryConfig(nextConfig, sentryWebpackPluginOptions, sentryOptions)
+export default withSentryConfig(nextConfig, sentryWebpackPluginOptions)
 

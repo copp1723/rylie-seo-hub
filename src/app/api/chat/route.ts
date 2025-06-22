@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       logger.warn('Invalid chat request', {
-        userId,
+        userId: tenantContext.user.id,
         errors: validation.details.errors,
       })
       return NextResponse.json(
@@ -123,6 +123,7 @@ export async function POST(request: NextRequest) {
       conversation = await tenantPrisma.conversation.create({
         data: {
           userId: tenantContext.user.id,
+          agencyId: tenantContext.agencyId,
           model,
           title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),
         },
@@ -137,6 +138,7 @@ export async function POST(request: NextRequest) {
       data: {
         conversationId: conversation.id,
         userId: tenantContext.user.id,
+        agencyId: tenantContext.agencyId,
         role: 'USER',
         content: message,
       },
@@ -171,6 +173,7 @@ export async function POST(request: NextRequest) {
       data: {
         conversationId: conversation.id,
         userId: tenantContext.user.id,
+        agencyId: tenantContext.agencyId,
         role: 'ASSISTANT',
         content: aiResponse.content,
         model: aiResponse.model || model,
@@ -213,15 +216,15 @@ export async function POST(request: NextRequest) {
       response_time_ms: timer.end({
         success: true,
         model: model,
-        tokens: aiResponse.usage?.total_tokens || 0,
+        tokens: aiResponse.tokens || 0,
       }),
     })
 
     logger.info('Chat API request completed successfully', {
-      userId,
+      userId: tenantContext.user.id,
       conversationId: conversation.id,
       model,
-      tokensUsed: aiResponse.usage?.total_tokens || 0,
+      tokensUsed: aiResponse.tokens || 0,
     })
 
     return NextResponse.json({
@@ -240,29 +243,30 @@ export async function POST(request: NextRequest) {
         content: assistantMessage.content,
         createdAt: assistantMessage.createdAt,
         model: assistantMessage.model,
-        tokens: assistantMessage.tokens,
+        tokens: assistantMessage.tokenCount,
       },
     })
   } catch (error) {
-    timer.end({ success: false, error: error.message })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    timer.end({ success: false, error: errorMessage })
 
     logger.error('Chat API Error', error, {
-      userId: session?.user?.id,
-      conversationId,
-      model,
+      userId: 'unknown',
+      conversationId: 'unknown',
+      model: 'unknown',
     })
 
     trackEvent('chat_api_error', {
-      user_id: session?.user?.id,
-      error_message: error.message,
-      model,
+      user_id: 'unknown',
+      error_message: errorMessage,
+      model: 'unknown',
     })
 
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to process message',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
       },
       { status: 500 }
     )

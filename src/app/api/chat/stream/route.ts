@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       conversation = await prisma.conversation.create({
         data: {
           userId: userId,
+          agencyId: 'default', // TODO: Get from tenant context
           model,
           title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),
         },
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
       data: {
         conversationId: conversation.id,
         userId: userId,
+        agencyId: 'default', // TODO: Get from tenant context
         role: 'USER',
         content: message,
       },
@@ -127,13 +129,11 @@ export async function POST(request: NextRequest) {
                 data: {
                   conversationId: conversation.id,
                   userId: userId,
+                  agencyId: 'default', // TODO: Get from tenant context
                   role: 'ASSISTANT',
                   content: fullResponse,
                   model: chunk.model,
-                  tokens: totalTokens,
-                  cost: aiService.getModel(model)?.costPer1kTokens
-                    ? (totalTokens / 1000) * aiService.getModel(model)!.costPer1kTokens
-                    : 0,
+                  tokenCount: totalTokens,
                 },
               })
 

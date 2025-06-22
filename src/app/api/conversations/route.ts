@@ -81,16 +81,19 @@ export async function POST(request: NextRequest) {
 
     const { title, model = 'openai/gpt-4-turbo-preview' } = await request.json()
 
-    const conversation = await prisma.conversation.create({
+       const conversation = await prisma.conversation.create({
       data: {
         title: title || 'New Conversation',
         userId: userId,
+        agencyId: 'default', // TODO: Get from tenant context
         model,
+      },
+      include: {
+        messages: true,
       },
     })
 
     return NextResponse.json({
-      success: true,
       conversation: {
         id: conversation.id,
         title: conversation.title,

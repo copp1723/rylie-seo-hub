@@ -106,9 +106,9 @@ export async function POST(request: NextRequest) {
       data: {
         url: result.secure_url,
         publicId: result.public_id,
-        width: result.width,
-        height: result.height,
-        format: result.format,
+        width: (result as any).width || 0,
+        height: (result as any).height || 0,
+        format: (result as any).format || 'unknown',
         bytes: result.bytes,
       },
     })

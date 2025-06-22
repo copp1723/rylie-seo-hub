@@ -39,7 +39,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
           role: msg.role,
           content: msg.content,
           model: msg.model,
-          tokens: msg.tokens,
+          tokens: msg.tokenCount,
           createdAt: msg.createdAt,
         })),
       },

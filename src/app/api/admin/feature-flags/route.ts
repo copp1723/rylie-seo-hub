@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { FeatureFlag, getFeatureFlag, updateFeatureFlag, getAllFeatureFlags } from '@/lib/feature-flags'
+import { FeatureFlag, featureFlags } from '@/lib/feature-flags'
 import { z } from 'zod'
 import { observability } from '@/lib/observability'
 
@@ -17,9 +17,8 @@ export async function GET(request: NextRequest) {
     const session = await auth()
 
     if (!session?.user) {
-      observability.logEvent('feature_flags_unauthorized_access', {
-        ip: request.ip,
-        userAgent: request.headers.get('user-agent'),
+      observability.trackEvent('feature_flags_unauthorized_access', {
+        userAgent: request.headers.get('user-agent') || 'unknown',
       })
 
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -29,7 +28,7 @@ export async function GET(request: NextRequest) {
     // In production, you might want to restrict this to admin users
     const flags = featureFlags.getAllFlags()
 
-    observability.logEvent('feature_flags_retrieved', {
+    observability.trackEvent('feature_flags_retrieved', {
       userId: session.user.id,
       flagCount: flags.length,
       duration: Date.now() - startTime,
@@ -37,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ flags })
   } catch (error) {
-    observability.logError('feature_flags_get_error', error as Error, {
+    observability.logger.error('feature_flags_get_error', error as Error, {
       userId: (await auth())?.user?.id,
       duration: Date.now() - startTime,
     })
@@ -74,7 +73,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Flag not found' }, { status: 404 })
     }
 
-    observability.logEvent('feature_flag_updated', {
+    observability.trackEvent('feature_flag_updated', {
       userId: session.user.id,
       flagKey,
       updates: validatedUpdates,
@@ -93,7 +92,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    observability.logError('feature_flags_update_error', error as Error, {
+    observability.logger.error('feature_flags_update_error', error as Error, {
       userId: (await auth())?.user?.id,
       duration: Date.now() - startTime,
     })
