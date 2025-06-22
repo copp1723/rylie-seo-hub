@@ -1,16 +1,32 @@
 import { google } from 'googleapis'
 import { prisma } from './prisma'
 
-const analyticsdata = google.analyticsdata('v1beta')
-const analytics = google.analytics('v3')
-const analyticsadmin = google.analyticsadmin('v1beta')
-
 export class GA4Service {
   private auth: any
+  private analyticsdata: any
+  private analytics: any
+  private analyticsadmin: any
 
-  constructor(accessToken: string) {
-    this.auth = new google.auth.OAuth2()
-    this.auth.setCredentials({ access_token: accessToken })
+  constructor(accessToken?: string) {
+    if (accessToken) {
+      // OAuth access token
+      this.auth = new google.auth.OAuth2()
+      this.auth.setCredentials({ access_token: accessToken })
+    } else if (process.env.GA4_SERVICE_ACCOUNT_KEY) {
+      // Service account
+      const credentials = JSON.parse(process.env.GA4_SERVICE_ACCOUNT_KEY)
+      this.auth = new google.auth.GoogleAuth({
+        credentials,
+        scopes: ['https://www.googleapis.com/auth/analytics.readonly'],
+      })
+    } else {
+      throw new Error('No authentication method available for GA4')
+    }
+
+    // Initialize Google APIs with auth
+    this.analyticsdata = google.analyticsdata({ version: 'v1beta', auth: this.auth })
+    this.analytics = google.analytics({ version: 'v3', auth: this.auth })
+    this.analyticsadmin = google.analyticsadmin({ version: 'v1beta', auth: this.auth })
   }
 
   /**
@@ -18,8 +34,7 @@ export class GA4Service {
    */
   async listProperties() {
     try {
-      const response = await analyticsadmin.properties.list({
-        auth: this.auth,
+      const response = await this.analyticsadmin.properties.list({
         filter: 'ancestor:accounts/-', // List all properties
       })
 
@@ -35,8 +50,7 @@ export class GA4Service {
    */
   async getSEOMetrics(propertyId: string, dateRange = 'last30Days') {
     try {
-      const response = await analyticsdata.properties.runReport({
-        auth: this.auth,
+      const response = await this.analyticsdata.properties.runReport({
         property: `properties/${propertyId}`,
         requestBody: {
           dateRanges: [this.getDateRange(dateRange)],
@@ -66,7 +80,7 @@ export class GA4Service {
               desc: true,
             },
           ],
-          limit: 50,
+          limit: '50',
         },
       })
 
@@ -82,18 +96,64 @@ export class GA4Service {
    */
   async getSearchQueries(propertyId: string, dateRange = 'last30Days') {
     try {
-      const response = await analyticsdata.properties.runReport({
-        auth: this.auth,
+      const response = await this.analyticsdata.properties.runReport({
         property: `properties/${propertyId}`,
         requestBody: {
           dateRanges: [this.getDateRange(dateRange)],
           dimensions: [
-            { name: 'searchTerm' },
+            { name: 'googleSearchQuery' },
+            { name: 'googleSearchKeyword' },
           ],
+          metrics: [
+            { name: 'googleSearchClicks' },
+            { name: 'googleSearchImpressions' },
+            { name: 'googleSearchClickThroughRate' },
+            { name: 'googleSearchAveragePosition' },
+          ],
+          orderBys: [
+            {
+              metric: {
+                metricName: 'googleSearchClicks',
+              },
+              desc: true,
+            },
+          ],
+          limit: '20',
+        },
+      })
+
+      return this.formatSearchQueries(response.data)
+    } catch (error) {
+      console.error('Error fetching search queries:', error)
+      // Return empty array if Search Console isn't linked
+      return []
+    }
+  }
+
+  /**
+   * Get top landing pages from organic search
+   */
+  async getTopPages(propertyId: string, dateRange = 'last30Days') {
+    try {
+      const response = await this.analyticsdata.properties.runReport({
+        property: `properties/${propertyId}`,
+        requestBody: {
+          dateRanges: [this.getDateRange(dateRange)],
+          dimensions: [{ name: 'landingPagePlusQueryString' }],
           metrics: [
             { name: 'sessions' },
             { name: 'totalUsers' },
+            { name: 'bounceRate' },
+            { name: 'averageSessionDuration' },
           ],
+          dimensionFilter: {
+            filter: {
+              fieldName: 'sessionDefaultChannelGroup',
+              stringFilter: {
+                value: 'Organic Search',
+              },
+            },
+          },
           orderBys: [
             {
               metric: {
@@ -102,47 +162,7 @@ export class GA4Service {
               desc: true,
             },
           ],
-          limit: 50,
-        },
-      })
-
-      return this.formatSearchQueries(response.data)
-    } catch (error) {
-      console.error('Error fetching search queries:', error)
-      // Search console integration might not be enabled
-      return []
-    }
-  }
-
-  /**
-   * Get top performing pages
-   */
-  async getTopPages(propertyId: string, dateRange = 'last30Days') {
-    try {
-      const response = await analyticsdata.properties.runReport({
-        auth: this.auth,
-        property: `properties/${propertyId}`,
-        requestBody: {
-          dateRanges: [this.getDateRange(dateRange)],
-          dimensions: [
-            { name: 'pagePath' },
-            { name: 'pageTitle' },
-          ],
-          metrics: [
-            { name: 'screenPageViews' },
-            { name: 'totalUsers' },
-            { name: 'averageSessionDuration' },
-            { name: 'bounceRate' },
-          ],
-          orderBys: [
-            {
-              metric: {
-                metricName: 'screenPageViews',
-              },
-              desc: true,
-            },
-          ],
-          limit: 20,
+          limit: '10',
         },
       })
 
@@ -154,13 +174,13 @@ export class GA4Service {
   }
 
   /**
-   * Helper to get date range
+   * Helper to generate date ranges
    */
-  private getDateRange(range: string) {
+  private getDateRange(dateRange: string) {
     const today = new Date()
     const startDate = new Date()
 
-    switch (range) {
+    switch (dateRange) {
       case 'last7Days':
         startDate.setDate(today.getDate() - 7)
         break
@@ -184,24 +204,50 @@ export class GA4Service {
    * Format SEO metrics response
    */
   private formatSEOMetrics(data: any) {
-    const rows = data.rows || []
-    
-    return {
-      summary: {
-        totalOrganicSessions: rows.reduce((sum: number, row: any) => sum + parseInt(row.metricValues[0].value), 0),
-        totalOrganicUsers: rows.reduce((sum: number, row: any) => sum + parseInt(row.metricValues[1].value), 0),
-        avgBounceRate: rows.length > 0 ? 
-          rows.reduce((sum: number, row: any) => sum + parseFloat(row.metricValues[2].value), 0) / rows.length : 0,
-        avgSessionDuration: rows.length > 0 ?
-          rows.reduce((sum: number, row: any) => sum + parseFloat(row.metricValues[3].value), 0) / rows.length : 0,
+    if (!data.rows || data.rows.length === 0) {
+      return {
+        totalSessions: 0,
+        totalUsers: 0,
+        avgBounceRate: 0,
+        avgSessionDuration: 0,
+        topPages: [],
+      }
+    }
+
+    const metrics = data.rows.reduce(
+      (acc: any, row: any) => {
+        acc.totalSessions += parseInt(row.metricValues[0].value)
+        acc.totalUsers += parseInt(row.metricValues[1].value)
+        acc.bounceRates.push(parseFloat(row.metricValues[2].value))
+        acc.sessionDurations.push(parseFloat(row.metricValues[3].value))
+        acc.pages.push({
+          page: row.dimensionValues[1].value,
+          sessions: parseInt(row.metricValues[0].value),
+          users: parseInt(row.metricValues[1].value),
+          bounceRate: parseFloat(row.metricValues[2].value),
+          avgSessionDuration: parseFloat(row.metricValues[3].value),
+        })
+        return acc
       },
-      topLandingPages: rows.slice(0, 10).map((row: any) => ({
-        page: row.dimensionValues[1].value,
-        sessions: parseInt(row.metricValues[0].value),
-        users: parseInt(row.metricValues[1].value),
-        bounceRate: parseFloat(row.metricValues[2].value),
-        avgDuration: parseFloat(row.metricValues[3].value),
-      })),
+      {
+        totalSessions: 0,
+        totalUsers: 0,
+        bounceRates: [],
+        sessionDurations: [],
+        pages: [],
+      }
+    )
+
+    return {
+      totalSessions: metrics.totalSessions,
+      totalUsers: metrics.totalUsers,
+      avgBounceRate:
+        metrics.bounceRates.reduce((a: number, b: number) => a + b, 0) /
+        metrics.bounceRates.length,
+      avgSessionDuration:
+        metrics.sessionDurations.reduce((a: number, b: number) => a + b, 0) /
+        metrics.sessionDurations.length,
+      topPages: metrics.pages.slice(0, 10),
     }
   }
 
@@ -209,12 +255,16 @@ export class GA4Service {
    * Format search queries response
    */
   private formatSearchQueries(data: any) {
-    const rows = data.rows || []
-    
-    return rows.map((row: any) => ({
-      query: row.dimensionValues[0].value,
-      sessions: parseInt(row.metricValues[0].value),
-      users: parseInt(row.metricValues[1].value),
+    if (!data.rows || data.rows.length === 0) {
+      return []
+    }
+
+    return data.rows.map((row: any) => ({
+      query: row.dimensionValues[0].value || row.dimensionValues[1].value,
+      clicks: parseInt(row.metricValues[0].value),
+      impressions: parseInt(row.metricValues[1].value),
+      ctr: parseFloat(row.metricValues[2].value),
+      position: parseFloat(row.metricValues[3].value),
     }))
   }
 
@@ -222,21 +272,22 @@ export class GA4Service {
    * Format top pages response
    */
   private formatTopPages(data: any) {
-    const rows = data.rows || []
-    
-    return rows.map((row: any) => ({
-      path: row.dimensionValues[0].value,
-      title: row.dimensionValues[1].value,
-      pageViews: parseInt(row.metricValues[0].value),
+    if (!data.rows || data.rows.length === 0) {
+      return []
+    }
+
+    return data.rows.map((row: any) => ({
+      page: row.dimensionValues[0].value,
+      sessions: parseInt(row.metricValues[0].value),
       users: parseInt(row.metricValues[1].value),
-      avgDuration: parseFloat(row.metricValues[2].value),
-      bounceRate: parseFloat(row.metricValues[3].value),
+      bounceRate: parseFloat(row.metricValues[2].value),
+      avgSessionDuration: parseFloat(row.metricValues[3].value),
     }))
   }
 }
 
 /**
- * Store GA4 property for an agency
+ * Connect a GA4 property to an agency
  */
 export async function connectGA4Property(
   agencyId: string,
@@ -255,31 +306,17 @@ export async function connectGA4Property(
 }
 
 /**
- * Get GA4 data for an agency
+ * Get GA4 property for an agency
  */
-export async function getAgencyGA4Data(agencyId: string, accessToken: string) {
+export async function getGA4Property(agencyId: string) {
   const agency = await prisma.agency.findUnique({
     where: { id: agencyId },
     select: {
       ga4PropertyId: true,
       ga4PropertyName: true,
+      ga4RefreshToken: true,
     },
   })
 
-  if (!agency?.ga4PropertyId) {
-    throw new Error('No GA4 property connected')
-  }
-
-  const ga4 = new GA4Service(accessToken)
-  
-  const [seoMetrics, topPages] = await Promise.all([
-    ga4.getSEOMetrics(agency.ga4PropertyId),
-    ga4.getTopPages(agency.ga4PropertyId),
-  ])
-
-  return {
-    propertyName: agency.ga4PropertyName,
-    seoMetrics,
-    topPages,
-  }
+  return agency
 }
