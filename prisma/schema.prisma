@@ -1,0 +1,315 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Multi-tenant foundation models
+model Agency {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique // URL-friendly identifier
+  domain      String?  @unique // Custom domain if provided
+  
+  // Branding/theming
+  primaryColor   String @default("#3b82f6")
+  secondaryColor String @default("#1e40af")
+  logo          String?
+  
+  // GA4 Integration
+  ga4PropertyId    String?
+  ga4PropertyName  String?
+  ga4RefreshToken  String? @db.Text // Encrypted refresh token
+  
+  // Subscription/billing
+  plan          String @default("starter") // starter, professional, enterprise
+  status        String @default("active")  // active, suspended, cancelled
+  
+  // Limits based on plan
+  maxUsers      Int @default(5)
+  maxConversations Int @default(100)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  users         User[]
+  conversations Conversation[]
+  themes        Theme[]
+  usageMetrics  UsageMetric[]
+  orders        Order[]
+  
+  @@map("agencies")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  
+  // Multi-tenant relationship
+  agencyId      String?
+  agency        Agency?   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // User role within agency
+  role          String    @default("user") // admin, user, viewer
+  
+  // Super admin flag (platform level)
+  isSuperAdmin  Boolean   @default(false)
+  
+  // User preferences
+  theme         String?
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  conversations Conversation[]
+  messages      Message[]
+  orders        Order[]
+  auditLogs     AuditLog[]
+  
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Core application models with tenant isolation
+model Conversation {
+  id          String   @id @default(cuid())
+  title       String
+  model       String   @default("gpt-4-turbo")
+  
+  // Multi-tenant isolation
+  agencyId    String
+  agency      Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // User relationship
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Conversation metadata
+  messageCount Int     @default(0)
+  lastMessage  String?
+  lastMessageAt DateTime?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  messages    Message[]
+  
+  @@index([agencyId, userId])
+  @@index([agencyId, updatedAt])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  content        String   @db.Text
+  role           String   // user, assistant, system
+  model          String?  // AI model used for assistant messages
+  
+  // Multi-tenant isolation
+  agencyId       String
+  
+  // Relationships
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Message metadata
+  tokenCount     Int?     // For usage tracking
+  responseTime   Int?     // Response time in milliseconds
+  
+  // Timestamps
+  createdAt      DateTime @default(now())
+  
+  @@index([agencyId, conversationId])
+  @@index([agencyId, createdAt])
+  @@map("messages")
+}
+
+// Orders for SEO tasks
+model Order {
+  id             String   @id @default(cuid())
+  
+  // Multi-tenant isolation
+  agencyId       String?
+  agency         Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // User relationship
+  userEmail      String
+  user           User?    @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  
+  // Task details
+  taskType       String   // blog, page, gbp, maintenance, seo
+  title          String
+  description    String   @db.Text
+  
+  // Status tracking
+  status         String   @default("pending") // pending, in_progress, completed, cancelled
+  assignedTo     String?  // SEO Werks team member
+  
+  // Time tracking
+  estimatedHours Float?
+  actualHours    Float?
+  
+  // Deliverables and results
+  deliverables   Json?    // Array of deliverable objects
+  completionNotes String? @db.Text
+  qualityScore   Int?     // 1-5 rating
+  
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  completedAt    DateTime?
+  
+  @@index([agencyId, status])
+  @@index([userEmail, status])
+  @@map("orders")
+}
+
+// Audit log for tracking changes
+model AuditLog {
+  id          String   @id @default(cuid())
+  
+  // Action details
+  action      String   // ORDER_CREATED, ORDER_UPDATED, etc.
+  entityType  String   // order, user, conversation, etc.
+  entityId    String
+  
+  // User who performed the action
+  userEmail   String
+  user        User?    @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  
+  // Additional details
+  details     Json?
+  
+  // Timestamp
+  createdAt   DateTime @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([userEmail, createdAt])
+  @@map("audit_logs")
+}
+
+// Theme customization with tenant isolation
+model Theme {
+  id             String   @id @default(cuid())
+  
+  // Multi-tenant isolation
+  agencyId       String
+  agency         Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // Theme properties
+  companyName    String
+  primaryColor   String
+  secondaryColor String
+  logo           String?
+  
+  // Theme metadata
+  isActive       Boolean  @default(true)
+  
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@unique([agencyId]) // One active theme per agency
+  @@map("themes")
+}
+
+// Usage tracking for billing and analytics
+model UsageMetric {
+  id           String   @id @default(cuid())
+  
+  // Multi-tenant isolation
+  agencyId     String
+  agency       Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // Usage data
+  metricType   String   // messages, tokens, api_calls, storage
+  value        Int      // Numeric value of the metric
+  model        String?  // AI model if applicable
+  
+  // Time period
+  date         DateTime @default(now())
+  period       String   @default("daily") // daily, monthly, yearly
+  
+  @@index([agencyId, date])
+  @@index([agencyId, metricType, date])
+  @@map("usage_metrics")
+}
+
+// Feature flags with tenant-specific overrides
+model FeatureFlagOverride {
+  id           String   @id @default(cuid())
+  
+  // Multi-tenant isolation
+  agencyId     String
+  
+  // Feature flag configuration
+  flagKey      String
+  enabled      Boolean
+  rolloutPercentage Int @default(100)
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([agencyId, flagKey])
+  @@map("feature_flag_overrides")
+}
+
