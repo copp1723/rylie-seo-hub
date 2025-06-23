@@ -269,20 +269,26 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
         setMessages(prev => [...prev, assistantMessage])
       } else {
         // Regular chat response - Call the actual API
+        const requestData = {
+          message: userMessage.content,
+          conversationId: conversationId,
+          model: selectedModel,
+        }
+        
+        console.log('Sending chat request:', requestData)
+        
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            message: userMessage.content,
-            conversationId: conversationId,
-            model: selectedModel,
-          }),
+          body: JSON.stringify(requestData),
         })
 
         if (!response.ok) {
-          throw new Error('Failed to get AI response')
+          const errorData = await response.json().catch(() => ({}))
+          console.error('Chat API error:', response.status, errorData)
+          throw new Error(errorData.error || 'Failed to get AI response')
         }
 
         const data = await response.json()
@@ -305,6 +311,15 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
       }
     } catch (error) {
       console.error('Error sending message:', error)
+      
+      // Show error message to user
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'system',
+        content: `Error: ${error instanceof Error ? error.message : 'Failed to send message. Please try again.'}`,
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
     }
