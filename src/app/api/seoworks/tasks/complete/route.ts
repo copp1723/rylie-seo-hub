@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       data: {
         status,
         completedAt: status === 'completed' ? new Date() : null,
-        deliverables: deliverables ? JSON.stringify(deliverables) : order.deliverables,
+        deliverables: deliverables ? deliverables : undefined,
         completionNotes: completionNotes || order.completionNotes,
         actualHours: actualHours || order.actualHours,
         qualityScore: qualityScore || order.qualityScore,
