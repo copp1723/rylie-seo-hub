@@ -219,7 +219,7 @@ export function validateSEOWerksData(data: Partial<SEOWerksSubmissionData>): {
 /**
  * Get package details for display purposes
  */
-export function getPackageDetails(package: 'SILVER' | 'GOLD' | 'PLATINUM') {
+export function getPackageDetails(packageType: 'SILVER' | 'GOLD' | 'PLATINUM') {
   const packages = {
     SILVER: {
       name: 'Silver',
@@ -238,5 +238,5 @@ export function getPackageDetails(package: 'SILVER' | 'GOLD' | 'PLATINUM') {
     }
   };
 
-  return packages[package];
+  return packages[packageType];
 }
