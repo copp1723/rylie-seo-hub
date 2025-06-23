@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     // Check if user is super admin
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { isSuperAdmin: true, agencyId: true, role: true, email: true }
+      select: { id: true, isSuperAdmin: true, agencyId: true, role: true, email: true }
     })
 
     if (!currentUser) {
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
         role: isSuperAdmin ? 'super_admin' : role,
         isSuperAdmin,
         agencyId: isSuperAdmin ? null : (agencyId || currentUser.agencyId),
-        invitedBy: session.user.email,
+        invitedBy: currentUser.id,
       },
       include: {
         agency: true

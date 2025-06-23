@@ -423,8 +423,8 @@ model UserInvite {
   agency          Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   
   // Invite metadata
-  invitedBy       String   // Email of user who sent invite
-  invitedByUser   User     @relation(fields: [invitedBy], references: [email])
+  invitedBy       String   // User ID of who sent invite
+  invitedByUser   User     @relation(fields: [invitedBy], references: [id])
   token           String   @unique @default(cuid())
   
   // Status tracking
