@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Sidebar } from '@/components/chat/Sidebar'
 import { 
   Package, 
   Clock, 
@@ -118,14 +119,19 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold flex items-center gap-2">
-                <Package className="h-8 w-8" />
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar */}
+      <Sidebar user={session.user} />
+      
+      {/* Main Content */}
+      <div className="flex-1">
+        {/* Header */}
+        <header className="bg-card border-b">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold flex items-center gap-2">
+                  <Package className="h-8 w-8" />
                 Orders
               </h1>
               <p className="text-muted-foreground mt-1">
@@ -350,6 +356,7 @@ export default function OrdersPage() {
           </Card>
         </div>
       )}
+      </div>
     </div>
   )
 }

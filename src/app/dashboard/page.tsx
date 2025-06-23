@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { RequestForm, RequestData } from '@/components/requests/RequestForm'
+import { Sidebar } from '@/components/chat/Sidebar'
 import { 
   Target,
   TrendingUp,
@@ -121,14 +122,19 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Welcome back, {session.user?.name || session.user?.email}</p>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar */}
+      <Sidebar user={session.user} />
+      
+      {/* Main Content */}
+      <div className="flex-1">
+        {/* Header */}
+        <header className="bg-card border-b">
+          <div className="container mx-auto px-4 py-6">
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Welcome back, {session.user?.name || session.user?.email}</p>
+          </div>
+        </header>
 
       {/* Success Banner */}
       {submissionSuccess && (
@@ -330,6 +336,7 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }
