@@ -31,16 +31,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         id: user.id,
       },
     }),
+    signIn: async ({ user, account, profile }) => {
+      // Log sign in attempts for debugging
+      console.log('Sign in attempt:', { 
+        email: user.email,
+        provider: account?.provider,
+        userId: user.id 
+      })
+      
+      // Always allow sign in - the adapter will create the user if needed
+      return true
+    },
     redirect({ url, baseUrl }) {
+      console.log('Redirect callback:', { url, baseUrl })
+      
       // Redirect to dashboard after sign in
-      if (url === baseUrl || url === '/') {
+      if (url === baseUrl || url === '/' || url.includes('/?')) {
         return `${baseUrl}/dashboard`
       }
       // Allow relative callback URLs
       if (url.startsWith('/')) return `${baseUrl}${url}`
       // Allow callback URLs on the same origin
       if (new URL(url).origin === baseUrl) return url
-      return baseUrl
+      return `${baseUrl}/dashboard`
     },
   },
 })
