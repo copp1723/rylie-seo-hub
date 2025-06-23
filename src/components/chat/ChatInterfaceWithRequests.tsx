@@ -30,6 +30,8 @@ interface Message {
   timestamp: Date
   type?: 'text' | 'request-form' | 'clarifying-question'
   metadata?: any
+  model?: string
+  tokens?: number
 }
 
 interface ConversationContext {
@@ -107,6 +109,8 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [showRequestForm, setShowRequestForm] = useState(false)
   const [conversationContext, setConversationContext] = useState<ConversationContext>({})
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [selectedModel] = useState('openai/gpt-4-turbo-preview')
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -264,17 +268,40 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
         }
         setMessages(prev => [...prev, assistantMessage])
       } else {
-        // Regular chat response
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // Regular chat response - Call the actual API
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: userMessage.content,
+            conversationId: conversationId,
+            model: selectedModel,
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to get AI response')
+        }
+
+        const data = await response.json()
         
         const assistantMessage: Message = {
-          id: (Date.now() + 1).toString(),
+          id: data.assistantMessage?.id || (Date.now() + 1).toString(),
           role: 'assistant',
-          content: `I understand you're asking about: "${userMessage.content}". I'm here to help with all your SEO needs! This is a demo response, but in production, I'll provide detailed, actionable SEO advice tailored to your automotive dealership.`,
-          timestamp: new Date()
+          content: data.assistantMessage?.content || data.content || 'Sorry, I could not generate a response.',
+          timestamp: new Date(data.assistantMessage?.createdAt || Date.now()),
+          model: data.assistantMessage?.model || data.model,
+          tokens: data.assistantMessage?.tokens || data.tokens
         }
         
         setMessages(prev => [...prev, assistantMessage])
+        
+        // Update conversation ID if this was a new conversation
+        if (!conversationId && data.conversation?.id) {
+          setConversationId(data.conversation.id)
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error)
