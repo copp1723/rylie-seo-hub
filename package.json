@@ -22,7 +22,8 @@
     "onboarding:deploy": "npm run db:setup && npm run build",
     "postinstall": "prisma generate",
     "clean": "rm -rf .next && rm -rf node_modules/.cache",
-    "setup-user-agency": "tsx scripts/setup-user-agency.ts"
+    "setup-user-agency": "tsx scripts/setup-user-agency.ts",
+    "make-super-admin": "tsx scripts/make-super-admin.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",

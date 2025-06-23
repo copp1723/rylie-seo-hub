@@ -22,11 +22,21 @@ export async function POST(req: NextRequest) {
     // Check if user is super admin
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { isSuperAdmin: true, agencyId: true, role: true }
+      select: { isSuperAdmin: true, agencyId: true, role: true, email: true }
     })
 
-    if (!currentUser?.isSuperAdmin) {
-      return NextResponse.json({ error: 'Only super admins can send invites' }, { status: 403 })
+    if (!currentUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    if (!currentUser.isSuperAdmin) {
+      return NextResponse.json({ 
+        error: 'Only super admins can send invites',
+        details: { 
+          userEmail: currentUser.email,
+          isSuperAdmin: currentUser.isSuperAdmin 
+        }
+      }, { status: 403 })
     }
 
     // Validate request body
@@ -131,7 +141,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error creating invite:', error)
     return NextResponse.json(
-      { error: 'Failed to create invite' },
+      { 
+        error: 'Failed to create invite',
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : undefined
+      },
       { status: 500 }
     )
   }
