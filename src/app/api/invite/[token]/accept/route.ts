@@ -64,7 +64,7 @@ export async function POST(
     const result = await prisma.$transaction(async (tx) => {
       // Check if user already exists
       let user = await tx.user.findUnique({
-        where: { email: session.user.email }
+        where: { email: session.user.email! }
       })
 
       if (user) {
@@ -81,9 +81,9 @@ export async function POST(
         // This shouldn't happen with NextAuth, but handle it
         user = await tx.user.create({
           data: {
-            email: session.user.email,
-            name: session.user.name,
-            image: session.user.image,
+            email: session.user.email!,
+            name: session.user.name || null,
+            image: session.user.image || null,
             isSuperAdmin: invite.isSuperAdmin,
             role: invite.role,
             agencyId: invite.agencyId
@@ -106,7 +106,7 @@ export async function POST(
           action: 'INVITE_ACCEPTED',
           entityType: 'user_invite',
           entityId: invite.id,
-          userEmail: session.user.email,
+          userEmail: session.user.email!,
           details: {
             inviteEmail: invite.email,
             role: invite.role,
