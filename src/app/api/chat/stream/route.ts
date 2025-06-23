@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { aiService } from '@/lib/ai'
+import { generateSystemPrompt } from '@/lib/seo-knowledge'
 
 export async function POST(request: NextRequest) {
   try {
@@ -69,11 +70,12 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Prepare messages for AI
+    // Prepare messages for AI with enhanced system prompt
+    const agencyName = 'your dealership' // TODO: Get from tenant context
     const chatMessages = [
       {
         role: 'system' as const,
-        content: `You are Rylie, an AI SEO assistant. You help automotive dealerships with their SEO needs. Be helpful, professional, and focus on actionable SEO advice. Keep responses concise but informative.`,
+        content: generateSystemPrompt(agencyName),
       },
       ...conversation.messages.map((msg: { role: string; content: string }) => ({
         role: msg.role.toLowerCase() as 'user' | 'assistant',

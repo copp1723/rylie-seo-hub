@@ -45,6 +45,8 @@ model Agency {
   themes        Theme[]
   usageMetrics  UsageMetric[]
   orders        Order[]
+  dealershipOnboardings DealershipOnboarding[]
+  seoworksTasks SEOWorksTask[]
   
   @@map("agencies")
 }
@@ -202,6 +204,7 @@ model Order {
   // Status tracking
   status         String   @default("pending") // pending, in_progress, completed, cancelled
   assignedTo     String?  // SEO Werks team member
+  seoworksTaskId String?  // SEOWerks task ID for tracking
   
   // Time tracking
   estimatedHours Float?
@@ -216,6 +219,9 @@ model Order {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   completedAt    DateTime?
+  
+  // Relations
+  seoworksTask   SEOWorksTask?
   
   @@index([agencyId, status])
   @@index([userEmail, status])
@@ -311,5 +317,93 @@ model FeatureFlagOverride {
   
   @@unique([agencyId, flagKey])
   @@map("feature_flag_overrides")
+}
+
+// Dealership Onboarding for SEOWerks integration
+model DealershipOnboarding {
+  id                   String   @id @default(cuid())
+  
+  // Multi-tenant isolation
+  agencyId             String
+  agency               Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // Business Information
+  businessName         String
+  package              String   // SILVER, GOLD, PLATINUM
+  mainBrand            String
+  otherBrand           String?
+  
+  // Location Information
+  address              String
+  city                 String
+  state                String
+  zipCode              String
+  
+  // Contact Information
+  contactName          String
+  contactTitle         String
+  email                String
+  phone                String
+  websiteUrl           String
+  billingEmail         String
+  
+  // Site Access
+  siteAccessNotes      String?
+  
+  // Target Arrays (stored as JSON)
+  targetVehicleModels  String[] // Array of vehicle models
+  targetCities         String[] // Array of target cities
+  targetDealers        String[] // Array of target dealers
+  
+  // Submission tracking
+  submittedBy          String   // Email of user who submitted
+  status               String   @default("pending") // pending, submitted, failed, processing
+  seoworksResponse     Json?    // Response from SEOWerks API
+  submittedAt          DateTime?
+  
+  // Timestamps
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  @@index([agencyId, status])
+  @@index([agencyId, createdAt])
+  @@map("dealership_onboardings")
+}
+
+// SEOWerks webhook tasks tracking
+model SEOWorksTask {
+  id                String   @id @default(cuid())
+  
+  // External task ID from SEOWerks
+  externalId        String   @unique
+  
+  // Task details
+  taskType          String   // blog, page, gbp, maintenance, seo, seo_audit
+  status            String   // completed, pending, in_progress, cancelled
+  completionDate    DateTime?
+  postTitle         String
+  postUrl           String?
+  completionNotes   String?  @db.Text
+  isWeekly          Boolean  @default(false)
+  
+  // Additional payload data
+  payload           Json?
+  
+  // Order association (optional - tasks can exist without orders)
+  orderId           String?  @unique
+  order             Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  
+  // Agency association (for unmatched tasks)
+  agencyId          String?
+  agency            Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // Tracking
+  receivedAt        DateTime @default(now())
+  processedAt       DateTime?
+  
+  @@index([externalId])
+  @@index([agencyId, status])
+  @@index([taskType, status])
+  @@map("seoworks_tasks")
 }
 

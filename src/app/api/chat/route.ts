@@ -6,6 +6,7 @@ import { chatRequestSchema, validateRequest } from '@/lib/validation'
 import { rateLimits } from '@/lib/rate-limit'
 import { logger, performanceTracker, trackEvent } from '@/lib/observability'
 import { getTenantContext, checkUsageLimits, createTenantPrisma } from '@/lib/tenant'
+import { generateSystemPrompt, findRelevantFAQ } from '@/lib/seo-knowledge'
 
 export async function POST(request: NextRequest) {
   const timer = performanceTracker.startTimer('chat_api_request')
@@ -218,11 +219,11 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Prepare messages for AI
+    // Prepare messages for AI with enhanced system prompt
     const chatMessages = [
       {
         role: 'system' as const,
-        content: `You are Rylie, an AI SEO assistant for ${tenantContext.agency.name}. You help automotive dealerships with their SEO needs. Be helpful, professional, and focus on actionable SEO advice. Keep responses concise but informative.`,
+        content: generateSystemPrompt(tenantContext.agency.name),
       },
       ...conversation.messages.map((msg: { role: string; content: string }) => ({
         role: msg.role.toLowerCase() as 'user' | 'assistant',

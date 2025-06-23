@@ -10,7 +10,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (session?.user) {
-      redirect('/chat')
+      redirect('/dashboard')
     }
   }, [session])
 

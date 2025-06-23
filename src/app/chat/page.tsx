@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/chat/Sidebar'
-import { ChatInterface } from '@/components/chat/ChatInterface'
+import { ChatInterface } from '@/components/chat/ChatInterfaceWithRequests'
 
 export default function ChatPage() {
   const { data: session, status } = useSession()

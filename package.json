@@ -18,6 +18,8 @@
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:reset": "prisma migrate reset",
     "db:studio": "prisma studio",
+    "db:setup": "chmod +x scripts/migrate-database.sh && ./scripts/migrate-database.sh",
+    "onboarding:deploy": "npm run db:setup && npm run build",
     "postinstall": "prisma generate",
     "clean": "rm -rf .next && rm -rf node_modules/.cache",
     "setup-user-agency": "tsx scripts/setup-user-agency.ts"
@@ -26,6 +28,7 @@
     "@auth/prisma-adapter": "^2.7.2",
     "@prisma/client": "^6.10.1",
     "@radix-ui/react-slider": "^1.3.5",
+    "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-tabs": "^1.1.12",
