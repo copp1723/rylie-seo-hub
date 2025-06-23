@@ -19,7 +19,8 @@
     "db:migrate:reset": "prisma migrate reset",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "clean": "rm -rf .next && rm -rf node_modules/.cache"
+    "clean": "rm -rf .next && rm -rf node_modules/.cache",
+    "setup-user-agency": "tsx scripts/setup-user-agency.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
