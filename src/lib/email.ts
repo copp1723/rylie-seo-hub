@@ -139,6 +139,56 @@ class EmailService {
       .replace(/\s+/g, ' ')
       .trim()
   }
+
+  async sendInviteEmail(
+    to: string,
+    inviterName: string,
+    inviterEmail: string,
+    role: string,
+    isSuperAdmin: boolean,
+    inviteUrl: string
+  ) {
+    const roleDisplay = isSuperAdmin ? 'Super Admin' : role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+    const subject = `You've been invited to join Rylie SEO Hub as ${roleDisplay}`
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Invitation to Rylie SEO Hub</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #3b82f6;">You're invited to Rylie SEO Hub!</h1>
+            
+            <p>${inviterName} (${inviterEmail}) has invited you to join as a <strong>${roleDisplay}</strong>.</p>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0 0 15px 0;">Click the button below to accept your invitation:</p>
+              <a href="${inviteUrl}" 
+                 style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                Accept Invitation
+              </a>
+            </div>
+            
+            <p style="color: #666; font-size: 14px;">
+              This invitation will expire in 7 days. If the button doesn't work, copy and paste this link into your browser:
+              <br><a href="${inviteUrl}" style="color: #3b82f6;">${inviteUrl}</a>
+            </p>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+            <p style="font-size: 12px; color: #666;">
+              This email was sent from Rylie SEO Hub. 
+              If you didn't expect this invitation, please ignore this email.
+            </p>
+          </div>
+        </body>
+      </html>
+    `
+    
+    return this.sendEmail({ to, subject, html })
+  }
 }
 
 export const emailService = new EmailService()

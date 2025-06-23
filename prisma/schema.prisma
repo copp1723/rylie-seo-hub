@@ -47,6 +47,7 @@ model Agency {
   orders        Order[]
   dealershipOnboardings DealershipOnboarding[]
   seoworksTasks SEOWorksTask[]
+  userInvites   UserInvite[]
   
   @@map("agencies")
 }
@@ -82,6 +83,7 @@ model User {
   messages      Message[]
   orders        Order[]
   auditLogs     AuditLog[]
+  sentInvites   UserInvite[]
   
   @@map("users")
 }
@@ -405,5 +407,38 @@ model SEOWorksTask {
   @@index([agencyId, status])
   @@index([taskType, status])
   @@map("seoworks_tasks")
+}
+
+// User invitations
+model UserInvite {
+  id              String   @id @default(cuid())
+  
+  // Invite details
+  email           String
+  role            String   @default("user") // user, admin, super_admin
+  isSuperAdmin    Boolean  @default(false)
+  
+  // Agency association (optional for super admins)
+  agencyId        String?
+  agency          Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // Invite metadata
+  invitedBy       String   // Email of user who sent invite
+  invitedByUser   User     @relation(fields: [invitedBy], references: [email])
+  token           String   @unique @default(cuid())
+  
+  // Status tracking
+  status          String   @default("pending") // pending, accepted, expired
+  acceptedAt      DateTime?
+  expiresAt       DateTime @default(dbgenerated("NOW() + INTERVAL '7 days'"))
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([email, agencyId])
+  @@index([email, status])
+  @@index([token])
+  @@map("user_invites")
 }
 
