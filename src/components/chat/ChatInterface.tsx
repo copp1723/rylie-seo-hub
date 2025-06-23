@@ -105,8 +105,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
           messages: [...messages, userMessage].map(m => ({
             role: m.role,
             content: m.content
-          })),
-          model: model
+          }))
         })
       })
 
