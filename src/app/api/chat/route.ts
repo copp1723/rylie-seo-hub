@@ -243,8 +243,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Save AI message (skip for super admins without real conversation)
+    let assistantMessage = null
     if (!user.isSuperAdmin) {
-      const assistantMessage = await tenantPrisma.message.create({
+      assistantMessage = await tenantPrisma.message.create({
         data: {
           conversationId: conversation.id,
           userId: tenantContext.user.id,
@@ -303,6 +304,17 @@ export async function POST(request: NextRequest) {
       tokensUsed: aiResponse.tokens || 0,
     })
 
+    // For super admins, return a simplified response
+    if (user.isSuperAdmin) {
+      return NextResponse.json({
+        success: true,
+        content: aiResponse.content,
+        model: aiResponse.model || model,
+        tokens: aiResponse.tokens
+      })
+    }
+
+    // For regular users, return full conversation details
     return NextResponse.json({
       success: true,
       conversation: {
@@ -310,16 +322,16 @@ export async function POST(request: NextRequest) {
         title: conversation.title,
       },
       userMessage: {
-        id: userMessage.id,
-        content: userMessage.content,
-        createdAt: userMessage.createdAt,
+        id: userMessage!.id,
+        content: userMessage!.content,
+        createdAt: userMessage!.createdAt,
       },
       assistantMessage: {
-        id: assistantMessage.id,
-        content: assistantMessage.content,
-        createdAt: assistantMessage.createdAt,
-        model: assistantMessage.model,
-        tokens: assistantMessage.tokenCount,
+        id: assistantMessage!.id,
+        content: assistantMessage!.content,
+        createdAt: assistantMessage!.createdAt,
+        model: assistantMessage!.model,
+        tokens: assistantMessage!.tokenCount,
       },
     })
   } catch (error) {
