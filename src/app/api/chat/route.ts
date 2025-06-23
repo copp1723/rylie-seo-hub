@@ -114,6 +114,7 @@ export async function POST(request: NextRequest) {
       logger.warn('Invalid chat request', {
         userId: tenantContext.user.id,
         errors: validation.details.errors,
+        receivedData: body,
       })
       return NextResponse.json(
         {
@@ -123,6 +124,7 @@ export async function POST(request: NextRequest) {
             field: err.path.join('.'),
             message: err.message,
           })),
+          received: process.env.NODE_ENV === 'development' ? body : undefined,
         },
         { status: 400 }
       )
