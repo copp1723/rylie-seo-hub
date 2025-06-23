@@ -25,17 +25,78 @@ export async function POST(request: NextRequest) {
       return rateLimitResult
     }
 
-    // Get tenant context (includes authentication)
-    const tenantContext = await getTenantContext(request)
-    if (!tenantContext) {
-      logger.warn('No valid tenant context for chat API request')
+    // Check if user is authenticated first
+    const session = await auth()
+    if (!session?.user?.id) {
+      logger.warn('No authenticated user for chat API request')
       return NextResponse.json(
         {
           success: false,
-          error: 'Authentication required or invalid agency',
+          error: 'Authentication required',
         },
         { status: 401 }
       )
+    }
+
+    // Check if user is super admin
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        email: true,
+        isSuperAdmin: true,
+        role: true,
+        agencyId: true,
+      }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'User not found',
+        },
+        { status: 401 }
+      )
+    }
+
+    // For super admins, create a mock tenant context
+    let tenantContext = null
+    if (user.isSuperAdmin) {
+      logger.info('Super admin access granted for chat API', {
+        userId: user.id,
+        email: user.email,
+      })
+      tenantContext = {
+        agencyId: 'super-admin',
+        agency: {
+          id: 'super-admin',
+          name: 'Super Admin Access',
+          slug: 'super-admin',
+          plan: 'enterprise',
+          status: 'active',
+          maxUsers: 999999,
+          maxConversations: 999999,
+        },
+        user: {
+          id: user.id,
+          email: user.email,
+          role: 'admin',
+        }
+      }
+    } else {
+      // Get tenant context for regular users
+      tenantContext = await getTenantContext(request)
+      if (!tenantContext) {
+        logger.warn('No valid tenant context for chat API request')
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'You must be associated with an agency to use the chat. Please contact your administrator.',
+          },
+          { status: 401 }
+        )
+      }
     }
 
     logger.info('Chat API authenticated with tenant context', {
@@ -68,8 +129,8 @@ export async function POST(request: NextRequest) {
 
     const { message, conversationId, model } = validation.data
 
-    // Create tenant-scoped Prisma client
-    const tenantPrisma = createTenantPrisma(tenantContext.agencyId)
+    // Create tenant-scoped Prisma client (use regular prisma for super admins)
+    const tenantPrisma = user.isSuperAdmin ? prisma : createTenantPrisma(tenantContext.agencyId)
 
     // Track business event with tenant context
     trackEvent('chat_message_sent', {
@@ -81,22 +142,24 @@ export async function POST(request: NextRequest) {
       message_length: message.length,
     })
 
-    // Check usage limits
-    const usageLimits = await checkUsageLimits(tenantContext, 'conversations')
-    if (!usageLimits.allowed && !conversationId) {
-      logger.warn('Conversation limit exceeded', {
-        agencyId: tenantContext.agencyId,
-        current: usageLimits.current,
-        limit: usageLimits.limit,
-      })
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Conversation limit reached (${usageLimits.limit}). Please upgrade your plan.`,
-          details: { current: usageLimits.current, limit: usageLimits.limit },
-        },
-        { status: 429 }
-      )
+    // Check usage limits (skip for super admins)
+    if (!user.isSuperAdmin) {
+      const usageLimits = await checkUsageLimits(tenantContext, 'conversations')
+      if (!usageLimits.allowed && !conversationId) {
+        logger.warn('Conversation limit exceeded', {
+          agencyId: tenantContext.agencyId,
+          current: usageLimits.current,
+          limit: usageLimits.limit,
+        })
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Conversation limit reached (${usageLimits.limit}). Please upgrade your plan.`,
+            details: { current: usageLimits.current, limit: usageLimits.limit },
+          },
+          { status: 429 }
+        )
+      }
     }
 
     // Get or create conversation
@@ -119,30 +182,41 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
       }
     } else {
-      // Create new conversation
-      conversation = await tenantPrisma.conversation.create({
+      // Create new conversation (skip for super admins without real agency)
+      if (!user.isSuperAdmin) {
+        conversation = await tenantPrisma.conversation.create({
+          data: {
+            userId: tenantContext.user.id,
+            agencyId: tenantContext.agencyId,
+            model,
+            title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),
+          },
+          include: {
+            messages: true,
+          },
+        })
+      } else {
+        // For super admins, create a mock conversation object
+        conversation = {
+          id: 'super-admin-chat',
+          messages: []
+        }
+      }
+    }
+
+    // Save user message (skip for super admins without real conversation)
+    let userMessage = null
+    if (!user.isSuperAdmin) {
+      userMessage = await tenantPrisma.message.create({
         data: {
+          conversationId: conversation.id,
           userId: tenantContext.user.id,
           agencyId: tenantContext.agencyId,
-          model,
-          title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),
-        },
-        include: {
-          messages: true,
+          role: 'USER',
+          content: message,
         },
       })
     }
-
-    // Save user message
-    const userMessage = await tenantPrisma.message.create({
-      data: {
-        conversationId: conversation.id,
-        userId: tenantContext.user.id,
-        agencyId: tenantContext.agencyId,
-        role: 'USER',
-        content: message,
-      },
-    })
 
     // Prepare messages for AI
     const chatMessages = [
@@ -168,42 +242,44 @@ export async function POST(request: NextRequest) {
       cost?: number
     }
 
-    // Save AI message
-    const assistantMessage = await tenantPrisma.message.create({
-      data: {
-        conversationId: conversation.id,
-        userId: tenantContext.user.id,
-        agencyId: tenantContext.agencyId,
-        role: 'ASSISTANT',
-        content: aiResponse.content,
-        model: aiResponse.model || model,
-        tokenCount: aiResponse.tokens || null,
-      },
-    })
-
-    // Update conversation timestamp and message count
-    await tenantPrisma.conversation.update({
-      where: { id: conversation.id },
-      data: {
-        updatedAt: new Date(),
-        messageCount: { increment: 2 }, // User + assistant message
-        lastMessage: aiResponse.content.slice(0, 100),
-        lastMessageAt: new Date(),
-      },
-    })
-
-    // Track usage metrics
-    if (aiResponse.tokens) {
-      await prisma.usageMetric.create({
+    // Save AI message (skip for super admins without real conversation)
+    if (!user.isSuperAdmin) {
+      const assistantMessage = await tenantPrisma.message.create({
         data: {
+          conversationId: conversation.id,
+          userId: tenantContext.user.id,
           agencyId: tenantContext.agencyId,
-          metricType: 'tokens',
-          value: aiResponse.tokens,
+          role: 'ASSISTANT',
+          content: aiResponse.content,
           model: aiResponse.model || model,
-          date: new Date(),
-          period: 'daily',
+          tokenCount: aiResponse.tokens || null,
         },
       })
+
+      // Update conversation timestamp and message count
+      await tenantPrisma.conversation.update({
+        where: { id: conversation.id },
+        data: {
+          updatedAt: new Date(),
+          messageCount: { increment: 2 }, // User + assistant message
+          lastMessage: aiResponse.content.slice(0, 100),
+          lastMessageAt: new Date(),
+        },
+      })
+
+      // Track usage metrics
+      if (aiResponse.tokens) {
+        await prisma.usageMetric.create({
+          data: {
+            agencyId: tenantContext.agencyId,
+            metricType: 'tokens',
+            value: aiResponse.tokens,
+            model: aiResponse.model || model,
+            date: new Date(),
+            period: 'daily',
+          },
+        })
+      }
     }
 
     // Track successful completion
