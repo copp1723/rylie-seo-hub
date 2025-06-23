@@ -17,6 +17,11 @@ export async function POST(
         { status: 401 }
       )
     }
+    
+    // Extract user data after validation
+    const userEmail = session.user.email
+    const userName = session.user.name || null
+    const userImage = session.user.image || null
 
     // Find invite
     const invite = await prisma.userInvite.findUnique({
@@ -50,11 +55,11 @@ export async function POST(
     }
 
     // Check if email matches
-    if (invite.email !== session.user.email) {
+    if (invite.email !== userEmail) {
       return NextResponse.json(
         { 
           error: 'This invitation is for a different email address',
-          details: `Invitation is for ${invite.email}, but you are signed in as ${session.user.email}`
+          details: `Invitation is for ${invite.email}, but you are signed in as ${userEmail}`
         },
         { status: 403 }
       )
@@ -64,7 +69,7 @@ export async function POST(
     const result = await prisma.$transaction(async (tx) => {
       // Check if user already exists
       let user = await tx.user.findUnique({
-        where: { email: session.user.email! }
+        where: { email: userEmail }
       })
 
       if (user) {
@@ -81,9 +86,9 @@ export async function POST(
         // This shouldn't happen with NextAuth, but handle it
         user = await tx.user.create({
           data: {
-            email: session.user.email!,
-            name: session.user.name || null,
-            image: session.user.image || null,
+            email: userEmail,
+            name: userName,
+            image: userImage,
             isSuperAdmin: invite.isSuperAdmin,
             role: invite.role,
             agencyId: invite.agencyId
@@ -106,7 +111,7 @@ export async function POST(
           action: 'INVITE_ACCEPTED',
           entityType: 'user_invite',
           entityId: invite.id,
-          userEmail: session.user.email!,
+          userEmail: userEmail,
           details: {
             inviteEmail: invite.email,
             role: invite.role,
