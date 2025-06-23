@@ -40,8 +40,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is super admin
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+    const user = await prisma.user.findFirst({
+      where: { 
+        OR: [
+          { id: session.user.id },
+          { email: session.user.email || '' }
+        ]
+      },
       select: {
         id: true,
         email: true,
@@ -56,6 +61,10 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'User not found',
+          details: { 
+            sessionUserId: session.user.id,
+            sessionEmail: session.user.email 
+          }
         },
         { status: 401 }
       )
@@ -69,9 +78,9 @@ export async function POST(request: NextRequest) {
         email: user.email,
       })
       tenantContext = {
-        agencyId: 'super-admin',
+        agencyId: user.agencyId || 'super-admin',
         agency: {
-          id: 'super-admin',
+          id: user.agencyId || 'super-admin',
           name: 'Super Admin Access',
           slug: 'super-admin',
           plan: 'enterprise',
