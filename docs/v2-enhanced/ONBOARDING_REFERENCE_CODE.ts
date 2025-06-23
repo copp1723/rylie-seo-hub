@@ -29,45 +29,81 @@ export interface SEOWerksSubmissionData {
   targetDealers: string[];
 }
 
+export interface SEOWerksSubmissionResult {
+  success: boolean;
+  message: string;
+  error?: string;
+}
+
 /**
- * Transform onboarding data to SEOWerks format
+ * Validates SEOWerks submission data
  */
-export function transformToSEOWerksFormat(onboardingData: any): SEOWerksSubmissionData {
+export function validateSEOWerksData(data: SEOWerksSubmissionData): { isValid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  // Required string fields
+  const requiredFields = [
+    'dealerName', 'package', 'mainBrand', 'address', 'city', 'state', 'zipCode',
+    'dealerContactName', 'dealerContactTitle', 'dealerContactEmail', 
+    'dealerContactPhone', 'dealerWebsiteUrl', 'billingContactEmail', 'siteAccessNotes'
+  ];
+
+  for (const field of requiredFields) {
+    if (!data[field as keyof SEOWerksSubmissionData] || 
+        (typeof data[field as keyof SEOWerksSubmissionData] === 'string' && 
+         (data[field as keyof SEOWerksSubmissionData] as string).trim() === '')) {
+      errors.push(`${field} is required`);
+    }
+  }
+
+  // Array fields must have at least 3 items
+  const arrayFields = ['targetVehicleModels', 'targetCities', 'targetDealers'];
+  for (const field of arrayFields) {
+    const value = data[field as keyof SEOWerksSubmissionData] as string[];
+    if (!Array.isArray(value) || value.length < 3) {
+      errors.push(`${field} must have at least 3 items`);
+    }
+  }
+
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(data.dealerContactEmail)) {
+    errors.push('dealerContactEmail must be a valid email');
+  }
+  if (!emailRegex.test(data.billingContactEmail)) {
+    errors.push('billingContactEmail must be a valid email');
+  }
+
+  // Package validation
+  if (!['PLATINUM', 'GOLD', 'SILVER'].includes(data.package)) {
+    errors.push('package must be PLATINUM, GOLD, or SILVER');
+  }
+
   return {
-    dealerName: onboardingData.businessName,
-    package: onboardingData.package,
-    mainBrand: onboardingData.mainBrand,
-    otherBrand: onboardingData.otherBrand,
-    address: onboardingData.address,
-    city: onboardingData.city,
-    state: onboardingData.state,
-    zipCode: onboardingData.zipCode,
-    dealerContactName: onboardingData.contactName,
-    dealerContactTitle: onboardingData.contactTitle,
-    dealerContactEmail: onboardingData.email,
-    dealerContactPhone: onboardingData.phone,
-    dealerWebsiteUrl: onboardingData.websiteUrl,
-    billingContactEmail: onboardingData.billingEmail,
-    siteAccessNotes: onboardingData.siteAccessNotes,
-    targetVehicleModels: onboardingData.targetVehicleModels.filter(Boolean),
-    targetCities: onboardingData.targetCities.filter(Boolean),
-    targetDealers: onboardingData.targetDealers.filter(Boolean),
+    isValid: errors.length === 0,
+    errors
   };
 }
 
 /**
- * Submit data to SEOWerks platform
+ * Transforms form data to SEOWerks format and submits
  */
-export async function submitToSEOWerks(data: SEOWerksSubmissionData): Promise<{
-  success: boolean;
-  message: string;
-  error?: string;
-}> {
+export async function submitToSEOWerks(data: SEOWerksSubmissionData): Promise<SEOWerksSubmissionResult> {
   try {
-    // Create form data to match SEOWerks form submission
+    // Validate data first
+    const validation = validateSEOWerksData(data);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        message: 'Validation failed',
+        error: validation.errors.join(', ')
+      };
+    }
+
+    // Create FormData for submission
     const formData = new FormData();
     
-    // Map all fields to form data
+    // Map all fields to SEOWerks expected format
     formData.append('dealer_name', data.dealerName);
     formData.append('package', data.package);
     formData.append('main_brand', data.mainBrand);
@@ -86,7 +122,7 @@ export async function submitToSEOWerks(data: SEOWerksSubmissionData): Promise<{
     formData.append('billing_contact_email', data.billingContactEmail);
     formData.append('site_access_notes', data.siteAccessNotes);
     
-    // Add target arrays
+    // Handle arrays
     data.targetVehicleModels.forEach((model, index) => {
       formData.append(`target_vehicle_models[${index}]`, model);
     });
@@ -121,60 +157,51 @@ export async function submitToSEOWerks(data: SEOWerksSubmissionData): Promise<{
     console.error('SEOWerks submission error:', error);
     return {
       success: false,
-      message: 'Failed to submit to SEOWerks platform',
-      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'Failed to submit to SEOWerks',
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }
 
 /**
- * Validate required fields for SEOWerks submission
+ * Transform form data to SEOWerks format (for testing/preview)
  */
-export function validateSEOWerksData(data: Partial<SEOWerksSubmissionData>): {
-  isValid: boolean;
-  missingFields: string[];
-} {
-  const requiredFields: (keyof SEOWerksSubmissionData)[] = [
-    'dealerName',
-    'package',
-    'mainBrand',
-    'address',
-    'city',
-    'state',
-    'zipCode',
-    'dealerContactName',
-    'dealerContactTitle',
-    'dealerContactEmail',
-    'dealerContactPhone',
-    'dealerWebsiteUrl',
-    'billingContactEmail',
-  ];
+export function transformToSEOWerksFormat(data: SEOWerksSubmissionData): Record<string, any> {
+  const transformed: Record<string, any> = {
+    dealer_name: data.dealerName,
+    package: data.package,
+    main_brand: data.mainBrand,
+    address: data.address,
+    city: data.city,
+    state: data.state,
+    zip_code: data.zipCode,
+    dealer_contact_name: data.dealerContactName,
+    dealer_contact_title: data.dealerContactTitle,
+    dealer_contact_email: data.dealerContactEmail,
+    dealer_contact_phone: data.dealerContactPhone,
+    dealer_website_url: data.dealerWebsiteUrl,
+    billing_contact_email: data.billingContactEmail,
+    site_access_notes: data.siteAccessNotes,
+  };
 
-  const missingFields: string[] = [];
+  if (data.otherBrand) {
+    transformed.other_brand = data.otherBrand;
+  }
 
-  requiredFields.forEach(field => {
-    if (!data[field] || (typeof data[field] === 'string' && !data[field]?.trim())) {
-      missingFields.push(field);
-    }
+  // Add arrays
+  data.targetVehicleModels.forEach((model, index) => {
+    transformed[`target_vehicle_models[${index}]`] = model;
+  });
+  
+  data.targetCities.forEach((city, index) => {
+    transformed[`target_cities[${index}]`] = city;
+  });
+  
+  data.targetDealers.forEach((dealer, index) => {
+    transformed[`target_dealers[${index}]`] = dealer;
   });
 
-  // Validate arrays have at least 3 items
-  if (!data.targetVehicleModels || data.targetVehicleModels.filter(Boolean).length < 3) {
-    missingFields.push('targetVehicleModels (minimum 3)');
-  }
-
-  if (!data.targetCities || data.targetCities.filter(Boolean).length < 3) {
-    missingFields.push('targetCities (minimum 3)');
-  }
-
-  if (!data.targetDealers || data.targetDealers.filter(Boolean).length < 3) {
-    missingFields.push('targetDealers (minimum 3)');
-  }
-
-  return {
-    isValid: missingFields.length === 0,
-    missingFields,
-  };
+  return transformed;
 }
 
 /**

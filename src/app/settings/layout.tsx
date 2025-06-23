@@ -1,10 +1,10 @@
 'use client'
 
-import { Navbar } from '@/components/navbar'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { User, Settings, BarChart } from 'lucide-react'
+import { User, Settings, BarChart, ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 const settingsNav = [
   {
@@ -36,7 +36,18 @@ export default function SettingsLayout({
 
   return (
     <>
-      <Navbar />
+      <div className="border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <h1 className="text-xl font-semibold">Settings</h1>
+          </div>
+        </div>
+      </div>
       <div className="container mx-auto px-4 py-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Settings</h1>
