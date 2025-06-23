@@ -100,15 +100,20 @@ export async function POST(req: NextRequest) {
     // Send email invitation
     const inviteUrl = `${process.env.NEXTAUTH_URL}/invite/${invite.token}`
     
-    // Send the invite email
-    await emailService.sendInviteEmail(
-      email,
-      session.user.name || 'Admin',
-      session.user.email,
-      role,
-      isSuperAdmin,
-      inviteUrl
-    )
+    // Try to send the invite email, but don't fail if email service is not configured
+    try {
+      await emailService.sendInviteEmail(
+        email,
+        session.user.name || 'Admin',
+        session.user.email,
+        role,
+        isSuperAdmin,
+        inviteUrl
+      )
+    } catch (emailError) {
+      console.warn('Failed to send invite email:', emailError)
+      // Continue without email - the invite is still created in the database
+    }
 
     return NextResponse.json({
       success: true,
