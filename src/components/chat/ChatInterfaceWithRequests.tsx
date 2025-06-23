@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { User } from 'next-auth'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { RequestForm, RequestData } from '@/components/requests/RequestForm'
 import {
   Send,
@@ -402,13 +402,13 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                   <p className="whitespace-pre-wrap">{message.content}</p>
                   {message.metadata && (
                     <div className="mt-3 pt-3 border-t border-current/10 text-sm space-y-1">
-                      {Object.entries(message.metadata).map(([key, value]) => (
-                        value && (
+                      {Object.entries(message.metadata)
+                        .filter(([, value]) => value)
+                        .map(([key, value]) => (
                           <div key={key}>
-                            <span className="font-semibold">{key.replace(/([A-Z])/g, ' $1').trim()}:</span> {value as string}
+                            <span className="font-semibold">{key.replace(/([A-Z])/g, ' $1').trim()}:</span> {String(value)}
                           </div>
-                        )
-                      ))}
+                        ))}
                     </div>
                   )}
                   <p className="text-xs opacity-70 mt-2">

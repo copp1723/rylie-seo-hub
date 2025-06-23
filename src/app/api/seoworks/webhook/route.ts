@@ -73,12 +73,12 @@ export async function POST(req: NextRequest) {
             status: taskData.status,
             completionNotes: taskData.completion_notes,
             completedAt: taskData.status === 'completed' ? new Date(taskData.completion_date) : null,
-            deliverables: taskData.payload ? {
+            deliverables: taskData.payload ? JSON.parse(JSON.stringify({
               ...(existingTask.order.deliverables as object || {}),
               postUrl: taskData.post_url,
               postTitle: taskData.post_title,
               ...taskData.payload
-            } : existingTask.order.deliverables
+            })) : existingTask.order.deliverables
           }
         })
       }
