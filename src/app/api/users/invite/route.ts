@@ -19,6 +19,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Check if session has user ID (required for invite creation)
+    if (!session.user.id) {
+      console.error('Session missing user ID:', {
+        email: session.user.email,
+        hasId: !!session.user.id
+      })
+      return NextResponse.json({ 
+        error: 'Authentication incomplete. Please sign out and sign in again.',
+        details: 'Session is missing user ID - this indicates an authentication configuration issue'
+      }, { status: 500 })
+    }
+
     // Check if user is super admin
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
