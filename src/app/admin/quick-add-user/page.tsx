@@ -11,15 +11,20 @@ export default function QuickAddUser() {
 
   const handleMakeMeAdmin = async () => {
     setLoading(true);
+    setMessage('Making you admin...');
     try {
       const response = await fetch('/api/make-me-admin');
       const data = await response.json();
-      setMessage(data.message || 'Success! You are now a super admin.');
+      
       if (response.ok) {
-        setTimeout(() => router.push('/admin/users'), 2000);
+        setMessage(`✅ ${data.message || 'Success! You are now a super admin.'}`);
+        // Don't redirect, let them stay on the page to add users
+      } else {
+        setMessage(`❌ Error: ${data.error || 'Failed to make you admin'}`);
       }
     } catch (error) {
-      setMessage('Error making you admin');
+      console.error('Error making admin:', error);
+      setMessage('❌ Error making you admin - check console');
     }
     setLoading(false);
   };
