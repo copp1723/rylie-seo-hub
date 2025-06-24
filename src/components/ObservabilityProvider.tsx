@@ -6,15 +6,22 @@ import posthog from 'posthog-js'
 import { initSentry, setUserContext, trackEvent } from '@/lib/observability'
 import { useSession } from 'next-auth/react'
 
-// Initialize PostHog
-if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
-    capture_pageview: false, // We'll handle this manually
-    loaded: posthog => {
-      if (process.env.NODE_ENV === 'development') posthog.debug()
-    },
-  })
+// Initialize PostHog only if properly configured
+if (typeof window !== 'undefined' && 
+    process.env.NEXT_PUBLIC_POSTHOG_KEY && 
+    process.env.NEXT_PUBLIC_POSTHOG_KEY !== 'placeholder-posthog-key' &&
+    process.env.NEXT_PUBLIC_POSTHOG_KEY.length > 10) {
+  try {
+    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
+      capture_pageview: false, // We'll handle this manually
+      loaded: posthog => {
+        if (process.env.NODE_ENV === 'development') posthog.debug()
+      },
+    })
+  } catch (error) {
+    console.warn('PostHog initialization failed:', error)
+  }
 }
 
 export function ObservabilityProvider({ children }: { children: React.ReactNode }) {
@@ -22,24 +29,40 @@ export function ObservabilityProvider({ children }: { children: React.ReactNode 
   const { data: session } = useSession()
 
   useEffect(() => {
-    // Initialize Sentry
-    initSentry()
+    // Initialize Sentry only if properly configured
+    try {
+      initSentry()
+    } catch (error) {
+      console.warn('Sentry initialization failed:', error)
+    }
 
     // Track page views
     const handleRouteChange = (url: string) => {
-      if (typeof window !== 'undefined' && window.posthog) {
-        window.posthog.capture('$pageview', { url })
+      try {
+        if (typeof window !== 'undefined' && window.posthog) {
+          window.posthog.capture('$pageview', { url })
+        }
+        trackEvent('page_view', { url })
+      } catch (error) {
+        console.warn('Page view tracking failed:', error)
       }
-      trackEvent('page_view', { url })
     }
 
     // Initial page view
-    handleRouteChange(window.location.pathname)
+    try {
+      handleRouteChange(window.location.pathname)
+    } catch (error) {
+      console.warn('Initial page view tracking failed:', error)
+    }
 
     // Listen for route changes
     const originalPush = router.push
     router.push = (...args) => {
-      handleRouteChange(args[0] as string)
+      try {
+        handleRouteChange(args[0] as string)
+      } catch (error) {
+        console.warn('Route change tracking failed:', error)
+      }
       return originalPush.apply(router, args)
     }
 
@@ -51,17 +74,21 @@ export function ObservabilityProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     // Set user context when session changes
     if (session?.user) {
-      setUserContext({
-        id: session.user.id!,
-        email: session.user.email!,
-      })
-
-      // Identify user in PostHog
-      if (typeof window !== 'undefined' && window.posthog) {
-        window.posthog.identify(session.user.id!, {
-          email: session.user.email,
-          name: session.user.name,
+      try {
+        setUserContext({
+          id: session.user.id!,
+          email: session.user.email!,
         })
+
+        // Identify user in PostHog
+        if (typeof window !== 'undefined' && window.posthog) {
+          window.posthog.identify(session.user.id!, {
+            email: session.user.email,
+            name: session.user.name,
+          })
+        }
+      } catch (error) {
+        console.warn('User context setting failed:', error)
       }
     }
   }, [session])
@@ -69,20 +96,29 @@ export function ObservabilityProvider({ children }: { children: React.ReactNode 
   return <>{children}</>
 }
 
-// Global error handler
+// Global error handler with better error handling
 if (typeof window !== 'undefined') {
   window.addEventListener('error', event => {
-    trackEvent('javascript_error', {
-      message: event.message,
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
-    })
+    try {
+      trackEvent('javascript_error', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+      })
+    } catch (error) {
+      console.warn('Error tracking failed:', error)
+    }
   })
 
   window.addEventListener('unhandledrejection', event => {
-    trackEvent('unhandled_promise_rejection', {
-      reason: event.reason?.toString(),
-    })
+    try {
+      trackEvent('unhandled_promise_rejection', {
+        reason: event.reason?.toString(),
+      })
+    } catch (error) {
+      console.warn('Promise rejection tracking failed:', error)
+    }
   })
 }
+

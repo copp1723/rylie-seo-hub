@@ -179,19 +179,31 @@ export const withErrorBoundary = (Component: React.ComponentType<unknown>) => {
 
 // Initialize Sentry
 export const initSentry = () => {
-  if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-    Sentry.init({
-      dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-      environment: process.env.NODE_ENV,
-      tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-      beforeSend(event) {
-        // Filter out development errors
-        if (process.env.NODE_ENV === 'development') {
-          return null
-        }
-        return event
-      },
-    })
+  const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN
+  
+  // Only initialize if we have a valid DSN (not placeholder or empty)
+  if (sentryDsn && 
+      sentryDsn !== 'placeholder-public-sentry-dsn' && 
+      sentryDsn.startsWith('https://') && 
+      sentryDsn.length > 20) {
+    try {
+      Sentry.init({
+        dsn: sentryDsn,
+        environment: process.env.NODE_ENV,
+        tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+        beforeSend(event) {
+          // Filter out development errors
+          if (process.env.NODE_ENV === 'development') {
+            return null
+          }
+          return event
+        },
+      })
+    } catch (error) {
+      console.warn('Sentry initialization failed:', error)
+    }
+  } else if (process.env.NODE_ENV === 'development') {
+    console.log('Sentry not initialized - invalid or missing DSN')
   }
 }
 
