@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { InviteUserSection } from './InviteUserSection'
 
 interface SuperAdminDashboardProps {
   agencies: any[]
@@ -90,6 +91,7 @@ export function SuperAdminDashboard({ agencies, users, totalConversations }: Sup
         </TabsContent>
         
         <TabsContent value="users" className="space-y-4">
+          <InviteUserSection onInviteSuccess={() => window.location.reload()} />
           <Card>
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">All Users</h3>
