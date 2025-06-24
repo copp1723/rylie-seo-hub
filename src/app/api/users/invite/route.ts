@@ -93,21 +93,40 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Create invite
-    const invite = await prisma.userInvite.create({
-      data: {
-        email,
-        role: isSuperAdmin ? 'super_admin' : role,
-        isSuperAdmin,
-        agencyId: isSuperAdmin ? null : (agencyId || currentUser.agencyId),
-        invitedBy: currentUser.id,
-      },
-      include: {
-        agency: true
-      }
-    })
+    // Create invite with proper error handling
+    try {
+      // Double-check that the current user actually exists in the database
+      const userExists = await prisma.user.findUnique({
+        where: { id: currentUser.id },
+        select: { id: true }
+      })
 
-    // Send email invitation
+      if (!userExists) {
+        console.error('User session exists but user not found in database:', {
+          sessionEmail: session.user.email,
+          currentUserId: currentUser.id,
+          currentUserEmail: currentUser.email
+        })
+        return NextResponse.json({ 
+          error: 'User session is invalid. Please sign out and sign in again.',
+          details: 'User not found in database despite valid session'
+        }, { status: 500 })
+      }
+
+      const invite = await prisma.userInvite.create({
+        data: {
+          email,
+          role: isSuperAdmin ? 'super_admin' : role,
+          isSuperAdmin,
+          agencyId: isSuperAdmin ? null : (agencyId || currentUser.agencyId),
+          invitedBy: currentUser.id,
+        },
+        include: {
+          agency: true
+        }
+      })
+
+      // Send email invitation
     const inviteUrl = `${process.env.NEXTAUTH_URL}/invite/${invite.token}`
     
     // Try to send the invite email, but don't fail if email service is not configured
@@ -137,6 +156,26 @@ export async function POST(req: NextRequest) {
       },
       message: `Invite sent to ${email}. They can sign in with Google using the invite link.`
     })
+
+    } catch (inviteError) {
+      console.error('Error creating invite:', inviteError)
+      
+      // Handle specific Prisma foreign key constraint error
+      if (inviteError.code === 'P2003') {
+        console.error('Foreign key constraint violation - user ID does not exist:', {
+          sessionEmail: session.user.email,
+          currentUserId: currentUser.id,
+          currentUserEmail: currentUser.email
+        })
+        return NextResponse.json({ 
+          error: 'User session is corrupted. Please sign out and sign in again.',
+          details: 'Foreign key constraint violation on invitedBy field'
+        }, { status: 500 })
+      }
+      
+      // Re-throw other errors to be handled by outer catch
+      throw inviteError
+    }
 
   } catch (error) {
     console.error('Error creating invite:', error)
