@@ -4,7 +4,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from './prisma'
 
 // Production-ready auth configuration with magic link
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const authConfig = {
   adapter: PrismaAdapter(prisma),
   trustHost: true, // Trust the host in production
   providers: [
@@ -116,4 +116,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return `${baseUrl}/dashboard`
     },
   },
-}))
+}
+
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)
