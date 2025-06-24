@@ -1,27 +1,28 @@
 import NextAuth from 'next-auth'
-import Google from 'next-auth/providers/google'
+import Email from 'next-auth/providers/email'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from './prisma'
 
-// Production-ready auth configuration
+// Production-ready auth configuration with magic link
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   trustHost: true, // Trust the host in production
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          scope: 'openid email profile https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/analytics.manage.users.readonly',
-          access_type: 'offline',
-          prompt: 'consent',
+    Email({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.EMAIL_SERVER_PORT || '587'),
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD,
         },
       },
+      from: process.env.EMAIL_FROM || 'noreply@rylie-seo-hub.com',
     }),
   ],
   pages: {
     signIn: '/',
+    verifyRequest: '/auth/verify-request',
   },
   callbacks: {
     session: async ({ session, user, token }) => {
@@ -64,14 +65,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     signIn: async ({ user, account, profile }) => {
       // Log sign in attempts for debugging
-      console.log('Sign in attempt:', { 
+      console.log('Magic link sign in attempt:', { 
         email: user.email,
         provider: account?.provider,
         userId: user.id 
       })
       
       try {
-        // Ensure user exists in database
+        // Ensure user exists in database with proper defaults
         if (user.email) {
           const existingUser = await prisma.user.findUnique({
             where: { email: user.email }
@@ -115,4 +116,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return `${baseUrl}/dashboard`
     },
   },
-})
+}))
