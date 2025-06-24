@@ -33,7 +33,11 @@ export default function QuickAddUser() {
       const response = await fetch('/api/users/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ 
+          email,
+          role: 'user',
+          isSuperAdmin: false 
+        })
       });
 
       const data = await response.json();
@@ -42,7 +46,10 @@ export default function QuickAddUser() {
         setMessage(`✅ Invitation sent to ${email}`);
         setEmail('');
       } else {
-        setMessage(`❌ Error: ${data.error || 'Failed to send invitation'}`);
+        // Show the actual error from the server
+        const errorMsg = data.error || 'Failed to send invitation';
+        const details = data.details ? ` (${JSON.stringify(data.details)})` : '';
+        setMessage(`❌ Error: ${errorMsg}${details}`);
       }
     } catch (error) {
       setMessage('❌ Error sending invitation');
