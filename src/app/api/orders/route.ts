@@ -1,92 +1,98 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
+import { withAuth, successResponse, errorResponse } from '@/lib/api/route-handler'
 
-export async function GET(request: NextRequest) {
+// Validation schemas
+const createOrderSchema = z.object({
+  taskType: z.enum(['blog-post', 'landing-page', 'meta-description', 'custom']),
+  title: z.string().min(1).max(200),
+  description: z.string().min(1).max(1000),
+  wordCount: z.number().optional(),
+  keywords: z.array(z.string()).optional(),
+  deadline: z.string().datetime().optional()
+})
+
+// GET /api/orders - List all orders
+export const GET = withAuth(async (request, { user, tenant }) => {
   try {
-    const session = await auth()
+    // Parse query params
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const offset = parseInt(searchParams.get('offset') || '0')
     
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Build where clause
+    const where: any = {
+      userEmail: user.email,
+      agencyId: tenant.agencyId
     }
-
-    // Get all orders for this user
-    const orders = await prisma.order.findMany({
-      where: {
-        userEmail: session.user.email
-      },
-      orderBy: {
-        createdAt: 'desc'
+    
+    if (status) {
+      where.status = status.toUpperCase()
+    }
+    
+    // Fetch orders with pagination
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+        include: {
+          _count: {
+            select: { messages: true }
+          }
+        }
+      }),
+      prisma.order.count({ where })
+    ])
+    
+    return successResponse({
+      orders,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total
       }
-    })
-
-    return NextResponse.json({ 
-      success: true,
-      orders: orders.map(order => ({
-        id: order.id,
-        taskType: order.taskType,
-        title: order.title,
-        description: order.description,
-        status: order.status,
-        requestedAt: order.createdAt,
-        completedAt: order.completedAt,
-        assignedTo: order.assignedTo,
-        estimatedHours: order.estimatedHours,
-        actualHours: order.actualHours,
-        deliverables: order.deliverables ? JSON.parse(order.deliverables as string) : [],
-        completionNotes: order.completionNotes,
-        qualityScore: order.qualityScore
-      }))
     })
   } catch (error) {
     console.error('Error fetching orders:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch orders' },
-      { status: 500 }
-    )
+    return errorResponse('Failed to fetch orders', 500)
   }
-}
+})
 
-export async function POST(request: NextRequest) {
+// POST /api/orders - Create new order
+export const POST = withAuth(async (request, { user, tenant }) => {
   try {
-    const session = await auth()
-    
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+    // Parse and validate body
     const body = await request.json()
-    const { taskType, title, description, estimatedHours } = body
-
-    // Create new order
+    const validatedData = createOrderSchema.parse(body)
+    
+    // Create order
     const order = await prisma.order.create({
       data: {
-        taskType,
-        title,
-        description,
-        status: 'pending',
-        userEmail: session.user.email,
-        estimatedHours: estimatedHours || null
+        ...validatedData,
+        userEmail: user.email,
+        agencyId: tenant.agencyId,
+        status: 'PENDING',
+        keywords: validatedData.keywords || [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     })
-
-    return NextResponse.json({ 
-      success: true,
-      order: {
-        id: order.id,
-        taskType: order.taskType,
-        title: order.title,
-        description: order.description,
-        status: order.status,
-        requestedAt: order.createdAt,
-        estimatedHours: order.estimatedHours
-      }
-    })
+    
+    // TODO: Send email notification
+    // await sendOrderNotification(order)
+    
+    return successResponse({ order }, 'Order created successfully', 201)
   } catch (error) {
-    console.error('Error creating order:', error)
-    return NextResponse.json(
-      { error: 'Failed to create order' },
-      { status: 500 }
-    )
+    if (error instanceof z.ZodError) {
+      return errorResponse('Invalid request data', 400, error.errors)
+    }
+    
+    console.error('Orders POST error:', error)
+    return errorResponse('Failed to create order', 500)
   }
-}
+})
