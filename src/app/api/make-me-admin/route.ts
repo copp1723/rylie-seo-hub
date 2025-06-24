@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { db } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
@@ -12,7 +12,7 @@ export async function GET() {
     }
 
     // Update the current user to be a super admin
-    const updatedUser = await db.user.update({
+    const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
       data: { role: 'SUPER_ADMIN' }
     });
