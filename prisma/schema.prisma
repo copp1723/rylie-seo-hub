@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -25,7 +25,7 @@ model Agency {
   // GA4 Integration
   ga4PropertyId    String?
   ga4PropertyName  String?
-  ga4RefreshToken  String? @db.Text // Encrypted refresh token
+  ga4RefreshToken  String? // Encrypted refresh token
   
   // Subscription/billing
   plan          String @default("starter") // starter, professional, enterprise
@@ -34,6 +34,7 @@ model Agency {
   // Limits based on plan
   maxUsers      Int @default(5)
   maxConversations Int @default(100)
+  maxOrders     Int @default(50) // Monthly order limit
   
   // Timestamps
   createdAt   DateTime @default(now())
@@ -45,6 +46,7 @@ model Agency {
   themes        Theme[]
   usageMetrics  UsageMetric[]
   orders        Order[]
+  orderMessages OrderMessage[]
   dealershipOnboardings DealershipOnboarding[]
   seoworksTasks SEOWorksTask[]
   userInvites   UserInvite[]
@@ -64,7 +66,7 @@ model User {
   agency        Agency?   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   
   // User role within agency
-  role          String    @default("user") // admin, user, viewer
+  role          String    @default("USER") // ADMIN, USER, VIEWER
   
   // Super admin flag (platform level)
   isSuperAdmin  Boolean   @default(false)
@@ -82,6 +84,7 @@ model User {
   conversations Conversation[]
   messages      Message[]
   orders        Order[]
+  orderMessages OrderMessage[]
   auditLogs     AuditLog[]
   sentInvites   UserInvite[]
   
@@ -94,12 +97,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -145,6 +148,10 @@ model Conversation {
   messageCount Int     @default(0)
   lastMessage  String?
   lastMessageAt DateTime?
+  settings     Json?    // Additional settings
+  
+  // Soft delete
+  deletedAt    DateTime?
   
   // Timestamps
   createdAt   DateTime @default(now())
@@ -160,8 +167,8 @@ model Conversation {
 
 model Message {
   id             String   @id @default(cuid())
-  content        String   @db.Text
-  role           String   // user, assistant, system
+  content        String
+  role           String   // USER, ASSISTANT, SYSTEM
   model          String?  // AI model used for assistant messages
   
   // Multi-tenant isolation
@@ -191,17 +198,24 @@ model Order {
   id             String   @id @default(cuid())
   
   // Multi-tenant isolation
-  agencyId       String?
-  agency         Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  agencyId       String
+  agency         Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   
   // User relationship
+  userId         String
   userEmail      String
-  user           User?    @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  user           User     @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   
   // Task details
-  taskType       String   // blog, page, gbp, maintenance, seo
+  taskType       String   // blog, page, gbp, maintenance, seo, seo_audit
   title          String
-  description    String   @db.Text
+  description    String
+  priority       String   @default("medium") // low, medium, high
+  
+  // SEO specific fields
+  keywords       String?  // JSON array of keywords
+  targetUrl      String?  // Target URL for the content
+  wordCount      Int?     // Target word count
   
   // Status tracking
   status         String   @default("pending") // pending, in_progress, completed, cancelled
@@ -211,11 +225,15 @@ model Order {
   // Time tracking
   estimatedHours Float?
   actualHours    Float?
+  startedAt      DateTime?
   
   // Deliverables and results
-  deliverables   Json?    // Array of deliverable objects
-  completionNotes String? @db.Text
+  deliverables   String?  // JSON array of deliverable objects
+  completionNotes String?
   qualityScore   Int?     // 1-5 rating
+  
+  // Soft delete
+  deletedAt      DateTime?
   
   // Timestamps
   createdAt      DateTime @default(now())
@@ -224,10 +242,40 @@ model Order {
   
   // Relations
   seoworksTask   SEOWorksTask?
+  messages       OrderMessage[]
   
   @@index([agencyId, status])
+  @@index([userId, status])
   @@index([userEmail, status])
   @@map("orders")
+}
+
+// Order messages/comments
+model OrderMessage {
+  id          String   @id @default(cuid())
+  
+  // Order relationship
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // Multi-tenant isolation
+  agencyId    String
+  agency      Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // User relationship
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Message details
+  content     String
+  type        String   @default("comment") // comment, status_update, completion_note, question
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  @@index([orderId])
+  @@index([agencyId, orderId])
+  @@map("order_messages")
 }
 
 // Audit log for tracking changes
@@ -240,8 +288,9 @@ model AuditLog {
   entityId    String
   
   // User who performed the action
+  userId      String
   userEmail   String
-  user        User?    @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  user        User     @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   
   // Additional details
   details     Json?
@@ -288,7 +337,7 @@ model UsageMetric {
   agency       Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   
   // Usage data
-  metricType   String   // messages, tokens, api_calls, storage
+  metricType   String   // messages, tokens, api_calls, storage, orders
   value        Int      // Numeric value of the metric
   model        String?  // AI model if applicable
   
@@ -353,9 +402,9 @@ model DealershipOnboarding {
   siteAccessNotes      String?
   
   // Target Arrays (stored as JSON)
-  targetVehicleModels  String[] // Array of vehicle models
-  targetCities         String[] // Array of target cities
-  targetDealers        String[] // Array of target dealers
+  targetVehicleModels  Json    // Array of vehicle models
+  targetCities         Json    // Array of target cities
+  targetDealers        Json    // Array of target dealers
   
   // Submission tracking
   submittedBy          String   // Email of user who submitted
@@ -385,7 +434,7 @@ model SEOWorksTask {
   completionDate    DateTime?
   postTitle         String
   postUrl           String?
-  completionNotes   String?  @db.Text
+  completionNotes   String?
   isWeekly          Boolean  @default(false)
   
   // Additional payload data
@@ -415,7 +464,7 @@ model UserInvite {
   
   // Invite details
   email           String
-  role            String   @default("user") // user, admin, super_admin
+  role            String   @default("USER") // USER, ADMIN, SUPER_ADMIN
   isSuperAdmin    Boolean  @default(false)
   
   // Agency association (optional for super admins)
@@ -430,7 +479,8 @@ model UserInvite {
   // Status tracking
   status          String   @default("pending") // pending, accepted, expired
   acceptedAt      DateTime?
-  expiresAt       DateTime @default(dbgenerated("NOW() + INTERVAL '7 days'"))
+  // Using now() for SQLite; 7-day expiry can be enforced in application code
+  expiresAt       DateTime @default(now())
   
   // Timestamps
   createdAt       DateTime @default(now())
@@ -441,4 +491,3 @@ model UserInvite {
   @@index([token])
   @@map("user_invites")
 }
-
