@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -14,7 +13,7 @@ export async function GET() {
     // Update the current user to be a super admin
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
-      data: { role: 'SUPER_ADMIN' }
+      data: { isSuperAdmin: true }
     });
 
     return NextResponse.json({ 
