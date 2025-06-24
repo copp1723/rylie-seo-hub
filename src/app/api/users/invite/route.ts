@@ -157,11 +157,16 @@ export async function POST(req: NextRequest) {
       message: `Invite sent to ${email}. They can sign in with Google using the invite link.`
     })
 
-    } catch (inviteError) {
+    } catch (inviteError: unknown) {
       console.error('Error creating invite:', inviteError)
       
       // Handle specific Prisma foreign key constraint error
-      if (inviteError.code === 'P2003') {
+      if (
+        inviteError && 
+        typeof inviteError === 'object' && 
+        'code' in inviteError && 
+        (inviteError as { code: string }).code === 'P2003'
+      ) {
         console.error('Foreign key constraint violation - user ID does not exist:', {
           sessionEmail: session.user.email,
           currentUserId: currentUser.id,
