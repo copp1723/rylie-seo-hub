@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -21,11 +21,16 @@ model Agency {
   primaryColor   String @default("#3b82f6")
   secondaryColor String @default("#1e40af")
   logo          String?
+  logoUrl       String? // Full resolution logo
+  logoUrlDark   String? // Dark mode logo
+  faviconUrl    String? // Custom favicon
+  logoVersions  Json?   // Different logo sizes
+  customDomain  String? // For white-label setup
   
   // GA4 Integration
   ga4PropertyId    String?
   ga4PropertyName  String?
-  ga4RefreshToken  String? @db.Text // Encrypted refresh token
+  ga4RefreshToken  String? // Encrypted refresh token
   
   // Subscription/billing
   plan          String @default("starter") // starter, professional, enterprise
@@ -48,6 +53,7 @@ model Agency {
   dealershipOnboardings DealershipOnboarding[]
   seoworksTasks SEOWorksTask[]
   userInvites   UserInvite[]
+  auditLogs     AuditLog[]
   
   @@map("agencies")
 }
@@ -94,12 +100,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -160,7 +166,7 @@ model Conversation {
 
 model Message {
   id             String   @id @default(cuid())
-  content        String   @db.Text
+  content        String
   role           String   // user, assistant, system
   model          String?  // AI model used for assistant messages
   
@@ -195,17 +201,25 @@ model Order {
   agency         Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   
   // User relationship
+  userId         String?
   userEmail      String
   user           User?    @relation(fields: [userEmail], references: [email], onDelete: Cascade)
   
   // Task details
   taskType       String   // blog, page, gbp, maintenance, seo
   title          String
-  description    String   @db.Text
+  description    String
+  priority       String   @default("medium") // low, medium, high
+  
+  // SEO specific fields
+  keywords       Json?    // Array of keywords
+  targetUrl      String?
+  wordCount      Int?
   
   // Status tracking
-  status         String   @default("pending") // pending, in_progress, completed, cancelled
-  assignedTo     String?  // SEO Werks team member
+  status         String   @default("pending") // pending, assigned, in_progress, review, completed, cancelled
+  assignedTo     String?  // Internal team member email
+  assignedAt     DateTime?
   seoworksTaskId String?  // SEOWerks task ID for tracking
   
   // Time tracking
@@ -214,25 +228,38 @@ model Order {
   
   // Deliverables and results
   deliverables   Json?    // Array of deliverable objects
-  completionNotes String? @db.Text
+  completionNotes String?
   qualityScore   Int?     // 1-5 rating
+  
+  // Internal notes (hidden from agencies)
+  internalNotes  String?
   
   // Timestamps
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  startedAt      DateTime? // When work first started
   completedAt    DateTime?
+  deletedAt      DateTime? // Soft delete support
   
   // Relations
   seoworksTask   SEOWorksTask?
+  messages       OrderMessage[]
+  deliverableFiles Deliverable[]
+  timeEntries    TimeEntry[]
   
   @@index([agencyId, status])
   @@index([userEmail, status])
+  @@index([assignedTo, status])
   @@map("orders")
 }
 
 // Audit log for tracking changes
 model AuditLog {
   id          String   @id @default(cuid())
+  
+  // Multi-tenant isolation
+  agencyId    String
+  agency      Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   
   // Action details
   action      String   // ORDER_CREATED, ORDER_UPDATED, etc.
@@ -249,7 +276,8 @@ model AuditLog {
   // Timestamp
   createdAt   DateTime @default(now())
   
-  @@index([entityType, entityId])
+  @@index([agencyId, createdAt])
+  @@index([agencyId, entityType, entityId])
   @@index([userEmail, createdAt])
   @@map("audit_logs")
 }
@@ -353,15 +381,20 @@ model DealershipOnboarding {
   siteAccessNotes      String?
   
   // Target Arrays (stored as JSON)
-  targetVehicleModels  String[] // Array of vehicle models
-  targetCities         String[] // Array of target cities
-  targetDealers        String[] // Array of target dealers
+  targetVehicleModels  Json    // Array of vehicle models
+  targetCities         Json    // Array of target cities
+  targetDealers        Json    // Array of target dealers
   
   // Submission tracking
   submittedBy          String   // Email of user who submitted
-  status               String   @default("pending") // pending, submitted, failed, processing
+  status               String   @default("pending") // pending, submitted, failed, processing, approved, rejected
   seoworksResponse     Json?    // Response from SEOWerks API
   submittedAt          DateTime?
+  
+  // Approval tracking
+  approvedBy           String?  // Email of user who approved/rejected
+  approvalComments     String?  // Comments from approver
+  approvedAt           DateTime? // When approved/rejected
   
   // Timestamps
   createdAt            DateTime @default(now())
@@ -385,7 +418,7 @@ model SEOWorksTask {
   completionDate    DateTime?
   postTitle         String
   postUrl           String?
-  completionNotes   String?  @db.Text
+  completionNotes   String?
   isWeekly          Boolean  @default(false)
   
   // Additional payload data
@@ -430,7 +463,8 @@ model UserInvite {
   // Status tracking
   status          String   @default("pending") // pending, accepted, expired
   acceptedAt      DateTime?
-  expiresAt       DateTime @default(dbgenerated("NOW() + INTERVAL '7 days'"))
+  // Using now() for SQLite; 7-day expiry can be enforced in application code
+  expiresAt       DateTime @default(now())
   
   // Timestamps
   createdAt       DateTime @default(now())
@@ -442,3 +476,81 @@ model UserInvite {
   @@map("user_invites")
 }
 
+// Order messages for tracking communication
+model OrderMessage {
+  id             String   @id @default(cuid())
+  
+  // Multi-tenant isolation
+  agencyId       String
+  
+  // Order relationship
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // User relationship
+  userId         String?
+  userEmail      String
+  
+  // Message details
+  type           String   // comment, status_update, completion_note, internal_note
+  content        String
+  isInternal     Boolean  @default(false) // Internal notes hidden from agencies
+  
+  // Timestamps
+  createdAt      DateTime @default(now())
+  
+  @@index([orderId, createdAt])
+  @@index([agencyId, orderId])
+  @@map("order_messages")
+}
+
+// Deliverable files for orders
+model Deliverable {
+  id             String   @id @default(cuid())
+  
+  // Order relationship
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // File details
+  fileName       String
+  fileUrl        String
+  fileSize       Int      // Size in bytes
+  mimeType       String
+  
+  // Metadata
+  description    String?
+  uploadedBy     String   // User email
+  
+  // Timestamps
+  createdAt      DateTime @default(now())
+  
+  @@index([orderId])
+  @@map("deliverables")
+}
+
+// Time tracking entries
+model TimeEntry {
+  id             String   @id @default(cuid())
+  
+  // Order relationship
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // User relationship
+  userId         String
+  userEmail      String
+  
+  // Time details
+  hours          Float
+  description    String?
+  date           DateTime @default(now())
+  
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@index([orderId, date])
+  @@index([userEmail, date])
+  @@map("time_entries")
+}
