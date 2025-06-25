@@ -1,14 +1,12 @@
 import { signIn } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
+import { Suspense } from 'react'
 
-export default function SignInPage({
-  searchParams,
-}: {
-  searchParams: { callbackUrl?: string; error?: string }
-}) {
-  const callbackUrl = searchParams.callbackUrl || '/dashboard'
-  const error = searchParams.error
+async function SignInContent({ searchParams }: { searchParams: Promise<{ callbackUrl?: string; error?: string }> }) {
+  const params = await searchParams
+  const callbackUrl = params?.callbackUrl || '/dashboard'
+  const error = params?.error
 
   async function handleGoogleSignIn() {
     'use server'
@@ -91,5 +89,17 @@ export default function SignInPage({
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>
+}) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInContent searchParams={searchParams} />
+    </Suspense>
   )
 }
