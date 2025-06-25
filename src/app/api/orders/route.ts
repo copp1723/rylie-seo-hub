@@ -1,52 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client' // Corrected import for Prisma namespace
 import { queueOrderForSEOWorks } from '@/lib/seoworks/queue'
 import { logger } from '@/lib/observability'
+import { z } from 'zod' // Import Zod
 
-export async function GET() { // Removed unused _request parameter
+// Schema for creating order (mirrors fields in POST body)
+const createOrderSchema = z.object({
+  taskType: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  estimatedHours: z.number().optional(),
+  priority: z.enum(['low', 'medium', 'high']).default('medium'),
+  keywords: z.array(z.string()).optional().default([]),
+  targetUrl: z.string().url().optional(),
+  wordCount: z.number().int().positive().optional(),
+})
+
+export async function GET() {
   try {
-    // Auth disabled - using default values
     const userEmail = process.env.DEFAULT_USER_EMAIL || 'user@example.com'
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
-    // Get all orders for this user
     const orders = await prisma.order.findMany({
       where: {
         userEmail: userEmail,
         agencyId: agencyId,
+        deletedAt: null, // Exclude soft-deleted orders
       },
-fix/typescript-errors
-      // include: { // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
-      //   messages: {
-      //     select: {
-      //       id: true,
-      //       content: true,
-      //       type: true,
-      //       createdAt: true
-      //     },
-      //     orderBy: {
-      //       createdAt: 'desc'
-      //     }
-      //   }
-      // },
-=======
       include: {
+        user: { select: { id: true, name: true, email: true } },
         messages: {
-          select: {
-            id: true,
-            content: true,
-            type: true,
-            createdAt: true,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
+          orderBy: { createdAt: 'desc' },
+          include: { user: { select: { id: true, name: true, email: true } } },
         },
+        seoworksTask: true,
       },
- main
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     })
 
     return NextResponse.json({
@@ -57,7 +47,7 @@ fix/typescript-errors
         title: order.title,
         description: order.description,
         status: order.status,
-        // priority: order.priority, // TODO:AGENT2_PRISMA - Add priority to Order model
+        priority: order.priority, // Added
         requestedAt: order.createdAt,
         completedAt: order.completedAt,
         assignedTo: order.assignedTo,
@@ -67,18 +57,13 @@ fix/typescript-errors
         completionNotes: order.completionNotes,
         qualityScore: order.qualityScore,
         seoworksTaskId: order.seoworksTaskId,
- fix/typescript-errors
-        // messages: order.messages, // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
-        // keywords: order.keywords ? JSON.parse(order.keywords as string) : [], // TODO:AGENT2_PRISMA - Add keywords to Order model
-        // targetUrl: order.targetUrl, // TODO:AGENT2_PRISMA - Add targetUrl to Order model
-        // wordCount: order.wordCount // TODO:AGENT2_PRISMA - Add wordCount to Order model
-      }))
-=======
-        messages: order.messages,
-        keywords: order.keywords ? JSON.parse(order.keywords as string) : [],
-        targetUrl: order.targetUrl,
-        wordCount: order.wordCount,
-      })), main
+        user: order.user, // Added
+        messages: order.messages, // Added
+        keywords: order.keywords ? JSON.parse(order.keywords as string) : [], // Added
+        targetUrl: order.targetUrl, // Added
+        wordCount: order.wordCount, // Added
+        seoworksTask: order.seoworksTask, // Added
+      })),
     })
   } catch (error) {
     logger.error('Error fetching orders:', error)
@@ -88,101 +73,62 @@ fix/typescript-errors
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth disabled - using default values
-    // const userId = process.env.DEFAULT_USER_ID || 'test-user-id' // Unused
+    const userId = process.env.DEFAULT_USER_ID || 'test-user-id'
     const userEmail = process.env.DEFAULT_USER_EMAIL || 'user@example.com'
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
     const body = await request.json()
+    const validation = createOrderSchema.safeParse(body)
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: validation.error.errors },
+        { status: 400 }
+      )
+    }
+
     const {
       taskType,
       title,
       description,
       estimatedHours,
- fix/typescript-errors
-      // priority = 'medium', // TODO:AGENT2_PRISMA - Add priority to Order model
-      // keywords = [], // TODO:AGENT2_PRISMA - Add keywords to Order model
-      // targetUrl, // TODO:AGENT2_PRISMA - Add targetUrl to Order model
-      // wordCount // TODO:AGENT2_PRISMA - Add wordCount to Order model
-=======
-      priority = 'medium',
-      keywords = [],
+      priority,
+      keywords,
       targetUrl,
       wordCount,
- main
-    } = body
+    } = validation.data
 
-    // Validate required fields
-    if (!taskType || !title || !description) {
-      return NextResponse.json(
-        { error: 'Missing required fields: taskType, title, description' },
-        { status: 400 }
-      )
-    }
-
-    // Create new order
     const order = await prisma.order.create({
       data: {
         taskType,
         title,
         description,
         status: 'pending',
-        // priority, // TODO:AGENT2_PRISMA
-        userEmail: userEmail, // Prisma should automatically connect the relation based on this
+        priority,
+        // userId: userId, // Removed: Order model links to User via userEmail, not userId directly
+        userEmail: userEmail,
         agencyId: agencyId,
         estimatedHours: estimatedHours || null,
- fix/typescript-errors
-        // keywords: keywords.length > 0 ? JSON.stringify(keywords) : null, // TODO:AGENT2_PRISMA
-        // targetUrl: targetUrl || null, // TODO:AGENT2_PRISMA
-        // wordCount: wordCount || null // TODO:AGENT2_PRISMA
-      }
-=======
-        keywords: keywords.length > 0 ? JSON.stringify(keywords) : null,
+        keywords: keywords && keywords.length > 0 ? JSON.stringify(keywords) : Prisma.JsonNull,
         targetUrl: targetUrl || null,
         wordCount: wordCount || null,
       },
- main
     })
 
-    // Create audit log
     await prisma.auditLog.create({
       data: {
         action: 'ORDER_CREATED',
         entityType: 'order',
         entityId: order.id,
-        userEmail: userEmail, // Prisma should automatically connect the relation based on this
-        details: {
-          taskType,
-          title,
- fix/typescript-errors
-          // priority // TODO:AGENT2_PRISMA
-        }
-      }
-=======
-          priority,
-        },
+        userId: userId,
+        userEmail: userEmail,
+        details: { taskType, title, priority },
       },
- main
     })
 
-    // Queue order for SEO Works processing
     try {
       await queueOrderForSEOWorks(order.id)
       logger.info('Order queued for SEO Works', { orderId: order.id })
-
-      // Add initial message
- fix/typescript-errors
-      // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
-      // await prisma.orderMessage.create({
-      //   data: {
-      //     orderId: order.id,
-      //     agencyId: agencyId,
-      //     userId: userId, // This would also need to be user: { connect: ... }
-      //     type: 'status_update',
-      //     content: 'Your request has been submitted and will be processed shortly.'
-      //   }
-      // })
-=======
       await prisma.orderMessage.create({
         data: {
           orderId: order.id,
@@ -192,27 +138,11 @@ export async function POST(request: NextRequest) {
           content: 'Your request has been submitted and will be processed shortly.',
         },
       })
-main
     } catch (queueError) {
       logger.error('Failed to queue order for SEO Works', {
         orderId: order.id,
         error: queueError,
       })
-      // Don't fail the request - order is created, just not sent yet
-
-      // Add error message
-fix/typescript-errors
-      // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
-      // await prisma.orderMessage.create({
-      //   data: {
-      //     orderId: order.id,
-      //     agencyId: agencyId,
-      //     userId: userId, // This would also need to be user: { connect: ... }
-      //     type: 'status_update',
-      //     content: 'Your request has been created. We will begin processing it shortly.'
-      //   }
-      // })
-=======
       await prisma.orderMessage.create({
         data: {
           orderId: order.id,
@@ -222,41 +152,29 @@ fix/typescript-errors
           content: 'Your request has been created. We will begin processing it shortly.',
         },
       })
- main
     }
 
-    logger.info('Order created successfully', {
-      orderId: order.id,
-      taskType,
- fix/typescript-errors
-      // priority // TODO:AGENT2_PRISMA
-=======
-      priority,
- main
-    })
+    logger.info('Order created successfully', { orderId: order.id, taskType, priority })
+
+    // Return the full order object, including fields that were just set or have defaults
+    const createdOrder = await prisma.order.findUnique({ where: { id: order.id }});
 
     return NextResponse.json({
       success: true,
-      order: {
-        id: order.id,
-        taskType: order.taskType,
-        title: order.title,
-        description: order.description,
-        status: order.status,
-        // priority: order.priority, // TODO:AGENT2_PRISMA
-        requestedAt: order.createdAt,
-        estimatedHours: order.estimatedHours,
-fix/typescript-errors
-        // keywords: keywords, // TODO:AGENT2_PRISMA
-        // targetUrl: targetUrl, // TODO:AGENT2_PRISMA
-        // wordCount: wordCount // TODO:AGENT2_PRISMA
-      }
-=======
-        keywords: keywords,
-        targetUrl: order.targetUrl,
-        wordCount: order.wordCount,
+      order: { // Ensure this structure matches client expectations and Order model
+        id: createdOrder?.id,
+        taskType: createdOrder?.taskType,
+        title: createdOrder?.title,
+        description: createdOrder?.description,
+        status: createdOrder?.status,
+        priority: createdOrder?.priority,
+        requestedAt: createdOrder?.createdAt,
+        estimatedHours: createdOrder?.estimatedHours,
+        keywords: createdOrder?.keywords ? JSON.parse(createdOrder.keywords as string) : [],
+        targetUrl: createdOrder?.targetUrl,
+        wordCount: createdOrder?.wordCount,
+        // Include other relevant fields like user, messages, seoworksTaskId if needed
       },
- main
     })
   } catch (error) {
     logger.error('Error creating order:', error)

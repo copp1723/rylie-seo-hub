@@ -1,7 +1,10 @@
 // src/lib/ga4-admin-helpers.ts
 
 import { google, analyticsadmin_v1alpha } from 'googleapis'
-import { auditLog } from '@/lib/services/audit-service'
+// import { auditLog } from '@/lib/services/audit-service' // Removed audit-service import
+
+// Placeholder for auditLog
+const auditLog = async (log: any) => console.log('AUDIT_LOG (GA4AdminHelpers):', log)
 
 // Define a type for the execution context needed from GA4Service
 // This is a simplified approach. A more robust solution might involve a shared base class

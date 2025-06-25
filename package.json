@@ -57,6 +57,9 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@types/gapi": "^0.0.47",
+    "@types/google-one-tap": "^1.2.6",
+    "@types/jest": "^30.0.0",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",

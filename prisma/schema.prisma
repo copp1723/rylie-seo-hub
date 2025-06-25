@@ -82,6 +82,7 @@ model User {
   conversations Conversation[]
   messages      Message[]
   orders        Order[]
+  orderMessages OrderMessage[] // Added relation to OrderMessage
   auditLogs     AuditLog[]
   sentInvites   UserInvite[]
   
@@ -221,9 +222,17 @@ model Order {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   completedAt    DateTime?
-  
+  deletedAt      DateTime? // Added for soft deletes
+
   // Relations
   seoworksTask   SEOWorksTask?
+  messages       OrderMessage[] // Added relation to OrderMessage
+
+  // Additional order fields
+  priority       String? @default("medium") // low, medium, high
+  keywords       Json? // Array of keywords
+  targetUrl      String?
+  wordCount      Int?
   
   @@index([agencyId, status])
   @@index([userEmail, status])
@@ -240,8 +249,9 @@ model AuditLog {
   entityId    String
   
   // User who performed the action
-  userEmail   String
-  user        User?    @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  userId      String   // Changed from userEmail to userId for relation
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userEmail   String   // Keep userEmail for logging if needed, but relation is via userId
   
   // Additional details
   details     Json?
@@ -442,3 +452,30 @@ model UserInvite {
   @@map("user_invites")
 }
 
+// Messages associated with an Order
+model OrderMessage {
+  id        String   @id @default(cuid())
+
+  // Multi-tenant isolation
+  agencyId  String?
+  // agency    Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade) // Optional: if messages need direct agency link
+
+  // Order relationship
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // User who created the message
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Message content
+  content   String   @db.Text
+  type      String   @default("comment") // comment, status_update, completion_note, question
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId, createdAt])
+  @@map("order_messages")
+}
