@@ -9,7 +9,7 @@ const createMessageSchema = z.object({
   type: z.enum(['comment', 'status_update', 'completion_note', 'question']).default('comment'),
 })
 
-interface MessagesRouteParams extends Record<string, any> { // Added extends Record<string, any>
+interface MessagesRouteParams {
   params: {
     id: string
   }
