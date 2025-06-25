@@ -249,7 +249,7 @@ export const POST = withAuth(async (request, context) => {
     })
 
     // For super admins, return a simplified response
-    if (user.isSuperAdmin) {
+    if (tenantContext.user.isSuperAdmin) {
       return NextResponse.json({
         success: true,
         content: aiResponse.content,
