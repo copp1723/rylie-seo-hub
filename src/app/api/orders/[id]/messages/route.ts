@@ -7,7 +7,7 @@ import { z } from 'zod'
 // Schema for creating message
 const createMessageSchema = z.object({
   content: z.string().min(1).max(2000),
-  type: z.enum(['comment', 'status_update', 'completion_note', 'question']).default('comment')
+  type: z.enum(['comment', 'status_update', 'completion_note', 'question']).default('comment'),
 })
 
 interface RouteParams {
@@ -19,7 +19,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const orderId = params.id
-    
+
     // Auth disabled - using default values
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
@@ -27,53 +27,47 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const order = await prisma.order.findFirst({
       where: {
         id: orderId,
-        agencyId: agencyId
-      }
+        agencyId: agencyId,
+      },
     })
 
     if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Get all messages for this order
     const messages = await prisma.orderMessage.findMany({
       where: {
-        orderId: orderId
+        orderId: orderId,
       },
       include: {
         user: {
           select: {
             id: true,
             name: true,
-            email: true
-          }
-        }
+            email: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     })
 
     return NextResponse.json({
       success: true,
-      messages: messages
+      messages: messages,
     })
   } catch (error) {
     logger.error('Error fetching order messages:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch messages' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const orderId = params.id
-    
+
     // Auth disabled - using default values
     const userId = process.env.DEFAULT_USER_ID || 'test-user-id'
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
@@ -95,15 +89,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const order = await prisma.order.findFirst({
       where: {
         id: orderId,
-        agencyId: agencyId
-      }
+        agencyId: agencyId,
+      },
     })
 
     if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Create message
@@ -113,40 +104,37 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         agencyId: agencyId,
         userId: userId,
         content: content,
-        type: type
+        type: type,
       },
       include: {
         user: {
           select: {
             id: true,
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     })
 
     // Update order's updatedAt timestamp
     await prisma.order.update({
       where: { id: orderId },
-      data: { updatedAt: new Date() }
+      data: { updatedAt: new Date() },
     })
 
     logger.info('Order message created', {
       orderId,
       messageId: message.id,
-      type
+      type,
     })
 
     return NextResponse.json({
       success: true,
-      message: message
+      message: message,
     })
   } catch (error) {
     logger.error('Error creating order message:', error)
-    return NextResponse.json(
-      { error: 'Failed to create message' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create message' }, { status: 500 })
   }
 }

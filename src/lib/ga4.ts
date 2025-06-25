@@ -1,35 +1,38 @@
-import { google } from 'googleapis'
-import { prisma } from './prisma'
+import { google, analyticsdata_v1beta, analyticsadmin_v1alpha } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
+import { GoogleAuth } from 'google-auth-library';
+import { prisma } from './prisma';
 
 export class GA4Service {
-  private auth: any
-  private analyticsdata: any
-  private analytics: any
-  private analyticsadmin: any
+  private auth: OAuth2Client | GoogleAuth;
+  private analyticsdata: analyticsdata_v1beta.Analyticsdata;
+  private analyticsadmin: analyticsadmin_v1alpha.Analyticsadmin; // Using v1alpha as v1beta for analyticsadmin might not be directly available or aliased differently
 
   constructor(accessToken?: string) {
     if (accessToken) {
       // OAuth access token
-      this.auth = new google.auth.OAuth2(
+      const oauth2ClientInstance = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET
-      )
-      this.auth.setCredentials({ access_token: accessToken })
+      );
+      oauth2ClientInstance.setCredentials({ access_token: accessToken });
+      this.auth = oauth2ClientInstance;
     } else if (process.env.GA4_SERVICE_ACCOUNT_KEY) {
       // Service account
-      const credentials = JSON.parse(process.env.GA4_SERVICE_ACCOUNT_KEY)
-      this.auth = new google.auth.GoogleAuth({
+      const credentials = JSON.parse(process.env.GA4_SERVICE_ACCOUNT_KEY);
+      this.auth = new GoogleAuth({ // Changed to use GoogleAuth directly for service accounts
         credentials,
-        scopes: ['https://www.googleapis.com/auth/analytics.readonly'],
-      })
+        scopes: ['https://www.googleapis.com/auth/analytics.readonly', 'https://www.googleapis.com/auth/analytics.edit'],
+      });
     } else {
-      throw new Error('No authentication method available for GA4')
+      throw new Error('No authentication method available for GA4. Please provide an access token or service account key.');
     }
 
     // Initialize Google APIs with auth
-    this.analyticsdata = google.analyticsdata({ version: 'v1beta', auth: this.auth })
-    this.analytics = google.analytics({ version: 'v3', auth: this.auth })
-    this.analyticsadmin = google.analyticsadmin({ version: 'v1beta', auth: this.auth })
+    this.analyticsdata = google.analyticsdata({ version: 'v1beta', auth: this.auth as any }); // Added 'as any' to satisfy type checking for auth union type
+    // Note: analytics (Universal Analytics) is deprecated. We are focusing on GA4 (analyticsdata and analyticsadmin).
+    // If you still need Universal Analytics, you might need to use google.analytics('v3')
+    this.analyticsadmin = google.analyticsadmin({ version: 'v1alpha', auth: this.auth as any}); // Changed to v1alpha and added 'as any'
   }
 
   /**
@@ -40,12 +43,12 @@ export class GA4Service {
       // First list all accounts the user has access to
       const accountsResponse = await this.analyticsadmin.accounts.list({})
       const accounts = accountsResponse.data.accounts || []
-      
+
       if (accounts.length === 0) {
         console.log('No GA4 accounts found for user')
         return []
       }
-      
+
       // List properties for each account
       const allProperties = []
       for (const account of accounts) {
@@ -55,7 +58,7 @@ export class GA4Service {
         const properties = propertiesResponse.data.properties || []
         allProperties.push(...properties)
       }
-      
+
       return allProperties
     } catch (error: any) {
       console.error('Error listing GA4 properties:', error)
@@ -65,7 +68,7 @@ export class GA4Service {
         status: error.status,
         errors: error.errors,
       })
-      
+
       // Provide more specific error messages
       if (error.code === 401) {
         throw new Error('Authentication failed. Please reconnect your Google account.')
@@ -74,7 +77,7 @@ export class GA4Service {
       } else if (error.message?.includes('Request had insufficient authentication scopes')) {
         throw new Error('Insufficient permissions. Please reconnect with analytics permissions.')
       }
-      
+
       throw new Error(`Failed to list GA4 properties: ${error.message || 'Unknown error'}`)
     }
   }
@@ -134,10 +137,7 @@ export class GA4Service {
         property: `properties/${propertyId}`,
         requestBody: {
           dateRanges: [this.getDateRange(dateRange)],
-          dimensions: [
-            { name: 'googleSearchQuery' },
-            { name: 'googleSearchKeyword' },
-          ],
+          dimensions: [{ name: 'googleSearchQuery' }, { name: 'googleSearchKeyword' }],
           metrics: [
             { name: 'googleSearchClicks' },
             { name: 'googleSearchImpressions' },
@@ -276,8 +276,7 @@ export class GA4Service {
       totalSessions: metrics.totalSessions,
       totalUsers: metrics.totalUsers,
       avgBounceRate:
-        metrics.bounceRates.reduce((a: number, b: number) => a + b, 0) /
-        metrics.bounceRates.length,
+        metrics.bounceRates.reduce((a: number, b: number) => a + b, 0) / metrics.bounceRates.length,
       avgSessionDuration:
         metrics.sessionDurations.reduce((a: number, b: number) => a + b, 0) /
         metrics.sessionDurations.length,

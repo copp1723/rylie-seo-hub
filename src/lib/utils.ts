@@ -216,4 +216,3 @@ export function formatTime(date: string | Date): string {
     return d.toLocaleDateString()
   }
 }
-

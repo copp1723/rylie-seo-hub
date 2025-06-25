@@ -90,7 +90,11 @@ class EmailService {
     return this.sendEmail({ to: userEmail, subject, html })
   }
 
-  async sendSEOReport(userEmail: string, reportData: Record<string, unknown>, companyName?: string) {
+  async sendSEOReport(
+    userEmail: string,
+    reportData: Record<string, unknown>,
+    companyName?: string
+  ) {
     const subject = `Your SEO Report from ${companyName || 'Rylie SEO Hub'}`
     const html = `
       <!DOCTYPE html>
@@ -112,9 +116,11 @@ class EmailService {
             
             <h3>Recommendations:</h3>
             <ul>
-              ${Array.isArray(reportData.recommendations) 
-                ? reportData.recommendations.map((rec: string) => `<li>${rec}</li>`).join('') 
-                : '<li>Continue optimizing your content for better search visibility.</li>'}
+              ${
+                Array.isArray(reportData.recommendations)
+                  ? reportData.recommendations.map((rec: string) => `<li>${rec}</li>`).join('')
+                  : '<li>Continue optimizing your content for better search visibility.</li>'
+              }
             </ul>
             
             <p>
@@ -148,9 +154,11 @@ class EmailService {
     isSuperAdmin: boolean,
     inviteUrl: string
   ) {
-    const roleDisplay = isSuperAdmin ? 'Super Admin' : role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+    const roleDisplay = isSuperAdmin
+      ? 'Super Admin'
+      : role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
     const subject = `You've been invited to join Rylie SEO Hub as ${roleDisplay}`
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -186,7 +194,7 @@ class EmailService {
         </body>
       </html>
     `
-    
+
     return this.sendEmail({ to, subject, html })
   }
 }

@@ -6,15 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { 
-  MapPin, 
-  Car, 
-  Building2, 
-  Target,
-  AlertCircle,
-  Send,
-  Loader2
-} from 'lucide-react'
+import { MapPin, Car, Building2, Target, AlertCircle, Send, Loader2 } from 'lucide-react'
 
 interface RequestFormProps {
   onSubmit: (data: RequestData) => void
@@ -35,7 +27,7 @@ export function RequestForm({ onSubmit, isLoading = false }: RequestFormProps) {
     targetModels: '',
     competitorDealerships: '',
     marketSpecifics: '',
-    additionalFocus: ''
+    additionalFocus: '',
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -43,14 +35,14 @@ export function RequestForm({ onSubmit, isLoading = false }: RequestFormProps) {
     onSubmit(formData)
   }
 
-  const handleChange = (field: keyof RequestData) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }))
-  }
+  const handleChange =
+    (field: keyof RequestData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setFormData(prev => ({
+        ...prev,
+        [field]: e.target.value,
+      }))
+    }
 
   return (
     <Card className="w-full max-w-3xl mx-auto">
@@ -60,7 +52,8 @@ export function RequestForm({ onSubmit, isLoading = false }: RequestFormProps) {
           Monthly SEO Focus Request
         </CardTitle>
         <CardDescription className="text-base">
-          Please send us any specific target requests for this month. This is optional but helps us ensure we are aligned with your dealership goals.
+          Please send us any specific target requests for this month. This is optional but helps us
+          ensure we are aligned with your dealership goals.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -70,13 +63,19 @@ export function RequestForm({ onSubmit, isLoading = false }: RequestFormProps) {
             <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-900">
               <p className="font-semibold mb-1">How this helps:</p>
-              <p>While we handle your monthly content planning and SEO strategy, your input helps us prioritize areas that matter most to your dealership right now.</p>
+              <p>
+                While we handle your monthly content planning and SEO strategy, your input helps us
+                prioritize areas that matter most to your dealership right now.
+              </p>
             </div>
           </div>
 
           {/* Target Cities */}
           <div className="space-y-2">
-            <Label htmlFor="targetCities" className="text-base font-semibold flex items-center gap-2">
+            <Label
+              htmlFor="targetCities"
+              className="text-base font-semibold flex items-center gap-2"
+            >
               <MapPin className="h-4 w-4 text-primary" />
               What are your top target areas/cities that you want to rank for?
             </Label>
@@ -94,7 +93,10 @@ export function RequestForm({ onSubmit, isLoading = false }: RequestFormProps) {
 
           {/* Target Models */}
           <div className="space-y-2">
-            <Label htmlFor="targetModels" className="text-base font-semibold flex items-center gap-2">
+            <Label
+              htmlFor="targetModels"
+              className="text-base font-semibold flex items-center gap-2"
+            >
               <Car className="h-4 w-4 text-primary" />
               What are your top target model priorities?
             </Label>
@@ -112,7 +114,10 @@ export function RequestForm({ onSubmit, isLoading = false }: RequestFormProps) {
 
           {/* Competitor Dealerships */}
           <div className="space-y-2">
-            <Label htmlFor="competitorDealerships" className="text-base font-semibold flex items-center gap-2">
+            <Label
+              htmlFor="competitorDealerships"
+              className="text-base font-semibold flex items-center gap-2"
+            >
               <Building2 className="h-4 w-4 text-primary" />
               What dealerships do you want to target for organic placement?
             </Label>
@@ -130,7 +135,10 @@ export function RequestForm({ onSubmit, isLoading = false }: RequestFormProps) {
 
           {/* Market Specifics */}
           <div className="space-y-2">
-            <Label htmlFor="marketSpecifics" className="text-base font-semibold flex items-center gap-2">
+            <Label
+              htmlFor="marketSpecifics"
+              className="text-base font-semibold flex items-center gap-2"
+            >
               <Target className="h-4 w-4 text-primary" />
               Is there anything you want to make sure we know about your market specifically?
             </Label>
@@ -162,12 +170,7 @@ export function RequestForm({ onSubmit, isLoading = false }: RequestFormProps) {
 
           {/* Submit Button */}
           <div className="pt-4">
-            <Button 
-              type="submit" 
-              size="lg" 
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -184,8 +187,8 @@ export function RequestForm({ onSubmit, isLoading = false }: RequestFormProps) {
 
           {/* Footer Note */}
           <p className="text-sm text-center text-muted-foreground pt-2">
-            This information helps us create targeted content that drives results for your dealership.
-            You'll receive a confirmation once we've reviewed your request.
+            This information helps us create targeted content that drives results for your
+            dealership. You'll receive a confirmation once we've reviewed your request.
           </p>
         </form>
       </CardContent>

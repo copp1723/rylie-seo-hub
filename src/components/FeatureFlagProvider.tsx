@@ -41,7 +41,8 @@ export function FeatureFlagProvider({ children }: FeatureFlagProviderProps) {
   }
 
   const getEnabledFlags = (): string[] => {
-    return featureFlags.getAllFlags()
+    return featureFlags
+      .getAllFlags()
       .filter(flag => featureFlags.isEnabled(flag.key, flagContext))
       .map(flag => flag.key)
   }

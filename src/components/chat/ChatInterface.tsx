@@ -13,7 +13,7 @@ import {
   Search,
   Wrench,
   ShoppingCart,
-  Sparkles
+  Sparkles,
 } from 'lucide-react'
 
 interface ChatInterfaceProps {
@@ -31,33 +31,34 @@ const suggestionCards = [
   {
     icon: FileText,
     title: 'Create a blog post about local SEO',
-    prompt: 'Help me create an SEO-optimized blog post about improving local search rankings for car dealerships'
+    prompt:
+      'Help me create an SEO-optimized blog post about improving local search rankings for car dealerships',
   },
   {
     icon: Globe,
-    title: 'Audit my website\'s technical SEO',
-    prompt: 'Can you help me audit my dealership website for technical SEO issues?'
+    title: "Audit my website's technical SEO",
+    prompt: 'Can you help me audit my dealership website for technical SEO issues?',
   },
   {
     icon: Search,
     title: 'Help me with keyword research',
-    prompt: 'I need help finding the best keywords for my automotive dealership in [city]'
+    prompt: 'I need help finding the best keywords for my automotive dealership in [city]',
   },
   {
     icon: Wrench,
     title: 'Website maintenance checklist',
-    prompt: 'What website maintenance tasks should I prioritize for better SEO?'
+    prompt: 'What website maintenance tasks should I prioritize for better SEO?',
   },
   {
     icon: ShoppingCart,
     title: 'Optimize my Google Business Profile',
-    prompt: 'How can I optimize my Google Business Profile for my car dealership?'
+    prompt: 'How can I optimize my Google Business Profile for my car dealership?',
   },
   {
     icon: Sparkles,
     title: 'SEO strategy for new car models',
-    prompt: 'Create an SEO strategy for promoting our new 2025 vehicle inventory'
-  }
+    prompt: 'Create an SEO strategy for promoting our new 2025 vehicle inventory',
+  },
 ]
 
 export function ChatInterface({ user }: ChatInterfaceProps) {
@@ -90,7 +91,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
       id: Date.now().toString(),
       role: 'user',
       content: input.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
     setMessages(prev => [...prev, userMessage])
@@ -103,8 +104,8 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage.content,
-          model: 'gpt-4-turbo-preview'
-        })
+          model: 'gpt-4-turbo-preview',
+        }),
       })
 
       if (!response.ok) {
@@ -112,14 +113,14 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
       }
 
       const data = await response.json()
-      
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.content,
-        timestamp: new Date()
+        timestamp: new Date(),
       }
-      
+
       setMessages(prev => [...prev, assistantMessage])
     } catch (error) {
       console.error('Error sending message:', error)
@@ -127,7 +128,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.',
-        timestamp: new Date()
+        timestamp: new Date(),
       }
       setMessages(prev => [...prev, errorMessage])
     } finally {
@@ -177,9 +178,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-medium text-sm mb-1">{card.title}</h3>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {card.prompt}
-                        </p>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{card.prompt}</p>
                       </div>
                     </div>
                   </Card>
@@ -189,16 +188,14 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
           </div>
         ) : (
           <div className="max-w-4xl mx-auto space-y-4">
-            {messages.map((message) => (
+            {messages.map(message => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
                   className={`max-w-[80%] rounded-lg p-4 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                    message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{message.content}</p>
@@ -230,7 +227,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
             <Textarea
               ref={textareaRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask me anything about SEO..."
               className="flex-1 min-h-[56px] max-h-[200px] resize-none"

@@ -80,10 +80,9 @@ export async function assignTaskToSEOWorks(orderId: string) {
     } else {
       throw new Error(`SEO WORKS assignment failed: ${seoworksResponse.error}`)
     }
-
   } catch (error) {
     console.error('Task assignment error:', error)
-    
+
     // Log the failure
     await prisma.auditLog.create({
       data: {
@@ -127,11 +126,13 @@ function getAssignmentRules(packageType: string, taskType: string) {
     },
   }
 
-  return rules[packageType]?.[taskType] || { 
-    priority: 'medium', 
-    defaultHours: 3, 
-    turnaround: '5-7 days' 
-  }
+  return (
+    rules[packageType]?.[taskType] || {
+      priority: 'medium',
+      defaultHours: 3,
+      turnaround: '5-7 days',
+    }
+  )
 }
 
 // Submit task to SEO WORKS API
@@ -163,7 +164,6 @@ async function submitTaskToSEOWorks(payload: any): Promise<{
     console.log('Mock SEO WORKS response:', mockResponse)
 
     return mockResponse
-
   } catch (error) {
     console.error('SEO WORKS API error:', error)
     return {
@@ -190,7 +190,6 @@ export async function getTaskStatus(seoworksTaskId: string) {
       progress: 75,
       estimatedCompletion: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     }
-
   } catch (error) {
     console.error('SEO WORKS status check error:', error)
     return {
@@ -199,4 +198,3 @@ export async function getTaskStatus(seoworksTaskId: string) {
     }
   }
 }
-

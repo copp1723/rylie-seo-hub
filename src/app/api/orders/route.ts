@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const orders = await prisma.order.findMany({
       where: {
         userEmail: userEmail,
-        agencyId: agencyId
+        agencyId: agencyId,
       },
       include: {
         messages: {
@@ -22,19 +22,19 @@ export async function GET(request: NextRequest) {
             id: true,
             content: true,
             type: true,
-            createdAt: true
+            createdAt: true,
           },
           orderBy: {
-            createdAt: 'desc'
-          }
-        }
+            createdAt: 'desc',
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     })
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       orders: orders.map(order => ({
         id: order.id,
@@ -55,15 +55,12 @@ export async function GET(request: NextRequest) {
         messages: order.messages,
         keywords: order.keywords ? JSON.parse(order.keywords as string) : [],
         targetUrl: order.targetUrl,
-        wordCount: order.wordCount
-      }))
+        wordCount: order.wordCount,
+      })),
     })
   } catch (error) {
     logger.error('Error fetching orders:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch orders' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
   }
 }
 
@@ -75,15 +72,15 @@ export async function POST(request: NextRequest) {
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
     const body = await request.json()
-    const { 
-      taskType, 
-      title, 
-      description, 
+    const {
+      taskType,
+      title,
+      description,
       estimatedHours,
       priority = 'medium',
       keywords = [],
       targetUrl,
-      wordCount
+      wordCount,
     } = body
 
     // Validate required fields
@@ -108,8 +105,8 @@ export async function POST(request: NextRequest) {
         estimatedHours: estimatedHours || null,
         keywords: keywords.length > 0 ? JSON.stringify(keywords) : null,
         targetUrl: targetUrl || null,
-        wordCount: wordCount || null
-      }
+        wordCount: wordCount || null,
+      },
     })
 
     // Create audit log
@@ -123,16 +120,16 @@ export async function POST(request: NextRequest) {
         details: {
           taskType,
           title,
-          priority
-        }
-      }
+          priority,
+        },
+      },
     })
 
     // Queue order for SEO Works processing
     try {
       await queueOrderForSEOWorks(order.id)
       logger.info('Order queued for SEO Works', { orderId: order.id })
-      
+
       // Add initial message
       await prisma.orderMessage.create({
         data: {
@@ -140,16 +137,16 @@ export async function POST(request: NextRequest) {
           agencyId: agencyId,
           userId: userId,
           type: 'status_update',
-          content: 'Your request has been submitted and will be processed shortly.'
-        }
+          content: 'Your request has been submitted and will be processed shortly.',
+        },
       })
     } catch (queueError) {
-      logger.error('Failed to queue order for SEO Works', { 
-        orderId: order.id, 
-        error: queueError 
+      logger.error('Failed to queue order for SEO Works', {
+        orderId: order.id,
+        error: queueError,
       })
       // Don't fail the request - order is created, just not sent yet
-      
+
       // Add error message
       await prisma.orderMessage.create({
         data: {
@@ -157,18 +154,18 @@ export async function POST(request: NextRequest) {
           agencyId: agencyId,
           userId: userId,
           type: 'status_update',
-          content: 'Your request has been created. We will begin processing it shortly.'
-        }
+          content: 'Your request has been created. We will begin processing it shortly.',
+        },
       })
     }
 
     logger.info('Order created successfully', {
       orderId: order.id,
       taskType,
-      priority
+      priority,
     })
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       order: {
         id: order.id,
@@ -181,14 +178,11 @@ export async function POST(request: NextRequest) {
         estimatedHours: order.estimatedHours,
         keywords: keywords,
         targetUrl: order.targetUrl,
-        wordCount: order.wordCount
-      }
+        wordCount: order.wordCount,
+      },
     })
   } catch (error) {
     logger.error('Error creating order:', error)
-    return NextResponse.json(
-      { error: 'Failed to create order' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
   }
 }

@@ -209,9 +209,15 @@ export function createTenantPrisma(agencyId: string) {
           return query(args)
         },
         async create({ args, query }) {
+ fix/prisma-types
           // Add agencyId to the data in a type-safe way
           args.data = { ...args.data, agencyId: agencyId };
           return query(args);
+=======
+          // Add agencyId to the data
+          ;(args.data as any).agencyId = agencyId
+          return query(args)
+ main
         },
         async update({ args, query }) {
           args.where = { ...args.where, agencyId }
@@ -228,9 +234,15 @@ export function createTenantPrisma(agencyId: string) {
           return query(args)
         },
         async create({ args, query }) {
+ fix/prisma-types
           // Add agencyId to the data in a type-safe way
           args.data = { ...args.data, agencyId: agencyId };
           return query(args);
+=======
+          // Add agencyId to the data
+          ;(args.data as any).agencyId = agencyId
+          return query(args)
+ main
         },
       },
       theme: {
@@ -239,11 +251,18 @@ export function createTenantPrisma(agencyId: string) {
           return query(args)
         },
         async upsert({ args, query }) {
+ fix/prisma-types
           args.where = { ...args.where, agencyId };
           // Add agencyId to create and update payloads in a type-safe way
           args.create = { ...args.create, agencyId: agencyId };
           args.update = { ...args.update, agencyId: agencyId }; // Assumes agencyId is a simple scalar field
           return query(args);
+=======
+          args.where = { ...args.where, agencyId }
+          ;(args.create as any).agencyId = agencyId
+          ;(args.update as any).agencyId = agencyId
+          return query(args)
+ main
         },
       },
     },

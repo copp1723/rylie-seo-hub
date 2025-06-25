@@ -8,16 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
-import { 
-  UserPlus, 
-  Mail, 
-  Shield, 
-  Trash2, 
-  Copy, 
-  Check,
-  AlertCircle,
-  Users
-} from 'lucide-react'
+import { UserPlus, Mail, Shield, Trash2, Copy, Check, AlertCircle, Users } from 'lucide-react'
 
 interface User {
   id: string
@@ -106,8 +97,8 @@ export default function UsersSettingsPage() {
         body: JSON.stringify({
           email: inviteEmail,
           isSuperAdmin: inviteAsSuperAdmin,
-          role: inviteAsSuperAdmin ? 'super_admin' : 'admin'
-        })
+          role: inviteAsSuperAdmin ? 'super_admin' : 'admin',
+        }),
       })
 
       const data = await res.json()
@@ -117,7 +108,7 @@ export default function UsersSettingsPage() {
         setInviteEmail('')
         setInviteAsSuperAdmin(false)
         fetchInvites()
-        
+
         // Copy invite URL to clipboard
         if (data.invite?.inviteUrl) {
           await navigator.clipboard.writeText(data.invite.inviteUrl)
@@ -141,8 +132,8 @@ export default function UsersSettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId,
-          isSuperAdmin: !currentStatus
-        })
+          isSuperAdmin: !currentStatus,
+        }),
       })
 
       if (res.ok) {
@@ -158,7 +149,7 @@ export default function UsersSettingsPage() {
 
     try {
       const res = await fetch(`/api/users?userId=${userId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       })
 
       if (res.ok) {
@@ -181,7 +172,11 @@ export default function UsersSettingsPage() {
   }
 
   if (status === 'unauthenticated') {
-    return <div className="flex items-center justify-center min-h-screen">Please sign in to access this page</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Please sign in to access this page
+      </div>
+    )
   }
 
   return (
@@ -216,7 +211,7 @@ export default function UsersSettingsPage() {
                 type="email"
                 placeholder="user@example.com"
                 value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
+                onChange={e => setInviteEmail(e.target.value)}
                 required
               />
             </div>
@@ -262,14 +257,15 @@ export default function UsersSettingsPage() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Active Users</CardTitle>
-          <CardDescription>
-            Users who have signed in to the platform
-          </CardDescription>
+          <CardDescription>Users who have signed in to the platform</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {users.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+            {users.map(user => (
+              <div
+                key={user.id}
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
                 <div className="flex items-center gap-4">
                   {user.image && (
                     <img
@@ -296,18 +292,14 @@ export default function UsersSettingsPage() {
                       Super Admin
                     </Badge>
                   )}
-                  
+
                   {user.email !== session?.user?.email && (
                     <>
                       <Switch
                         checked={user.isSuperAdmin}
                         onCheckedChange={() => toggleSuperAdmin(user.id, user.isSuperAdmin)}
                       />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteUser(user.id)}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => deleteUser(user.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </>
@@ -323,16 +315,17 @@ export default function UsersSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Pending Invitations</CardTitle>
-          <CardDescription>
-            Invitations that haven't been accepted yet
-          </CardDescription>
+          <CardDescription>Invitations that haven't been accepted yet</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {invites
               .filter(invite => invite.status === 'pending')
-              .map((invite) => (
-                <div key={invite.id} className="flex items-center justify-between p-4 border rounded-lg">
+              .map(invite => (
+                <div
+                  key={invite.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div>
                     <div className="font-medium flex items-center gap-2">
                       <Mail className="h-4 w-4" />
