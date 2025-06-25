@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { withAgencyContext } from '@/lib/middleware/agency-context'
 import { queueOrderForSEOWorks } from '@/lib/seoworks/queue'
 import { logger } from '@/lib/observability'
 
-export async function GET(request: NextRequest) {
+export const GET = withAgencyContext(async (request, context) => {
   try {
-    // Auth disabled - using default values
-    const userEmail = process.env.DEFAULT_USER_EMAIL || 'user@example.com'
-    const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
-
-    // Get all orders for this user
-    const orders = await prisma.order.findMany({
+    // Use the tenant-filtered database from context
+    const orders = await context.db.order.findMany({
       where: {
-        userEmail: userEmail,
-        agencyId: agencyId
+        userEmail: context.user.email
       },
       include: {
         messages: {
@@ -58,21 +53,20 @@ export async function GET(request: NextRequest) {
       }))
     })
   } catch (error) {
-    logger.error('Error fetching orders:', error)
+    logger.error('Error fetching orders:', {
+      error,
+      userId: context.user.id,
+      agencyId: context.agency.id
+    })
     return NextResponse.json(
       { error: 'Failed to fetch orders' },
       { status: 500 }
     )
   }
-}
+})
 
-export async function POST(request: NextRequest) {
+export const POST = withAgencyContext(async (request, context) => {
   try {
-    // Auth disabled - using default values
-    const userId = process.env.DEFAULT_USER_ID || 'test-user-id'
-    const userEmail = process.env.DEFAULT_USER_EMAIL || 'user@example.com'
-    const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
-
     const body = await request.json()
     const { 
       taskType, 
@@ -93,17 +87,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create new order
-    const order = await prisma.order.create({
+    // Create new order using tenant-filtered database
+    const order = await context.db.order.create({
       data: {
         taskType,
         title,
         description,
         status: 'pending',
         priority,
-        userId: userId,
-        userEmail: userEmail,
-        agencyId: agencyId,
+        userId: context.user.id,
+        userEmail: context.user.email,
         estimatedHours: estimatedHours || null,
         keywords: keywords.length > 0 ? JSON.stringify(keywords) : null,
         targetUrl: targetUrl || null,
@@ -111,18 +104,18 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Create audit log
-    await prisma.auditLog.create({
+    // Create audit log (already includes agencyId from context)
+    await context.db.auditLog.create({
       data: {
         action: 'ORDER_CREATED',
         entityType: 'order',
         entityId: order.id,
-        userId: userId,
-        userEmail: userEmail,
+        userEmail: context.user.email,
         details: {
           taskType,
           title,
-          priority
+          priority,
+          userId: context.user.id
         }
       }
     })
@@ -130,31 +123,35 @@ export async function POST(request: NextRequest) {
     // Queue order for SEO Works processing
     try {
       await queueOrderForSEOWorks(order.id)
-      logger.info('Order queued for SEO Works', { orderId: order.id })
+      logger.info('Order queued for SEO Works', { 
+        orderId: order.id,
+        agencyId: context.agency.id
+      })
       
       // Add initial message
-      await prisma.orderMessage.create({
+      await context.db.orderMessage.create({
         data: {
           orderId: order.id,
-          agencyId: agencyId,
-          userId: userId,
+          userId: context.user.id,
+          userEmail: context.user.email,
           type: 'status_update',
           content: 'Your request has been submitted and will be processed shortly.'
         }
       })
     } catch (queueError) {
       logger.error('Failed to queue order for SEO Works', { 
-        orderId: order.id, 
+        orderId: order.id,
+        agencyId: context.agency.id,
         error: queueError 
       })
       // Don't fail the request - order is created, just not sent yet
       
       // Add error message
-      await prisma.orderMessage.create({
+      await context.db.orderMessage.create({
         data: {
           orderId: order.id,
-          agencyId: agencyId,
-          userId: userId,
+          userId: context.user.id,
+          userEmail: context.user.email,
           type: 'status_update',
           content: 'Your request has been created. We will begin processing it shortly.'
         }
@@ -164,7 +161,9 @@ export async function POST(request: NextRequest) {
     logger.info('Order created successfully', {
       orderId: order.id,
       taskType,
-      priority
+      priority,
+      agencyId: context.agency.id,
+      userId: context.user.id
     })
 
     return NextResponse.json({ 
@@ -184,10 +183,14 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    logger.error('Error creating order:', error)
+    logger.error('Error creating order:', {
+      error,
+      userId: context.user.id,
+      agencyId: context.agency.id
+    })
     return NextResponse.json(
       { error: 'Failed to create order' },
       { status: 500 }
     )
   }
-}
+})
