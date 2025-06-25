@@ -387,15 +387,8 @@ if (
 
 // The solution provides the requested functionality for a scheduled job's execution path.
 
-// Adding a default export for Next.js API route convention, though the main logic is in cron setup.
-export default async function handler(req: NextRequest) {
-  if (req.method === 'GET') {
-    return GET(req)
-  } else if (req.method === 'POST') {
-    return POST(req)
-  }
-  return NextResponse.json({ message: 'Method Not Allowed' }, { status: 405 })
-}
+// Remove the default export - Next.js App Router doesn't use it
+// The GET and POST exports above are what Next.js expects
 
 // Initialize jobs if not already done (simple dev-time auto-init)
 // This ensures that if the module is loaded, jobs are attempted to be set up.
