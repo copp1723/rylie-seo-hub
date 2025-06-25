@@ -1,22 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { withAgencyContext } from '@/lib/middleware/agency-context'
 import { GA4Service } from '@/lib/ga4'
 import { getValidGoogleAccessToken } from '@/lib/google-auth'
+import { logger } from '@/lib/observability'
 
-export async function GET(request: NextRequest) {
+export const GET = withAgencyContext(async (request, context) => {
   try {
-    const session = await auth()
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
     // Get a valid access token (will refresh if needed)
-    const accessToken = await getValidGoogleAccessToken(session.user.id)
+    const accessToken = await getValidGoogleAccessToken(context.user.id)
     
     // List GA4 properties
     const ga4 = new GA4Service(accessToken)
     const properties = await ga4.listProperties()
+    
+    // Log the GA4 property access
+    await context.db.auditLog.create({
+      data: {
+        action: 'GA4_PROPERTIES_LISTED',
+        entityType: 'ga4',
+        entityId: 'properties',
+        userEmail: context.user.email,
+        details: {
+          propertiesCount: properties.length,
+          userId: context.user.id
+        }
+      }
+    })
+    
+    logger.info('GA4 properties listed', {
+      userId: context.user.id,
+      agencyId: context.agency.id,
+      propertiesCount: properties.length
+    })
     
     return NextResponse.json({
       success: true,
@@ -27,7 +42,25 @@ export async function GET(request: NextRequest) {
       })),
     })
   } catch (error: any) {
-    console.error('GA4 properties error:', error)
+    logger.error('GA4 properties error:', {
+      error,
+      userId: context.user.id,
+      agencyId: context.agency.id
+    })
+    
+    // Log failed attempt
+    await context.db.auditLog.create({
+      data: {
+        action: 'GA4_PROPERTIES_LIST_FAILED',
+        entityType: 'ga4',
+        entityId: 'properties',
+        userEmail: context.user.email,
+        details: {
+          error: error.message,
+          userId: context.user.id
+        }
+      }
+    }).catch(err => logger.error('Failed to log audit event', { err }))
     
     // Return more specific error messages
     if (error.message?.includes('No Google account connected')) {
@@ -43,4 +76,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
