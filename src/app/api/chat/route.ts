@@ -41,6 +41,21 @@ export const POST = withAuth(async (request, context) => {
       })
     }
 
+    // For non-super admins, ensure they have an agency
+    if (!context.user.isSuperAdmin && !tenantContext.agencyId) {
+      logger.error('User without agency attempting to use chat API', {
+        userId: context.user.id,
+      })
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Agency configuration required',
+          details: 'Please contact support to set up your agency.',
+        },
+        { status: 403 }
+      )
+    }
+
     logger.info('Chat API authenticated with tenant context', {
       userId: tenantContext.user.id,
       agencyId: tenantContext.agencyId,
@@ -74,7 +89,9 @@ export const POST = withAuth(async (request, context) => {
     const { message, conversationId, model } = validation.data
 
     // Create tenant-scoped Prisma client (use regular prisma for super admins)
-    const tenantPrisma = context.user.isSuperAdmin ? prisma : createTenantPrisma(tenantContext.agencyId)
+    const tenantPrisma = context.user.isSuperAdmin || !tenantContext.agencyId 
+      ? prisma 
+      : createTenantPrisma(tenantContext.agencyId)
 
     // Track business event with tenant context
     trackEvent('chat_message_sent', {
@@ -87,8 +104,8 @@ export const POST = withAuth(async (request, context) => {
     })
 
     // Check usage limits (skip for super admins)
-    if (!context.user.isSuperAdmin) {
-      const usageLimits = await checkUsageLimits(tenantContext, 'conversations')
+    if (!context.user.isSuperAdmin && tenantContext.agencyId) {
+      const usageLimits = await checkUsageLimits(tenantContext as any, 'conversations')
       if (!usageLimits.allowed && !conversationId) {
         logger.warn('Conversation limit exceeded', {
           agencyId: tenantContext.agencyId,
@@ -127,7 +144,7 @@ export const POST = withAuth(async (request, context) => {
       }
     } else {
       // Create new conversation (skip for super admins without real agency)
-      if (!context.user.isSuperAdmin) {
+      if (!context.user.isSuperAdmin && tenantContext.agencyId) {
         conversation = await tenantPrisma.conversation.create({
           data: {
             userId: tenantContext.user.id,
@@ -150,7 +167,7 @@ export const POST = withAuth(async (request, context) => {
 
     // Save user message (skip for super admins without real conversation)
     let userMessage = null
-    if (!context.user.isSuperAdmin) {
+    if (!context.user.isSuperAdmin && tenantContext.agencyId) {
       userMessage = await tenantPrisma.message.create({
         data: {
           conversationId: conversation.id,
@@ -188,7 +205,7 @@ export const POST = withAuth(async (request, context) => {
 
     // Save AI message (skip for super admins without real conversation)
     let assistantMessage = null
-    if (!context.user.isSuperAdmin) {
+    if (!context.user.isSuperAdmin && tenantContext.agencyId) {
       assistantMessage = await tenantPrisma.message.create({
         data: {
           conversationId: conversation.id,
@@ -213,7 +230,7 @@ export const POST = withAuth(async (request, context) => {
       })
 
       // Track usage metrics
-      if (aiResponse.tokens) {
+      if (aiResponse.tokens && tenantContext.agencyId) {
         await prisma.usageMetric.create({
           data: {
             agencyId: tenantContext.agencyId,
