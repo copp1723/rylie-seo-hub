@@ -13,6 +13,23 @@ const nextConfig = {
     // Disable TypeScript errors during builds for faster deployment
     ignoreBuildErrors: false,
   },
+  webpack: (config, { isServer }) => {
+    // Ignore handlebars dynamic requires warning
+    config.module = {
+      ...config.module,
+      exprContextCritical: false,
+    }
+    
+    // Alternative: Replace handlebars dynamic requires
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'handlebars/runtime': 'handlebars/dist/handlebars.runtime',
+      }
+    }
+    
+    return config
+  },
 }
 
 export default withSentryConfig(nextConfig, {
