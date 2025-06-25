@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import type { Order, OrderMessage, User } from '@prisma/client' // Added
 import { logger } from '@/lib/observability'
 import { z } from 'zod'
 

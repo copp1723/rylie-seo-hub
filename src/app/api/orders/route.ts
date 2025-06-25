@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import type { Order, OrderMessage, AuditLog } from '@prisma/client' // Added
 import { queueOrderForSEOWorks } from '@/lib/seoworks/queue'
 import { logger } from '@/lib/observability'
 

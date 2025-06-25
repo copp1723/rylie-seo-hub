@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import type { User, Agency } from '@prisma/client' // Added
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { observability } from '@/lib/observability'
@@ -208,9 +209,9 @@ export function createTenantPrisma(agencyId: string) {
           return query(args)
         },
         async create({ args, query }) {
-          // Add agencyId to the data
-          (args.data as any).agencyId = agencyId
-          return query(args)
+          // Add agencyId to the data in a type-safe way
+          args.data = { ...args.data, agencyId: agencyId };
+          return query(args);
         },
         async update({ args, query }) {
           args.where = { ...args.where, agencyId }
@@ -227,9 +228,9 @@ export function createTenantPrisma(agencyId: string) {
           return query(args)
         },
         async create({ args, query }) {
-          // Add agencyId to the data
-          (args.data as any).agencyId = agencyId
-          return query(args)
+          // Add agencyId to the data in a type-safe way
+          args.data = { ...args.data, agencyId: agencyId };
+          return query(args);
         },
       },
       theme: {
@@ -239,9 +240,10 @@ export function createTenantPrisma(agencyId: string) {
         },
         async upsert({ args, query }) {
           args.where = { ...args.where, agencyId };
-          (args.create as any).agencyId = agencyId;
-          (args.update as any).agencyId = agencyId;
-          return query(args)
+          // Add agencyId to create and update payloads in a type-safe way
+          args.create = { ...args.create, agencyId: agencyId };
+          args.update = { ...args.update, agencyId: agencyId }; // Assumes agencyId is a simple scalar field
+          return query(args);
         },
       },
     },
