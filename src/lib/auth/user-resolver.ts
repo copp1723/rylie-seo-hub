@@ -13,7 +13,12 @@ export interface ResolvedUser {
 
 export interface TenantContext {
   agencyId: string | null;
-  // Potentially other tenant-specific details
+  user: ResolvedUser;
+  agency: {
+    id: string;
+    name: string;
+    plan: string;
+  };
 }
 
 export const getRequestUser = async (): Promise<ResolvedUser | null> => { // Removed unused _request parameter
@@ -40,12 +45,23 @@ export const getRequestUser = async (): Promise<ResolvedUser | null> => { // Rem
 export const getTenantContext = async (user: ResolvedUser | null): Promise<TenantContext> => {
   console.log("Placeholder: getTenantContext called with user:", user);
   // Actual implementation will be provided by another agent or task.
-  if (user && user.agencyId && process.env.NODE_ENV === 'development') {
-    return {
-      agencyId: user.agencyId,
-    };
+  if (user && user.agencyId) {
+    // In development or when AUTH_DISABLED is true, return mock data
+    if (process.env.NODE_ENV === 'development' || process.env.AUTH_DISABLED === 'true') {
+      return {
+        agencyId: user.agencyId,
+        user: user,
+        agency: {
+          id: user.agencyId,
+          name: 'Default Agency',
+          plan: 'enterprise'
+        }
+      };
+    }
+    // In production, this would fetch actual agency data from database
+    throw new Error('Agency data fetch not implemented');
   }
-  return { agencyId: null };
+  throw new Error('User has no agency');
 };
 
 // Export an empty object if no other named exports are needed beyond types for some reason.

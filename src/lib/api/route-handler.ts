@@ -19,14 +19,12 @@ type RouteHandler<
   TContext = AuthenticatedContext,
 > = (
   request: NextRequest,
-  context: TContext,
-  params?: TParams // params typically come from the dynamic route segments like { params: { id: '123' } }
+  context: TContext & { params?: TParams }
 ) => Promise<NextResponse> | NextResponse
 
 type OptionalAuthRouteHandler<TParams extends AppRouteParams = AppRouteParams> = (
   request: NextRequest,
-  context: { user: ResolvedUser | null; tenant: TenantContext | null },
-  params?: TParams
+  context: { user: ResolvedUser | null; tenant: TenantContext | null; params?: TParams }
 ) => Promise<NextResponse> | NextResponse
 
 /**
@@ -36,8 +34,8 @@ type OptionalAuthRouteHandler<TParams extends AppRouteParams = AppRouteParams> =
  */
 export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: RouteHandler<TParams, AuthenticatedContext>
-): (request: NextRequest, routeContext: { params: TParams }) => Promise<NextResponse> {
-  return async (request: NextRequest, routeContext: { params: TParams }) => {
+): (request: NextRequest, routeContext?: { params?: TParams }) => Promise<NextResponse> {
+  return async (request: NextRequest, routeContext?: { params?: TParams }) => {
     const params = routeContext?.params
     try {
       if (process.env.AUTH_DISABLED === 'true') {
@@ -52,21 +50,14 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
 
         const tenant: TenantContext = {
           agencyId: user.agencyId || null,
-          // Properties removed to match TenantContext interface:
-          // agencyName: 'Default Agency',
-          // agencySlug: 'default',
-          // agencyPlan: 'enterprise',
-          // plan: 'enterprise', // This seemed like a duplicate of agencyPlan or a different concept
-          // limits: {
-          //   conversations: -1,
-          //   orders: -1,
-          //   users: -1,
-          // },
+          user: user,
+          agency: {
+            id: user.agencyId || 'default-agency',
+            name: 'Default Agency',
+            plan: 'enterprise'
+          }
         }
-        // If the handler function expects these properties, this will cause runtime issues.
-        // However, this change fixes the immediate TypeScript error.
-        // The TenantContext interface or the handler's expectation might need adjustment later.
-        return await handler(request, { user, tenant }, params)
+        return await handler(request, { user, tenant, params })
       }
 
       const user = await getRequestUser() // Corrected: getRequestUser now takes no arguments
@@ -89,7 +80,7 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
         headers.set('x-agency-id', tenant.agencyId)
       }
       
-      return await handler(request, { user, tenant }, params)
+      return await handler(request, { user, tenant, params })
     } catch (error) {
       console.error('Auth wrapper error:', error)
 
@@ -120,8 +111,8 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
  */
 export function withOptionalAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: OptionalAuthRouteHandler<TParams>
-): (request: NextRequest, routeContext: { params: TParams }) => Promise<NextResponse> {
-  return async (request: NextRequest, routeContext: { params: TParams }) => {
+): (request: NextRequest, routeContext?: { params?: TParams }) => Promise<NextResponse> {
+  return async (request: NextRequest, routeContext?: { params?: TParams }) => {
     const params = routeContext?.params
     try {
       const user = await getRequestUser() // Corrected: getRequestUser now takes no arguments
@@ -135,10 +126,10 @@ export function withOptionalAuth<TParams extends AppRouteParams = AppRouteParams
         }
       }
 
-      return await handler(request, { user, tenant }, params)
+      return await handler(request, { user, tenant, params })
     } catch (error) {
       console.error('Optional auth wrapper error:', error)
-      return await handler(request, { user: null, tenant: null }, params)
+      return await handler(request, { user: null, tenant: null, params })
     }
   }
 }
@@ -149,10 +140,10 @@ export function withOptionalAuth<TParams extends AppRouteParams = AppRouteParams
  */
 export function withAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: RouteHandler<TParams, AuthenticatedContext>
-): (request: NextRequest, routeContext: { params: TParams }) => Promise<NextResponse> {
-  return withAuth<TParams>(async (request, context, params) => {
+): (request: NextRequest, routeContext?: { params?: TParams }) => Promise<NextResponse> {
+  return withAuth<TParams>(async (request, context) => {
     if (process.env.AUTH_DISABLED === 'true') {
-      return handler(request, context, params)
+      return handler(request, context)
     }
 
     if (context.user.role !== 'ADMIN' && !context.user.isSuperAdmin) {
@@ -165,7 +156,7 @@ export function withAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
       )
     }
 
-    return handler(request, context, params)
+    return handler(request, context)
   })
 }
 
@@ -175,10 +166,10 @@ export function withAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
  */
 export function withSuperAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: RouteHandler<TParams, AuthenticatedContext>
-): (request: NextRequest, routeContext: { params: TParams }) => Promise<NextResponse> {
-  return withAuth<TParams>(async (request, context, params) => {
+): (request: NextRequest, routeContext?: { params?: TParams }) => Promise<NextResponse> {
+  return withAuth<TParams>(async (request, context) => {
     if (process.env.AUTH_DISABLED === 'true') {
-      return handler(request, context, params)
+      return handler(request, context)
     }
 
     if (!context.user.isSuperAdmin) {
@@ -191,7 +182,7 @@ export function withSuperAdminAuth<TParams extends AppRouteParams = AppRoutePara
       )
     }
 
-    return handler(request, context, params)
+    return handler(request, context)
   })
 }
 
