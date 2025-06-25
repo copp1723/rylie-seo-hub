@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/api/route-handler'
-import { getTenantDB } from '@/lib/db/tenant-filter'
+import { createTenantPrisma } from '@/lib/tenant'
 import { rateLimits } from '@/lib/rate-limit'
 
 export const GET = withAuth(async (request, context) => {
@@ -12,11 +12,11 @@ export const GET = withAuth(async (request, context) => {
     }
 
     // Get tenant-aware database instance
-    const db = getTenantDB(context)
+    const db = createTenantPrisma(context.tenant.agencyId)
 
-    const conversations = await db.findConversations(
-      { userId: context.user.id },
-      {
+    const conversations = await db.conversation.findMany({
+      where: { userId: context.user.id },
+      include: {
         messages: {
           orderBy: { createdAt: 'desc' },
           take: 1, // Just the last message for preview
@@ -24,8 +24,8 @@ export const GET = withAuth(async (request, context) => {
         _count: {
           select: { messages: true },
         },
-      }
-    )
+      },
+    })
 
     const formattedConversations = conversations.map(conv => ({
       id: conv.id,

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/api/route-handler'
-import { getTenantDB } from '@/lib/db/tenant-filter'
 import { prisma } from '@/lib/prisma'
 import { aiService } from '@/lib/ai'
 import { chatRequestSchema, validateRequest } from '@/lib/validation'
@@ -249,7 +248,7 @@ export const POST = withAuth(async (request, context) => {
     })
 
     // For super admins, return a simplified response
-    if (user.isSuperAdmin) {
+    if (context.user.isSuperAdmin) {
       return NextResponse.json({
         success: true,
         content: aiResponse.content,
