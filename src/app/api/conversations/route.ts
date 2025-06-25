@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { withAuth } from '@/lib/api/route-handler'
+import { getTenantDB } from '@/lib/db/tenant-filter'
 import { rateLimits } from '@/lib/rate-limit'
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request, context) => {
   try {
     // Apply rate limiting
     const rateLimitResult = await rateLimits.api(request)
@@ -11,24 +11,12 @@ export async function GET(request: NextRequest) {
       return rateLimitResult
     }
 
-    // Authenticate user
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Authentication required',
-        },
-        { status: 401 }
-      )
-    }
-    const userId = session.user.id
+    // Get tenant-aware database instance
+    const db = getTenantDB(context)
 
-    const conversations = await prisma.conversation.findMany({
-      where: {
-        userId: userId,
-      },
-      include: {
+    const conversations = await db.findConversations(
+      { userId: context.user.id },
+      {
         messages: {
           orderBy: { createdAt: 'desc' },
           take: 1, // Just the last message for preview
@@ -36,9 +24,8 @@ export async function GET(request: NextRequest) {
         _count: {
           select: { messages: true },
         },
-      },
-      orderBy: { updatedAt: 'desc' },
-    })
+      }
+    )
 
     const formattedConversations = conversations.map(conv => ({
       id: conv.id,
@@ -61,31 +48,38 @@ export async function GET(request: NextRequest) {
     console.error('Conversations API Error:', error)
     return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 })
   }
-}
+})
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request, context) => {
   try {
-    // Demo mode: Use mock user for development
-    const isDemoMode = process.env.NODE_ENV === 'development'
-    let userId = null
-
-    if (isDemoMode) {
-      userId = 'demo-user-1'
-    } else {
-      const session = await auth()
-      if (!session?.user?.id) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
-      userId = session.user.id
-    }
-
     const { title, model = 'openai/gpt-4-turbo-preview' } = await request.json()
 
+    // Import prisma for creation (tenant-aware DB doesn't have createConversation yet)
+    const { prisma } = await import('@/lib/prisma')
+
+    // Check conversation limits
+    const conversationCount = await prisma.conversation.count({
+      where: { agencyId: context.tenant.agencyId }
+    })
+    
+    const agency = await prisma.agency.findUnique({
+      where: { id: context.tenant.agencyId },
+      select: { maxConversations: true }
+    })
+
+    if (agency && conversationCount >= agency.maxConversations) {
+      return NextResponse.json(
+        { error: 'Conversation limit reached for your plan' },
+        { status: 403 }
+      )
+    }
+
+    // Create conversation with proper tenant context
     const conversation = await prisma.conversation.create({
       data: {
         title: title || 'New Conversation',
-        userId: userId,
-        agencyId: 'default', // TODO: Get from tenant context
+        userId: context.user.id,
+        agencyId: context.tenant.agencyId, // Use agency from session context
         model,
       },
       include: {
@@ -105,4 +99,4 @@ export async function POST(request: NextRequest) {
     console.error('Create Conversation Error:', error)
     return NextResponse.json({ error: 'Failed to create conversation' }, { status: 500 })
   }
-}
+})
