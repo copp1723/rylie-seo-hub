@@ -34,9 +34,10 @@ type OptionalAuthRouteHandler<TParams extends AppRouteParams = AppRouteParams> =
  */
 export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: RouteHandler<TParams, AuthenticatedContext>
-): (request: NextRequest, routeContext?: { params?: TParams }) => Promise<NextResponse> {
-  return async (request: NextRequest, routeContext?: { params?: TParams }) => {
-    const params = routeContext?.params
+): any {
+  // Return a function that matches Next.js route handler signature
+  return async function(request: NextRequest, context?: any) {
+    const params = context?.params
     try {
       if (process.env.AUTH_DISABLED === 'true') {
         const user: ResolvedUser = {
@@ -111,9 +112,9 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
  */
 export function withOptionalAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: OptionalAuthRouteHandler<TParams>
-): (request: NextRequest, routeContext?: { params?: TParams }) => Promise<NextResponse> {
-  return async (request: NextRequest, routeContext?: { params?: TParams }) => {
-    const params = routeContext?.params
+): any {
+  return async function(request: NextRequest, context?: any) {
+    const params = context?.params
     try {
       const user = await getRequestUser() // Corrected: getRequestUser now takes no arguments
       const tenant = user ? await getTenantContext(user) : null
@@ -140,7 +141,7 @@ export function withOptionalAuth<TParams extends AppRouteParams = AppRouteParams
  */
 export function withAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: RouteHandler<TParams, AuthenticatedContext>
-): (request: NextRequest, routeContext?: { params?: TParams }) => Promise<NextResponse> {
+): any {
   return withAuth<TParams>(async (request, context) => {
     if (process.env.AUTH_DISABLED === 'true') {
       return handler(request, context)
@@ -166,7 +167,7 @@ export function withAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
  */
 export function withSuperAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: RouteHandler<TParams, AuthenticatedContext>
-): (request: NextRequest, routeContext?: { params?: TParams }) => Promise<NextResponse> {
+): any {
   return withAuth<TParams>(async (request, context) => {
     if (process.env.AUTH_DISABLED === 'true') {
       return handler(request, context)
