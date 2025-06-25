@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      properties: properties.map((prop: any) => ({
-        id: prop.name.split('/').pop(),
+      properties: properties.map((prop: import('googleapis').analyticsadmin_v1alpha.Schema$GoogleAnalyticsAdminV1alphaProperty) => ({
+        id: prop.name ? prop.name.split('/').pop() : '',
         name: prop.displayName,
         fullName: prop.name,
       })),
