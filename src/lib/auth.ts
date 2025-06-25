@@ -1,41 +1,76 @@
 import NextAuth from 'next-auth'
-import Email from 'next-auth/providers/email'
+import Google from 'next-auth/providers/google'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from './prisma'
 import type { Session, User } from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
 
-// Production-ready auth configuration with magic link
+// Extended session type to include additional user properties
+interface ExtendedSession extends Session {
+  user: {
+    id: string
+    email: string | null
+    name: string | null
+    image: string | null
+    role?: string
+    agencyId?: string | null
+    isSuperAdmin?: boolean
+  }
+}
+
+// Production-ready auth configuration with Google OAuth
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   trustHost: true, // Trust the host in production
   providers: [
-    Email({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.EMAIL_SERVER_PORT || '587'),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
-      from: process.env.EMAIL_FROM || 'noreply@rylie-seo-hub.com',
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   pages: {
-    signIn: '/',
+    signIn: '/auth/signin',
+    error: '/auth/error',
     verifyRequest: '/auth/verify-request',
   },
   callbacks: {
-    session: async ({ session, user, token }: { session: Session; user?: User; token?: JWT }) => {
+    session: async ({ session, user, token }): Promise<ExtendedSession> => {
       // If user is available from database (normal case)
       if (user) {
-        return {
-          ...session,
-          user: {
-            ...session.user,
-            id: user.id,
+        // Fetch full user data including relationships
+        const fullUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { 
+            id: true, 
+            email: true, 
+            name: true, 
+            image: true,
+            role: true,
+            agencyId: true,
+            isSuperAdmin: true
           },
+        })
+
+        if (fullUser) {
+          return {
+            ...session,
+            user: {
+              id: fullUser.id,
+              email: fullUser.email,
+              name: fullUser.name,
+              image: fullUser.image,
+              role: fullUser.role,
+              agencyId: fullUser.agencyId,
+              isSuperAdmin: fullUser.isSuperAdmin,
+            },
+          }
         }
       }
 
@@ -44,15 +79,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         try {
           const dbUser = await prisma.user.findUnique({
             where: { email: session.user.email },
-            select: { id: true, email: true, name: true, image: true },
+            select: { 
+              id: true, 
+              email: true, 
+              name: true, 
+              image: true,
+              role: true,
+              agencyId: true,
+              isSuperAdmin: true
+            },
           })
 
           if (dbUser) {
             return {
               ...session,
               user: {
-                ...session.user,
                 id: dbUser.id,
+                email: dbUser.email,
+                name: dbUser.name,
+                image: dbUser.image,
+                role: dbUser.role,
+                agencyId: dbUser.agencyId,
+                isSuperAdmin: dbUser.isSuperAdmin,
               },
             }
           }
@@ -61,13 +109,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
-      // Last resort: return session without user ID (will cause invite to fail gracefully)
-      console.warn('Session callback: No user ID available')
-      return session
+      // Last resort: return session with minimal user data
+      console.warn('Session callback: No complete user data available')
+      return {
+        ...session,
+        user: {
+          id: '',
+          email: session.user?.email || null,
+          name: session.user?.name || null,
+          image: session.user?.image || null,
+        },
+      }
     },
-    signIn: async ({ user, account, profile }: { user: User; account: any; profile?: any }) => {
+    signIn: async ({ user, account, profile }) => {
       // Log sign in attempts for debugging
-      console.log('Magic link sign in attempt:', {
+      console.log('Google OAuth sign in attempt:', {
         email: user.email,
         provider: account?.provider,
         userId: user.id,
@@ -82,16 +138,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           if (!existingUser) {
             console.log('Creating user in database:', user.email)
+            
+            // Check if this is the first user (should be super admin)
+            const userCount = await prisma.user.count()
+            const isFirstUser = userCount === 0
+            
             await prisma.user.create({
               data: {
                 email: user.email,
                 name: user.name || null,
                 image: user.image || null,
-                role: 'user',
-                isSuperAdmin: false,
+                role: isFirstUser ? 'admin' : 'user',
+                isSuperAdmin: isFirstUser,
               },
             })
-            console.log('User created successfully in database')
+            console.log('User created successfully in database', {
+              isFirstUser,
+              role: isFirstUser ? 'admin' : 'user'
+            })
           } else {
             console.log('User already exists in database:', existingUser.id)
           }
@@ -104,18 +168,98 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Always allow sign in - the adapter will create the user if needed
       return true
     },
-    redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+    redirect({ url, baseUrl }) {
       console.log('Redirect callback:', { url, baseUrl })
+
+      // Handle sign out - redirect to home
+      if (url.includes('/api/auth/signout')) {
+        return baseUrl
+      }
 
       // Redirect to dashboard after sign in
       if (url === baseUrl || url === '/' || url.includes('/?')) {
         return `${baseUrl}/dashboard`
       }
+      
       // Allow relative callback URLs
       if (url.startsWith('/')) return `${baseUrl}${url}`
+      
       // Allow callback URLs on the same origin
       if (new URL(url).origin === baseUrl) return url
+      
       return `${baseUrl}/dashboard`
     },
   },
+  events: {
+    signIn: async ({ user, account, profile, isNewUser }) => {
+      console.log('SignIn event:', { 
+        userId: user.id, 
+        email: user.email,
+        isNewUser,
+        provider: account?.provider 
+      })
+    },
+    signOut: async ({ session, token }) => {
+      console.log('SignOut event:', { 
+        userId: session?.user?.id || token?.sub,
+        email: session?.user?.email || token?.email
+      })
+    },
+  },
 })
+
+// Helper function to check if user has access to a specific agency
+export async function hasAgencyAccess(userId: string, agencyId: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { agencyId: true, isSuperAdmin: true }
+  })
+
+  // Super admins have access to all agencies
+  if (user?.isSuperAdmin) return true
+  
+  // Regular users only have access to their own agency
+  return user?.agencyId === agencyId
+}
+
+// Helper function to require authentication
+export async function requireAuth() {
+  const session = await auth() as ExtendedSession | null
+  
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized')
+  }
+  
+  return session
+}
+
+// Helper function to require super admin
+export async function requireSuperAdmin() {
+  const session = await requireAuth()
+  
+  if (!session.user.isSuperAdmin) {
+    throw new Error('Forbidden: Super admin access required')
+  }
+  
+  return session
+}
+
+// Helper function to require agency admin
+export async function requireAgencyAdmin(agencyId?: string) {
+  const session = await requireAuth()
+  
+  // Super admins can access any agency
+  if (session.user.isSuperAdmin) return session
+  
+  // Check if user is admin of their agency
+  if (session.user.role !== 'admin') {
+    throw new Error('Forbidden: Admin access required')
+  }
+  
+  // If specific agency is requested, verify access
+  if (agencyId && session.user.agencyId !== agencyId) {
+    throw new Error('Forbidden: Access denied to this agency')
+  }
+  
+  return session
+}
