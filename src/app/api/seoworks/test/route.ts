@@ -23,14 +23,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    // Create mock webhook payload
+    // Create mock webhook payload matching the new schema
     const webhookPayload = {
       eventType,
       timestamp: new Date().toISOString(),
-      signature: '', // Will be calculated below
       data: {
-        externalId: order.seoworksTaskId || `mock-${orderId}`,
-        taskType: order.taskType,
+        externalId: order.seoworksTaskId || `mock-${orderId}-${Date.now()}`,
+        taskType: order.taskType || 'general',
         status,
         assignedTo: 'mock-team-member@seoworks.com',
         completionDate: status === 'completed' ? new Date().toISOString() : undefined,
@@ -40,14 +39,22 @@ export async function POST(request: NextRequest) {
                 {
                   type: 'document',
                   url: 'https://example.com/deliverable.pdf',
-                  title: `${order.taskType} Deliverable`,
+                  title: `${order.taskType || 'Task'} Deliverable`,
                   description: 'Completed work for your request',
+                },
+                {
+                  type: 'report',
+                  url: 'https://example.com/report.html',
+                  title: 'Completion Report',
+                  description: 'Detailed report of work performed',
                 },
               ]
             : undefined,
         completionNotes:
           status === 'completed'
             ? 'Task completed successfully with all requirements met.'
+            : status === 'cancelled'
+            ? 'Task cancelled per client request.'
             : undefined,
         actualHours: status === 'completed' ? 4.5 : undefined,
         qualityScore: status === 'completed' ? 5 : undefined,
@@ -56,12 +63,11 @@ export async function POST(request: NextRequest) {
 
     // Calculate signature
     const secret = process.env.SEOWORKS_WEBHOOK_SECRET || 'test-secret'
+    const payload = JSON.stringify(webhookPayload)
     const signature = crypto
       .createHmac('sha256', secret)
-      .update(JSON.stringify(webhookPayload))
+      .update(payload)
       .digest('hex')
-
-    webhookPayload.signature = signature
 
     // Call our webhook endpoint
     const webhookUrl = new URL('/api/seoworks/webhook', request.url)
@@ -70,8 +76,9 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'x-seoworks-signature': signature,
+        'x-api-key': process.env.SEOWORKS_API_KEY || 'test-api-key',
       },
-      body: JSON.stringify(webhookPayload),
+      body: payload,
     })
 
     const result = await webhookResponse.json()
@@ -91,22 +98,62 @@ export async function POST(request: NextRequest) {
         status: webhookResponse.status,
         result,
       },
+      signature,
     })
   } catch (error) {
     logger.error('Error sending test webhook:', error)
-    return NextResponse.json({ error: 'Failed to send test webhook' }, { status: 500 })
+    return NextResponse.json(
+      { 
+        error: 'Failed to send test webhook',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      }, 
+      { status: 500 }
+    )
   }
 }
 
 // Helper endpoint to list available test scenarios
 export async function GET(request: NextRequest) {
+  const isMockMode = !process.env.SEOWORKS_API_KEY || process.env.SEOWORKS_MOCK_MODE === 'true'
+  
+  // Get sample orders for testing
+  const sampleOrders = await prisma.order.findMany({
+    take: 3,
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      title: true,
+      taskType: true,
+      status: true,
+      seoworksTaskId: true,
+    },
+  })
+
   return NextResponse.json({
     success: true,
     description: 'Test endpoint for simulating SEO Works webhooks',
+    mode: isMockMode ? 'mock' : 'production',
     usage: 'POST /api/seoworks/test with { orderId, eventType, status }',
     availableEventTypes: ['task.created', 'task.updated', 'task.completed', 'task.cancelled'],
     availableStatuses: ['pending', 'in_progress', 'completed', 'cancelled'],
+    sampleOrders: sampleOrders.length > 0 ? sampleOrders : [
+      {
+        id: 'example-order-id',
+        title: 'Example Order',
+        taskType: 'blog',
+        status: 'pending',
+        seoworksTaskId: null,
+      },
+    ],
     examples: [
+      {
+        description: 'Create a new task',
+        payload: {
+          orderId: 'your-order-id',
+          eventType: 'task.created',
+          status: 'pending',
+        },
+      },
       {
         description: 'Mark order as in progress',
         payload: {
@@ -116,13 +163,24 @@ export async function GET(request: NextRequest) {
         },
       },
       {
-        description: 'Complete an order',
+        description: 'Complete an order with deliverables',
         payload: {
           orderId: 'your-order-id',
           eventType: 'task.completed',
           status: 'completed',
         },
       },
+      {
+        description: 'Cancel an order',
+        payload: {
+          orderId: 'your-order-id',
+          eventType: 'task.cancelled',
+          status: 'cancelled',
+        },
+      },
     ],
+    testCommand: `curl -X POST ${process.env.APP_URL || 'http://localhost:3001'}/api/seoworks/test \\
+  -H "Content-Type: application/json" \\
+  -d '{"orderId": "your-order-id", "eventType": "task.updated", "status": "in_progress"}'`,
   })
 }
