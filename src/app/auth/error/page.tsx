@@ -1,11 +1,9 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 
-export default function AuthErrorPage({
-  searchParams,
-}: {
-  searchParams: { error?: string }
-}) {
-  const error = searchParams.error || 'Default'
+async function AuthErrorContent({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const params = await searchParams
+  const error = params?.error || 'Default'
 
   const errorMessages: Record<string, { title: string; message: string }> = {
     Configuration: {
@@ -106,5 +104,17 @@ export default function AuthErrorPage({
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AuthErrorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthErrorContent searchParams={searchParams} />
+    </Suspense>
   )
 }
