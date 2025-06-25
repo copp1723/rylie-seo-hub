@@ -14,16 +14,24 @@ export interface AuthenticatedContext {
   tenant: TenantContext
 }
 
+ fix/typescript-errors
+type RouteHandler<T = unknown> = ( // Changed default from any to unknown
+=======
 type RouteHandler<
   TParams extends AppRouteParams = AppRouteParams,
   TContext = AuthenticatedContext,
 > = (
+main
   request: NextRequest,
   context: TContext,
   params?: TParams // params typically come from the dynamic route segments like { params: { id: '123' } }
 ) => Promise<NextResponse> | NextResponse
 
+ fix/typescript-errors
+type OptionalAuthRouteHandler<T = unknown> = ( // Changed default from any to unknown
+=======
 type OptionalAuthRouteHandler<TParams extends AppRouteParams = AppRouteParams> = (
+ main
   request: NextRequest,
   context: { user: ResolvedUser | null; tenant: TenantContext | null },
   params?: TParams
@@ -55,8 +63,8 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
         }
 
         const tenant: TenantContext = {
-          userId: user.id,
-          agencyId: user.agencyId,
+          // userId: user.id, // TenantContext placeholder doesn't have userId
+          agencyId: user.agencyId || null, // Ensure it's string | null
           agencyName: 'Default Agency',
           agencySlug: 'default',
           agencyPlan: 'enterprise',
@@ -72,8 +80,13 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
       }
 
       // Original auth logic
+ fix/typescript-errors
+      const user = await getRequestUser() // Removed request argument
+      
+=======
       const user = await getRequestUser(request)
 
+ main
       if (!user) {
         return NextResponse.json(
           {
@@ -89,8 +102,15 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
       // Add user and tenant to request headers for logging/tracking
       const headers = new Headers(request.headers)
       headers.set('x-user-id', user.id)
+ fix/typescript-errors
+      if (tenant.agencyId) {
+        headers.set('x-agency-id', tenant.agencyId)
+      }
+      
+=======
       headers.set('x-agency-id', tenant.agencyId)
 
+ main
       return await handler(request, { user, tenant }, params)
     } catch (error) {
       console.error('Auth wrapper error:', error)
@@ -127,14 +147,16 @@ export function withOptionalAuth<TParams extends AppRouteParams = AppRouteParams
   return async (request: NextRequest, routeContext: { params: TParams }) => {
     const params = routeContext?.params // Extract params
     try {
-      const user = await getRequestUser(request)
+      const user = await getRequestUser() // Removed request argument
       const tenant = user ? await getTenantContext(user) : null
 
       // Add user info to headers if available
       if (user && tenant) {
         const headers = new Headers(request.headers)
         headers.set('x-user-id', user.id)
-        headers.set('x-agency-id', tenant.agencyId)
+        if (tenant.agencyId) {
+          headers.set('x-agency-id', tenant.agencyId)
+        }
       }
 
       return await handler(request, { user, tenant }, params)
@@ -206,6 +228,14 @@ export function withSuperAdminAuth<TParams extends AppRouteParams = AppRoutePara
  * Helper to extract and validate route params
  * The second argument `routeContext` in Next.js App Router handlers is typically { params: YourParamsType }
  */
+ fix/typescript-errors
+export function getRouteParams<T extends Record<string, string>>(
+  params: { params?: T } | T | undefined | null // More specific type for params
+): T {
+  // Handle both Next.js 13 and 14 param formats
+  const resolvedParams = (params as { params?: T })?.params || params;
+  return resolvedParams as T;
+=======
 export function getRouteParams<T extends AppRouteParams>(
   routeContext: { params: T } | undefined | T // Allow passing params directly or the whole context object
 ): T {
@@ -215,6 +245,7 @@ export function getRouteParams<T extends AppRouteParams>(
   // Handle both Next.js 13/14 { params: ... } structure and direct params object
   const resolvedParams = 'params' in routeContext ? routeContext.params : routeContext
   return resolvedParams as T
+ main
 }
 
 interface ErrorResponsePayload {
@@ -234,6 +265,21 @@ interface SuccessResponsePayload<T> {
  */
 export function errorResponse(
   message: string,
+ fix/typescript-errors
+  status: number = 500,
+  details?: unknown // Changed from any to unknown
+): NextResponse {
+  const responseBody: { error: string; message: string; details?: unknown } = { // Typed responseBody
+    error: getErrorType(status),
+    message
+  }
+  
+  if (details !== undefined) { // Check for undefined explicitly for optional params
+    responseBody.details = details
+  }
+  
+  return NextResponse.json(responseBody, { status })
+=======
   status?: number, // Made status optional to match common usage, defaults below
   details?: unknown // Changed from any to unknown
 ): NextResponse<ErrorResponsePayload> {
@@ -248,11 +294,20 @@ export function errorResponse(
   }
 
   return NextResponse.json(payload, { status: effectiveStatus })
+ main
 }
 
 /**
  * Standard success response helper
  */
+ fix/typescript-errors
+export function successResponse<T = unknown>( // Changed default T from any to unknown
+  data: T,
+  message?: string,
+  status: number = 200
+): NextResponse {
+  const responseBody: { success: boolean; data: T; message?: string } = { // Typed responseBody
+=======
 export function successResponse<TData>( // Changed generic name from T to TData for clarity
   data: TData,
   message?: string,
@@ -260,15 +315,23 @@ export function successResponse<TData>( // Changed generic name from T to TData 
 ): NextResponse<SuccessResponsePayload<TData>> {
   const effectiveStatus = status || 200
   const payload: SuccessResponsePayload<TData> = {
+ main
     success: true,
     data,
   }
 
   if (message) {
+ fix/typescript-errors
+    responseBody.message = message
+  }
+  
+  return NextResponse.json(responseBody, { status })
+=======
     payload.message = message
   }
 
   return NextResponse.json(payload, { status: effectiveStatus })
+ main
 }
 
 /**
