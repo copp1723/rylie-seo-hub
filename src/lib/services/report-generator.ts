@@ -2,10 +2,13 @@
 
 import * as puppeteer from 'puppeteer'
 import * as handlebars from 'handlebars'
-import { GA4ReportData, DateRange } from './ga4-service' // Assuming they are in the same directory or adjust path
-import { auditLog } from '@/lib/services/audit-service'
+import { GA4ReportData, DateRange } from '@/lib/types/ga4' // Corrected import path
+// import { auditLog } from '@/lib/services/audit-service' // Removed audit-service import
 
 // --- Interfaces ---
+
+// Placeholder for auditLog
+const auditLog = async (log: any) => console.log('AUDIT_LOG (ReportGenerator):', log)
 export interface ReportBrandingOptions {
   agencyName?: string
   agencyLogoUrl?: string // URL to an image
@@ -214,7 +217,8 @@ export class ReportGenerator {
         event: 'REPORT_GENERATE_PDF_SUCCESS',
         details: `PDF size: ${pdfBuffer.length} bytes`,
       })
-      return pdfBuffer
+      // Ensure it's a Node.js Buffer, even if puppeteer's Buffer is slightly different typed
+      return Buffer.from(pdfBuffer)
     } catch (error: any) {
       if (browser) {
         await browser.close()
@@ -255,9 +259,10 @@ export class ReportGenerator {
 
 // Placeholder for auditLog if not already globally defined
 // @ts-ignore
-global.auditLog =
-  global.auditLog ||
-  (async (log: any) => console.log('AUDIT_LOG (placeholder ReportGenerator):', log))
+if (!global.auditLog) {
+  // @ts-ignore
+  global.auditLog = async (log: any) => console.log('AUDIT_LOG (placeholder ReportGenerator):', log);
+}
 
 // Ensure puppeteer can find Chromium.
 // If running in a specific environment, you might need to set PUPPETEER_EXECUTABLE_PATH

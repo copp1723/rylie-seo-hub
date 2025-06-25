@@ -14,27 +14,17 @@ export interface AuthenticatedContext {
   tenant: TenantContext
 }
 
- fix/typescript-errors
-type RouteHandler<T = unknown> = ( // Changed default from any to unknown
-=======
 type RouteHandler<
   TParams extends AppRouteParams = AppRouteParams,
   TContext = AuthenticatedContext,
 > = (
-main
   request: NextRequest,
-  context: TContext,
-  params?: TParams // params typically come from the dynamic route segments like { params: { id: '123' } }
+  context: TContext & { params?: TParams }
 ) => Promise<NextResponse> | NextResponse
 
- fix/typescript-errors
-type OptionalAuthRouteHandler<T = unknown> = ( // Changed default from any to unknown
-=======
 type OptionalAuthRouteHandler<TParams extends AppRouteParams = AppRouteParams> = (
- main
   request: NextRequest,
-  context: { user: ResolvedUser | null; tenant: TenantContext | null },
-  params?: TParams
+  context: { user: ResolvedUser | null; tenant: TenantContext | null; params?: TParams }
 ) => Promise<NextResponse> | NextResponse
 
 /**
@@ -44,15 +34,12 @@ type OptionalAuthRouteHandler<TParams extends AppRouteParams = AppRouteParams> =
  */
 export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: RouteHandler<TParams, AuthenticatedContext>
-): (request: NextRequest, routeContext: { params: TParams }) => Promise<NextResponse> {
-  // Adjusted routeContext
-  return async (request: NextRequest, routeContext: { params: TParams }) => {
-    // Adjusted routeContext
-    const params = routeContext?.params // Extract params
+): any {
+  // Return a function that matches Next.js route handler signature
+  return async function(request: NextRequest, context?: any) {
+    const params = context?.params
     try {
-      // PATCH: Check if auth is disabled first
       if (process.env.AUTH_DISABLED === 'true') {
-        // Use default user and tenant
         const user: ResolvedUser = {
           id: process.env.DEFAULT_USER_ID || 'test-user-id',
           email: process.env.DEFAULT_USER_EMAIL || 'user@example.com',
@@ -63,30 +50,19 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
         }
 
         const tenant: TenantContext = {
-          // userId: user.id, // TenantContext placeholder doesn't have userId
-          agencyId: user.agencyId || null, // Ensure it's string | null
-          agencyName: 'Default Agency',
-          agencySlug: 'default',
-          agencyPlan: 'enterprise',
-          plan: 'enterprise',
-          limits: {
-            conversations: -1,
-            orders: -1,
-            users: -1,
-          },
+          agencyId: user.agencyId || null,
+          user: user,
+          agency: {
+            id: user.agencyId || 'default-agency',
+            name: 'Default Agency',
+            plan: 'enterprise'
+          }
         }
-
-        return await handler(request, { user, tenant }, params)
+        return await handler(request, { user, tenant, params })
       }
 
-      // Original auth logic
- fix/typescript-errors
-      const user = await getRequestUser() // Removed request argument
-      
-=======
-      const user = await getRequestUser(request)
+      const user = await getRequestUser() // Corrected: getRequestUser now takes no arguments
 
- main
       if (!user) {
         return NextResponse.json(
           {
@@ -99,23 +75,16 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
 
       const tenant = await getTenantContext(user)
 
-      // Add user and tenant to request headers for logging/tracking
       const headers = new Headers(request.headers)
       headers.set('x-user-id', user.id)
- fix/typescript-errors
-      if (tenant.agencyId) {
+      if (tenant.agencyId) { // Check if agencyId is not null
         headers.set('x-agency-id', tenant.agencyId)
       }
       
-=======
-      headers.set('x-agency-id', tenant.agencyId)
-
- main
-      return await handler(request, { user, tenant }, params)
+      return await handler(request, { user, tenant, params })
     } catch (error) {
       console.error('Auth wrapper error:', error)
 
-      // Check if it's an agency not found error
       if (error instanceof Error && error.message.includes('Agency not found')) {
         return NextResponse.json(
           {
@@ -143,14 +112,13 @@ export function withAuth<TParams extends AppRouteParams = AppRouteParams>(
  */
 export function withOptionalAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: OptionalAuthRouteHandler<TParams>
-): (request: NextRequest, routeContext: { params: TParams }) => Promise<NextResponse> {
-  return async (request: NextRequest, routeContext: { params: TParams }) => {
-    const params = routeContext?.params // Extract params
+): any {
+  return async function(request: NextRequest, context?: any) {
+    const params = context?.params
     try {
-      const user = await getRequestUser() // Removed request argument
+      const user = await getRequestUser() // Corrected: getRequestUser now takes no arguments
       const tenant = user ? await getTenantContext(user) : null
 
-      // Add user info to headers if available
       if (user && tenant) {
         const headers = new Headers(request.headers)
         headers.set('x-user-id', user.id)
@@ -159,13 +127,10 @@ export function withOptionalAuth<TParams extends AppRouteParams = AppRouteParams
         }
       }
 
-      return await handler(request, { user, tenant }, params)
+      return await handler(request, { user, tenant, params })
     } catch (error) {
       console.error('Optional auth wrapper error:', error)
-
-      // For optional auth, we still want to call the handler even if there's an error
-      // Just pass null user and tenant
-      return await handler(request, { user: null, tenant: null }, params)
+      return await handler(request, { user: null, tenant: null, params })
     }
   }
 }
@@ -176,11 +141,10 @@ export function withOptionalAuth<TParams extends AppRouteParams = AppRouteParams
  */
 export function withAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: RouteHandler<TParams, AuthenticatedContext>
-): (request: NextRequest, routeContext: { params: TParams }) => Promise<NextResponse> {
-  return withAuth<TParams>(async (request, context, params) => {
-    // PATCH: If auth is disabled, allow all admin routes
+): any {
+  return withAuth<TParams>(async (request, context) => {
     if (process.env.AUTH_DISABLED === 'true') {
-      return handler(request, context, params)
+      return handler(request, context)
     }
 
     if (context.user.role !== 'ADMIN' && !context.user.isSuperAdmin) {
@@ -193,7 +157,7 @@ export function withAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
       )
     }
 
-    return handler(request, context, params)
+    return handler(request, context)
   })
 }
 
@@ -203,11 +167,10 @@ export function withAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
  */
 export function withSuperAdminAuth<TParams extends AppRouteParams = AppRouteParams>(
   handler: RouteHandler<TParams, AuthenticatedContext>
-): (request: NextRequest, routeContext: { params: TParams }) => Promise<NextResponse> {
-  return withAuth<TParams>(async (request, context, params) => {
-    // PATCH: If auth is disabled, allow all super admin routes
+): any {
+  return withAuth<TParams>(async (request, context) => {
     if (process.env.AUTH_DISABLED === 'true') {
-      return handler(request, context, params)
+      return handler(request, context)
     }
 
     if (!context.user.isSuperAdmin) {
@@ -220,43 +183,32 @@ export function withSuperAdminAuth<TParams extends AppRouteParams = AppRoutePara
       )
     }
 
-    return handler(request, context, params)
+    return handler(request, context)
   })
 }
 
 /**
  * Helper to extract and validate route params
- * The second argument `routeContext` in Next.js App Router handlers is typically { params: YourParamsType }
  */
- fix/typescript-errors
-export function getRouteParams<T extends Record<string, string>>(
-  params: { params?: T } | T | undefined | null // More specific type for params
-): T {
-  // Handle both Next.js 13 and 14 param formats
-  const resolvedParams = (params as { params?: T })?.params || params;
-  return resolvedParams as T;
-=======
 export function getRouteParams<T extends AppRouteParams>(
-  routeContext: { params: T } | undefined | T // Allow passing params directly or the whole context object
+  routeContext: { params: T } | undefined | T
 ): T {
   if (!routeContext) {
-    return {} as T // Or throw error, depending on expected usage
+    return {} as T
   }
-  // Handle both Next.js 13/14 { params: ... } structure and direct params object
   const resolvedParams = 'params' in routeContext ? routeContext.params : routeContext
   return resolvedParams as T
- main
 }
 
 interface ErrorResponsePayload {
   error: string
   message: string
-  details?: unknown // Changed from any to unknown
+  details?: unknown
 }
 
-interface SuccessResponsePayload<T> {
+interface SuccessResponsePayload<TData> {
   success: boolean
-  data: T
+  data: TData
   message?: string
 }
 
@@ -265,23 +217,8 @@ interface SuccessResponsePayload<T> {
  */
 export function errorResponse(
   message: string,
- fix/typescript-errors
-  status: number = 500,
-  details?: unknown // Changed from any to unknown
-): NextResponse {
-  const responseBody: { error: string; message: string; details?: unknown } = { // Typed responseBody
-    error: getErrorType(status),
-    message
-  }
-  
-  if (details !== undefined) { // Check for undefined explicitly for optional params
-    responseBody.details = details
-  }
-  
-  return NextResponse.json(responseBody, { status })
-=======
-  status?: number, // Made status optional to match common usage, defaults below
-  details?: unknown // Changed from any to unknown
+  status?: number,
+  details?: unknown
 ): NextResponse<ErrorResponsePayload> {
   const effectiveStatus = status || 500
   const payload: ErrorResponsePayload = {
@@ -294,44 +231,27 @@ export function errorResponse(
   }
 
   return NextResponse.json(payload, { status: effectiveStatus })
- main
 }
 
 /**
  * Standard success response helper
  */
- fix/typescript-errors
-export function successResponse<T = unknown>( // Changed default T from any to unknown
-  data: T,
-  message?: string,
-  status: number = 200
-): NextResponse {
-  const responseBody: { success: boolean; data: T; message?: string } = { // Typed responseBody
-=======
-export function successResponse<TData>( // Changed generic name from T to TData for clarity
+export function successResponse<TData>(
   data: TData,
   message?: string,
-  status?: number // Made status optional
+  status?: number
 ): NextResponse<SuccessResponsePayload<TData>> {
   const effectiveStatus = status || 200
   const payload: SuccessResponsePayload<TData> = {
- main
     success: true,
     data,
   }
 
   if (message) {
- fix/typescript-errors
-    responseBody.message = message
-  }
-  
-  return NextResponse.json(responseBody, { status })
-=======
     payload.message = message
   }
 
   return NextResponse.json(payload, { status: effectiveStatus })
- main
 }
 
 /**

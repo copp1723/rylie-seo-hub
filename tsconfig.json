@@ -13,11 +13,13 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": ["jest", "node"], // Re-adding "jest" and "node"
     "plugins": [
       {
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }

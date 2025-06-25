@@ -1,20 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { withAuth } from '@/lib/api/route-handler'
+import { getTenantDB } from '@/lib/db/tenant-filter'
 import { prisma } from '@/lib/prisma'
 import { aiService } from '@/lib/ai'
 import { chatRequestSchema, validateRequest } from '@/lib/validation'
 import { rateLimits } from '@/lib/rate-limit'
 import { logger, performanceTracker, trackEvent } from '@/lib/observability'
-import { getTenantContext, checkUsageLimits, createTenantPrisma } from '@/lib/tenant'
+import { checkUsageLimits, createTenantPrisma } from '@/lib/tenant'
 import { generateSystemPrompt, findRelevantFAQ } from '@/lib/seo-knowledge'
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request, context) => {
   const timer = performanceTracker.startTimer('chat_api_request')
 
   try {
     logger.info('Chat API request started', {
       url: request.url,
       method: request.method,
+      userId: context.user.id,
+      agencyId: context.tenant.agencyId,
     })
 
     // Apply rate limiting for AI endpoints
@@ -22,89 +25,20 @@ export async function POST(request: NextRequest) {
     if (rateLimitResult) {
       logger.warn('Rate limit exceeded for chat API', {
         ip: request.headers.get('x-forwarded-for'),
+        userId: context.user.id,
       })
       return rateLimitResult
     }
 
-    // Check if user is authenticated first
-    const session = await auth()
-    if (!session?.user?.id) {
-      logger.warn('No authenticated user for chat API request')
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Authentication required',
-        },
-        { status: 401 }
-      )
-    }
+    // Get tenant context from authenticated session
+    const tenantContext = context.tenant
 
-    // Check if user is super admin
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [{ id: session.user.id }, { email: session.user.email || '' }],
-      },
-      select: {
-        id: true,
-        email: true,
-        isSuperAdmin: true,
-        role: true,
-        agencyId: true,
-      },
-    })
-
-    if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'User not found',
-          details: {
-            sessionUserId: session.user.id,
-            sessionEmail: session.user.email,
-          },
-        },
-        { status: 401 }
-      )
-    }
-
-    // For super admins, create a mock tenant context
-    let tenantContext = null
-    if (user.isSuperAdmin) {
+    // Super admins bypass usage limits
+    if (context.user.isSuperAdmin) {
       logger.info('Super admin access granted for chat API', {
-        userId: user.id,
-        email: user.email,
+        userId: context.user.id,
+        email: context.user.email,
       })
-      tenantContext = {
-        agencyId: user.agencyId || 'super-admin',
-        agency: {
-          id: user.agencyId || 'super-admin',
-          name: 'Super Admin Access',
-          slug: 'super-admin',
-          plan: 'enterprise',
-          status: 'active',
-          maxUsers: 999999,
-          maxConversations: 999999,
-        },
-        user: {
-          id: user.id,
-          email: user.email,
-          role: 'admin',
-        },
-      }
-    } else {
-      // Get tenant context for regular users
-      tenantContext = await getTenantContext(request)
-      if (!tenantContext) {
-        logger.warn('No valid tenant context for chat API request')
-        return NextResponse.json(
-          {
-            success: false,
-            error:
-              'You must be associated with an agency to use the chat. Please contact your administrator.',
-          },
-          { status: 401 }
-        )
-      }
     }
 
     logger.info('Chat API authenticated with tenant context', {
@@ -140,7 +74,7 @@ export async function POST(request: NextRequest) {
     const { message, conversationId, model } = validation.data
 
     // Create tenant-scoped Prisma client (use regular prisma for super admins)
-    const tenantPrisma = user.isSuperAdmin ? prisma : createTenantPrisma(tenantContext.agencyId)
+    const tenantPrisma = context.user.isSuperAdmin ? prisma : createTenantPrisma(tenantContext.agencyId)
 
     // Track business event with tenant context
     trackEvent('chat_message_sent', {
@@ -153,7 +87,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Check usage limits (skip for super admins)
-    if (!user.isSuperAdmin) {
+    if (!context.user.isSuperAdmin) {
       const usageLimits = await checkUsageLimits(tenantContext, 'conversations')
       if (!usageLimits.allowed && !conversationId) {
         logger.warn('Conversation limit exceeded', {
@@ -193,7 +127,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Create new conversation (skip for super admins without real agency)
-      if (!user.isSuperAdmin) {
+      if (!context.user.isSuperAdmin) {
         conversation = await tenantPrisma.conversation.create({
           data: {
             userId: tenantContext.user.id,
@@ -209,14 +143,14 @@ export async function POST(request: NextRequest) {
         // For super admins, create a mock conversation object
         conversation = {
           id: 'super-admin-chat',
-          messages: [],
+          messages: []
         }
       }
     }
 
     // Save user message (skip for super admins without real conversation)
     let userMessage = null
-    if (!user.isSuperAdmin) {
+    if (!context.user.isSuperAdmin) {
       userMessage = await tenantPrisma.message.create({
         data: {
           conversationId: conversation.id,
@@ -254,7 +188,7 @@ export async function POST(request: NextRequest) {
 
     // Save AI message (skip for super admins without real conversation)
     let assistantMessage = null
-    if (!user.isSuperAdmin) {
+    if (!context.user.isSuperAdmin) {
       assistantMessage = await tenantPrisma.message.create({
         data: {
           conversationId: conversation.id,
@@ -315,12 +249,12 @@ export async function POST(request: NextRequest) {
     })
 
     // For super admins, return a simplified response
-    if (user.isSuperAdmin) {
+    if (tenantContext.user.isSuperAdmin) {
       return NextResponse.json({
         success: true,
         content: aiResponse.content,
         model: aiResponse.model || model,
-        tokens: aiResponse.tokens,
+        tokens: aiResponse.tokens
       })
     }
 
@@ -369,4 +303,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

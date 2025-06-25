@@ -9,47 +9,24 @@ const createMessageSchema = z.object({
   type: z.enum(['comment', 'status_update', 'completion_note', 'question']).default('comment'),
 })
 
-interface MessagesRouteParams {
-  params: {
-    id: string
-  }
-}
-
-export async function GET(request: NextRequest, { params }: MessagesRouteParams) {
+// Using inline type for context directly in function signature
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const orderId = params.id
- fix/typescript-errors
-    
-=======
-
-    // Auth disabled - using default values
- main
+    const params = await context.params;
+    const orderId = params.id;
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
     const order = await prisma.order.findFirst({
- fix/typescript-errors
-      where: { id: orderId, agencyId: agencyId }
-=======
       where: {
         id: orderId,
         agencyId: agencyId,
       },
- main
     })
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
- fix/typescript-errors
-    // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
-    // Actual logic for fetching messages commented out
-
-    return NextResponse.json({
-      success: true,
-      messages: [] // Return empty array until model is defined
-=======
-    // Get all messages for this order
     const messages = await prisma.orderMessage.findMany({
       where: {
         orderId: orderId,
@@ -71,7 +48,6 @@ export async function GET(request: NextRequest, { params }: MessagesRouteParams)
     return NextResponse.json({
       success: true,
       messages: messages,
- main
     })
   } catch (error) {
     logger.error('Error fetching order messages:', error)
@@ -79,17 +55,11 @@ export async function GET(request: NextRequest, { params }: MessagesRouteParams)
   }
 }
 
-export async function POST(request: NextRequest, { params }: MessagesRouteParams) { // Use new interface name
+export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const orderId = params.id
- fix/typescript-errors
-    
-    // const userId = process.env.DEFAULT_USER_ID || 'test-user-id' // Unused
-=======
-
-    // Auth disabled - using default values
+    const params = await context.params;
+    const orderId = params.id;
     const userId = process.env.DEFAULT_USER_ID || 'test-user-id'
- main
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
     const body = await request.json()
@@ -105,25 +75,16 @@ export async function POST(request: NextRequest, { params }: MessagesRouteParams
     const { content, type } = validation.data
 
     const order = await prisma.order.findFirst({
- fix/typescript-errors
-      where: { id: orderId, agencyId: agencyId }
-=======
       where: {
         id: orderId,
         agencyId: agencyId,
       },
- main
     })
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
- fix/typescript-errors
-    // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
-    // Actual logic for creating message commented out
-=======
-    // Create message
     const message = await prisma.orderMessage.create({
       data: {
         orderId: orderId,
@@ -143,29 +104,20 @@ export async function POST(request: NextRequest, { params }: MessagesRouteParams
       },
     })
 
-    // Update order's updatedAt timestamp
     await prisma.order.update({
       where: { id: orderId },
       data: { updatedAt: new Date() },
     })
- main
 
-    logger.info('Order message creation attempted (OrderMessage model pending)', {
-      orderId, fix/typescript-errors
-      type
-=======
+    logger.info('Order message created', {
       messageId: message.id,
+      orderId: orderId,
       type,
- main
     })
 
     return NextResponse.json({
       success: true,
- fix/typescript-errors
-      message: { content, type, note: "Message not saved, OrderMessage model pending" }
-=======
       message: message,
- main
     })
   } catch (error) {
     logger.error('Error creating order message:', error)
