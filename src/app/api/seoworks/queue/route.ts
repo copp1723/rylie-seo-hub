@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getQueueStatus, processOrderQueue } from '@/lib/seoworks/queue'
 import { logger } from '@/lib/observability'
 
-export async function GET(request: NextRequest) {
+export async function GET() { // Removed unused _request parameter
   try {
     // Get queue status
     const status = getQueueStatus()
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST() { // Removed unused _request parameter
   try {
     // Trigger queue processing manually
     // In production, this would typically be called by a cron job
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     logger.info('Manual queue processing triggered')
     
     // Process queue in the background
-    processOrderQueue().catch(error => {
+    processOrderQueue().catch((error: unknown) => {
       logger.error('Error in background queue processing:', error)
     })
     

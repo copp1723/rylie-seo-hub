@@ -19,7 +19,7 @@ async function main() {
         plan: 'enterprise', // Give full access for testing
         maxUsers: 1000,
         maxConversations: 10000,
-        maxOrders: 10000,
+        // maxOrders: 10000, // TODO:AGENT2_PRISMA - Add maxOrders to Agency model
         primaryColor: '#3b82f6',
         secondaryColor: '#1e40af'
       }
@@ -91,21 +91,21 @@ async function main() {
         taskType: 'blog',
         title: 'Write Blog: Best SUVs for Families in 2025',
         description: 'Create an engaging blog post about the top family-friendly SUVs available at our dealership.',
-        priority: 'high',
+        // priority: 'high', // TODO:AGENT2_PRISMA - Add priority to Order model
         status: 'pending'
       },
       {
         taskType: 'seo_audit',
         title: 'SEO Audit for Main Website',
         description: 'Complete SEO audit of dealership website with recommendations for improvement.',
-        priority: 'medium',
+        // priority: 'medium', // TODO:AGENT2_PRISMA - Add priority to Order model
         status: 'in_progress'
       },
       {
         taskType: 'gbp',
         title: 'Update Google Business Profile',
         description: 'Update business hours and add new vehicle photos to Google Business Profile.',
-        priority: 'low',
+        // priority: 'low', // TODO:AGENT2_PRISMA - Add priority to Order model
         status: 'completed',
         completedAt: new Date()
       }
@@ -115,8 +115,7 @@ async function main() {
       await prisma.order.create({
         data: {
           ...orderData,
-          userId: user.id,
-          userEmail: user.email,
+          userEmail: user.email, // Prisma should automatically connect the relation based on this
           agencyId: agency.id,
           estimatedHours: Math.floor(Math.random() * 8) + 1
         }

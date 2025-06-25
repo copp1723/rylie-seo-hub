@@ -6,13 +6,13 @@ export interface AuthenticatedContext {
   tenant: TenantContext
 }
 
-type RouteHandler<T = any> = (
+type RouteHandler<T = unknown> = ( // Changed default from any to unknown
   request: NextRequest,
   context: AuthenticatedContext,
   params?: T
 ) => Promise<NextResponse> | NextResponse
 
-type OptionalAuthRouteHandler<T = any> = (
+type OptionalAuthRouteHandler<T = unknown> = ( // Changed default from any to unknown
   request: NextRequest,
   context: { user: ResolvedUser | null; tenant: TenantContext | null },
   params?: T
@@ -39,8 +39,8 @@ export function withAuth<T = any>(handler: RouteHandler<T>) {
         }
         
         const tenant: TenantContext = {
-          userId: user.id,
-          agencyId: user.agencyId,
+          // userId: user.id, // TenantContext placeholder doesn't have userId
+          agencyId: user.agencyId || null, // Ensure it's string | null
           agencyName: 'Default Agency',
           agencySlug: 'default',
           agencyPlan: 'enterprise',
@@ -56,7 +56,7 @@ export function withAuth<T = any>(handler: RouteHandler<T>) {
       }
       
       // Original auth logic
-      const user = await getRequestUser(request)
+      const user = await getRequestUser() // Removed request argument
       
       if (!user) {
         return NextResponse.json(
@@ -73,7 +73,9 @@ export function withAuth<T = any>(handler: RouteHandler<T>) {
       // Add user and tenant to request headers for logging/tracking
       const headers = new Headers(request.headers)
       headers.set('x-user-id', user.id)
-      headers.set('x-agency-id', tenant.agencyId)
+      if (tenant.agencyId) {
+        headers.set('x-agency-id', tenant.agencyId)
+      }
       
       return await handler(request, { user, tenant }, params)
     } catch (error) {
@@ -108,14 +110,16 @@ export function withAuth<T = any>(handler: RouteHandler<T>) {
 export function withOptionalAuth<T = any>(handler: OptionalAuthRouteHandler<T>) {
   return async (request: NextRequest, params?: T) => {
     try {
-      const user = await getRequestUser(request)
+      const user = await getRequestUser() // Removed request argument
       const tenant = user ? await getTenantContext(user) : null
       
       // Add user info to headers if available
       if (user && tenant) {
         const headers = new Headers(request.headers)
         headers.set('x-user-id', user.id)
-        headers.set('x-agency-id', tenant.agencyId)
+        if (tenant.agencyId) {
+          headers.set('x-agency-id', tenant.agencyId)
+        }
       }
       
       return await handler(request, { user, tenant }, params)
@@ -183,11 +187,11 @@ export function withSuperAdminAuth<T = any>(handler: RouteHandler<T>) {
  * Helper to extract and validate route params
  */
 export function getRouteParams<T extends Record<string, string>>(
-  params: any
+  params: { params?: T } | T | undefined | null // More specific type for params
 ): T {
   // Handle both Next.js 13 and 14 param formats
-  const resolvedParams = params?.params || params
-  return resolvedParams as T
+  const resolvedParams = (params as { params?: T })?.params || params;
+  return resolvedParams as T;
 }
 
 /**
@@ -196,38 +200,38 @@ export function getRouteParams<T extends Record<string, string>>(
 export function errorResponse(
   message: string,
   status: number = 500,
-  details?: any
+  details?: unknown // Changed from any to unknown
 ): NextResponse {
-  const response: any = {
+  const responseBody: { error: string; message: string; details?: unknown } = { // Typed responseBody
     error: getErrorType(status),
     message
   }
   
-  if (details) {
-    response.details = details
+  if (details !== undefined) { // Check for undefined explicitly for optional params
+    responseBody.details = details
   }
   
-  return NextResponse.json(response, { status })
+  return NextResponse.json(responseBody, { status })
 }
 
 /**
  * Standard success response helper
  */
-export function successResponse<T = any>(
+export function successResponse<T = unknown>( // Changed default T from any to unknown
   data: T,
   message?: string,
   status: number = 200
 ): NextResponse {
-  const response: any = {
+  const responseBody: { success: boolean; data: T; message?: string } = { // Typed responseBody
     success: true,
     data
   }
   
   if (message) {
-    response.message = message
+    responseBody.message = message
   }
   
-  return NextResponse.json(response, { status })
+  return NextResponse.json(responseBody, { status })
 }
 
 /**
