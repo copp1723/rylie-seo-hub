@@ -1,35 +1,38 @@
-import { google } from 'googleapis'
-import { prisma } from './prisma'
+import { google, analyticsdata_v1beta, analyticsadmin_v1alpha } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
+import { GoogleAuth } from 'google-auth-library';
+import { prisma } from './prisma';
 
 export class GA4Service {
-  private auth: any
-  private analyticsdata: any
-  private analytics: any
-  private analyticsadmin: any
+  private auth: OAuth2Client | GoogleAuth;
+  private analyticsdata: analyticsdata_v1beta.Analyticsdata;
+  private analyticsadmin: analyticsadmin_v1alpha.Analyticsadmin; // Using v1alpha as v1beta for analyticsadmin might not be directly available or aliased differently
 
   constructor(accessToken?: string) {
     if (accessToken) {
       // OAuth access token
-      this.auth = new google.auth.OAuth2(
+      const oauth2ClientInstance = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET
-      )
-      this.auth.setCredentials({ access_token: accessToken })
+      );
+      oauth2ClientInstance.setCredentials({ access_token: accessToken });
+      this.auth = oauth2ClientInstance;
     } else if (process.env.GA4_SERVICE_ACCOUNT_KEY) {
       // Service account
-      const credentials = JSON.parse(process.env.GA4_SERVICE_ACCOUNT_KEY)
-      this.auth = new google.auth.GoogleAuth({
+      const credentials = JSON.parse(process.env.GA4_SERVICE_ACCOUNT_KEY);
+      this.auth = new GoogleAuth({ // Changed to use GoogleAuth directly for service accounts
         credentials,
-        scopes: ['https://www.googleapis.com/auth/analytics.readonly'],
-      })
+        scopes: ['https://www.googleapis.com/auth/analytics.readonly', 'https://www.googleapis.com/auth/analytics.edit'],
+      });
     } else {
-      throw new Error('No authentication method available for GA4')
+      throw new Error('No authentication method available for GA4. Please provide an access token or service account key.');
     }
 
     // Initialize Google APIs with auth
-    this.analyticsdata = google.analyticsdata({ version: 'v1beta', auth: this.auth })
-    this.analytics = google.analytics({ version: 'v3', auth: this.auth })
-    this.analyticsadmin = google.analyticsadmin({ version: 'v1beta', auth: this.auth })
+    this.analyticsdata = google.analyticsdata({ version: 'v1beta', auth: this.auth as any }); // Added 'as any' to satisfy type checking for auth union type
+    // Note: analytics (Universal Analytics) is deprecated. We are focusing on GA4 (analyticsdata and analyticsadmin).
+    // If you still need Universal Analytics, you might need to use google.analytics('v3')
+    this.analyticsadmin = google.analyticsadmin({ version: 'v1alpha', auth: this.auth as any}); // Changed to v1alpha and added 'as any'
   }
 
   /**
