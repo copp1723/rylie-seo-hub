@@ -5,21 +5,21 @@ import { SuperAdminDashboard } from '@/components/super-admin/SuperAdminDashboar
 
 export default async function SuperAdminPage() {
   const session = await auth()
-  
+
   if (!session?.user?.id) {
     redirect('/')
   }
-  
+
   // Check if user is super admin
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { isSuperAdmin: true },
   })
-  
+
   if (!user?.isSuperAdmin) {
     redirect('/')
   }
-  
+
   // Get all agencies and users for super admin view
   const [agencies, users, totalConversations] = await Promise.all([
     prisma.agency.findMany({
@@ -41,10 +41,14 @@ export default async function SuperAdminPage() {
     }),
     prisma.conversation.count(),
   ])
-  
+
   return (
     <div className="admin-page">
-      <SuperAdminDashboard agencies={agencies} users={users} totalConversations={totalConversations} />
+      <SuperAdminDashboard
+        agencies={agencies}
+        users={users}
+        totalConversations={totalConversations}
+      />
     </div>
   )
 }

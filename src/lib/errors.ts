@@ -183,7 +183,10 @@ export function withErrorHandling<T extends unknown[], R>(
 /**
  * Validate required fields in request body
  */
-export function validateRequiredFields(data: Record<string, unknown>, requiredFields: string[]): void {
+export function validateRequiredFields(
+  data: Record<string, unknown>,
+  requiredFields: string[]
+): void {
   const missingFields = requiredFields.filter(
     field => data[field] === undefined || data[field] === null || data[field] === ''
   )

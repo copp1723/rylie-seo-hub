@@ -6,18 +6,15 @@ export async function GET() { // Removed unused _request parameter
   try {
     // Get queue status
     const status = getQueueStatus()
-    
+
     return NextResponse.json({
       success: true,
       queue: status,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
   } catch (error) {
     logger.error('Error getting queue status:', error)
-    return NextResponse.json(
-      { error: 'Failed to get queue status' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to get queue status' }, { status: 500 })
   }
 }
 
@@ -25,23 +22,20 @@ export async function POST() { // Removed unused _request parameter
   try {
     // Trigger queue processing manually
     // In production, this would typically be called by a cron job
-    
+
     logger.info('Manual queue processing triggered')
-    
+
     // Process queue in the background
     processOrderQueue().catch((error: unknown) => {
       logger.error('Error in background queue processing:', error)
     })
-    
+
     return NextResponse.json({
       success: true,
-      message: 'Queue processing triggered'
+      message: 'Queue processing triggered',
     })
   } catch (error) {
     logger.error('Error triggering queue processing:', error)
-    return NextResponse.json(
-      { error: 'Failed to trigger queue processing' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to trigger queue processing' }, { status: 500 })
   }
 }

@@ -16,7 +16,7 @@ interface Theme {
 
 export default function ThemeCustomizer() {
   const logoUploadEnabled = useFeatureFlag('LOGO_UPLOAD')
-  
+
   const [theme, setTheme] = useState<Theme>({
     companyName: 'Rylie SEO Hub',
     primaryColor: '#3b82f6',
@@ -172,16 +172,14 @@ export default function ThemeCustomizer() {
               <Building2 className="h-5 w-5" />
               Company Branding
             </CardTitle>
-            <CardDescription>
-              Set your agency&apos;s name and visual identity
-            </CardDescription>
+            <CardDescription>Set your agency&apos;s name and visual identity</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Company Name</label>
               <Input
                 value={theme.companyName}
-                onChange={(e) => setTheme(prev => ({ ...prev, companyName: e.target.value }))}
+                onChange={e => setTheme(prev => ({ ...prev, companyName: e.target.value }))}
                 placeholder="Your Agency Name"
               />
             </div>
@@ -238,9 +236,7 @@ export default function ThemeCustomizer() {
               <Palette className="h-5 w-5" />
               Color Scheme
             </CardTitle>
-            <CardDescription>
-              Choose colors that match your brand
-            </CardDescription>
+            <CardDescription>Choose colors that match your brand</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -249,12 +245,12 @@ export default function ThemeCustomizer() {
                 <Input
                   type="color"
                   value={theme.primaryColor}
-                  onChange={(e) => setTheme(prev => ({ ...prev, primaryColor: e.target.value }))}
+                  onChange={e => setTheme(prev => ({ ...prev, primaryColor: e.target.value }))}
                   className="w-16 h-10 p-1 border rounded"
                 />
                 <Input
                   value={theme.primaryColor}
-                  onChange={(e) => setTheme(prev => ({ ...prev, primaryColor: e.target.value }))}
+                  onChange={e => setTheme(prev => ({ ...prev, primaryColor: e.target.value }))}
                   placeholder="#3b82f6"
                   className="flex-1"
                 />
@@ -267,12 +263,12 @@ export default function ThemeCustomizer() {
                 <Input
                   type="color"
                   value={theme.secondaryColor}
-                  onChange={(e) => setTheme(prev => ({ ...prev, secondaryColor: e.target.value }))}
+                  onChange={e => setTheme(prev => ({ ...prev, secondaryColor: e.target.value }))}
                   className="w-16 h-10 p-1 border rounded"
                 />
                 <Input
                   value={theme.secondaryColor}
-                  onChange={(e) => setTheme(prev => ({ ...prev, secondaryColor: e.target.value }))}
+                  onChange={e => setTheme(prev => ({ ...prev, secondaryColor: e.target.value }))}
                   placeholder="#1e40af"
                   className="flex-1"
                 />
@@ -282,16 +278,18 @@ export default function ThemeCustomizer() {
             <div>
               <label className="text-sm font-medium mb-2 block">Color Presets</label>
               <div className="grid grid-cols-2 gap-2">
-                {colorPresets.map((preset) => (
+                {colorPresets.map(preset => (
                   <Button
                     key={preset.name}
                     variant="outline"
                     size="sm"
-                    onClick={() => setTheme(prev => ({
-                      ...prev,
-                      primaryColor: preset.primary,
-                      secondaryColor: preset.secondary
-                    }))}
+                    onClick={() =>
+                      setTheme(prev => ({
+                        ...prev,
+                        primaryColor: preset.primary,
+                        secondaryColor: preset.secondary,
+                      }))
+                    }
                     className="justify-start"
                   >
                     <div className="flex items-center gap-2">
@@ -312,22 +310,18 @@ export default function ThemeCustomizer() {
       <Card>
         <CardHeader>
           <CardTitle>Preview</CardTitle>
-          <CardDescription>
-            See how your branding will look
-          </CardDescription>
+          <CardDescription>See how your branding will look</CardDescription>
         </CardHeader>
         <CardContent>
-          <div 
+          <div
             className="border rounded-lg p-6 bg-gradient-to-br from-background to-muted"
             style={{
               borderColor: theme.primaryColor + '20',
-              background: `linear-gradient(135deg, ${theme.primaryColor}10, ${theme.secondaryColor}10)`
+              background: `linear-gradient(135deg, ${theme.primaryColor}10, ${theme.secondaryColor}10)`,
             }}
           >
             <div className="flex items-center gap-3 mb-4">
-              {theme.logo && (
-                <img src={theme.logo} alt="Logo" className="h-8 w-auto" />
-              )}
+              {theme.logo && <img src={theme.logo} alt="Logo" className="h-8 w-auto" />}
               <h2 className="text-2xl font-bold" style={{ color: theme.primaryColor }}>
                 {theme.companyName}
               </h2>
@@ -336,10 +330,11 @@ export default function ThemeCustomizer() {
               AI-Powered SEO Assistant for Modern Agencies
             </p>
             <div className="flex gap-2">
-              <Button style={{ backgroundColor: theme.primaryColor }}>
-                Get Started
-              </Button>
-              <Button variant="outline" style={{ borderColor: theme.secondaryColor, color: theme.secondaryColor }}>
+              <Button style={{ backgroundColor: theme.primaryColor }}>Get Started</Button>
+              <Button
+                variant="outline"
+                style={{ borderColor: theme.secondaryColor, color: theme.secondaryColor }}
+              >
                 Learn More
               </Button>
             </div>
@@ -349,4 +344,3 @@ export default function ThemeCustomizer() {
     </div>
   )
 }
-

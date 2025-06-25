@@ -16,14 +16,10 @@ export default function OnboardingStatusPage() {
           </div>
           <div className="flex gap-3">
             <Link href="/onboarding">
-              <Button>
-                New Onboarding
-              </Button>
+              <Button>New Onboarding</Button>
             </Link>
             <Link href="/dashboard">
-              <Button variant="outline">
-                Back to Dashboard
-              </Button>
+              <Button variant="outline">Back to Dashboard</Button>
             </Link>
           </div>
         </div>

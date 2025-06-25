@@ -1,18 +1,14 @@
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 
-export default function OrdersLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function OrdersLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link 
-              href="/chat" 
+            <Link
+              href="/chat"
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ChevronLeft className="h-5 w-5" />

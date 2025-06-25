@@ -2,13 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ token: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params
-    
+
     // Check authentication
     const session = await auth()
     if (!session?.user?.email) {
@@ -17,7 +14,7 @@ export async function POST(
         { status: 401 }
       )
     }
-    
+
     // Extract user data after validation
     const userEmail = session.user.email
     const userName = session.user.name || null
@@ -27,15 +24,12 @@ export async function POST(
     const invite = await prisma.userInvite.findUnique({
       where: { token },
       include: {
-        agency: true
-      }
+        agency: true,
+      },
     })
 
     if (!invite) {
-      return NextResponse.json(
-        { error: 'Invitation not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
     }
 
     // Check if already accepted
@@ -48,28 +42,25 @@ export async function POST(
 
     // Check if expired
     if (new Date(invite.expiresAt) < new Date()) {
-      return NextResponse.json(
-        { error: 'This invitation has expired' },
-        { status: 410 }
-      )
+      return NextResponse.json({ error: 'This invitation has expired' }, { status: 410 })
     }
 
     // Check if email matches
     if (invite.email !== userEmail) {
       return NextResponse.json(
-        { 
+        {
           error: 'This invitation is for a different email address',
-          details: `Invitation is for ${invite.email}, but you are signed in as ${userEmail}`
+          details: `Invitation is for ${invite.email}, but you are signed in as ${userEmail}`,
         },
         { status: 403 }
       )
     }
 
     // Start transaction to update user and invite
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async tx => {
       // Check if user already exists
       let user = await tx.user.findUnique({
-        where: { email: userEmail }
+        where: { email: userEmail },
       })
 
       if (user) {
@@ -79,8 +70,8 @@ export async function POST(
           data: {
             isSuperAdmin: invite.isSuperAdmin || user.isSuperAdmin,
             role: invite.isSuperAdmin ? 'admin' : invite.role,
-            agencyId: invite.agencyId || user.agencyId
-          }
+            agencyId: invite.agencyId || user.agencyId,
+          },
         })
       } else {
         // This shouldn't happen with NextAuth, but handle it
@@ -91,8 +82,8 @@ export async function POST(
             image: userImage,
             isSuperAdmin: invite.isSuperAdmin,
             role: invite.role,
-            agencyId: invite.agencyId
-          }
+            agencyId: invite.agencyId,
+          },
         })
       }
 
@@ -101,8 +92,8 @@ export async function POST(
         where: { id: invite.id },
         data: {
           status: 'accepted',
-          acceptedAt: new Date()
-        }
+          acceptedAt: new Date(),
+        },
       })
 
       // Create audit log
@@ -116,9 +107,9 @@ export async function POST(
             inviteEmail: invite.email,
             role: invite.role,
             isSuperAdmin: invite.isSuperAdmin,
-            invitedBy: invite.invitedBy
-          }
-        }
+            invitedBy: invite.invitedBy,
+          },
+        },
       })
 
       return user
@@ -131,15 +122,11 @@ export async function POST(
         id: result.id,
         email: result.email,
         isSuperAdmin: result.isSuperAdmin,
-        role: result.role
-      }
+        role: result.role,
+      },
     })
-
   } catch (error) {
     console.error('Error accepting invite:', error)
-    return NextResponse.json(
-      { error: 'Failed to accept invitation' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to accept invitation' }, { status: 500 })
   }
 }

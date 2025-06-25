@@ -13,8 +13,9 @@ export async function GET() { // Removed unused _request parameter
     const orders = await prisma.order.findMany({
       where: {
         userEmail: userEmail,
-        agencyId: agencyId
+        agencyId: agencyId,
       },
+fix/typescript-errors
       // include: { // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
       //   messages: {
       //     select: {
@@ -28,12 +29,27 @@ export async function GET() { // Removed unused _request parameter
       //     }
       //   }
       // },
+=======
+      include: {
+        messages: {
+          select: {
+            id: true,
+            content: true,
+            type: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+ main
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     })
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       orders: orders.map(order => ({
         id: order.id,
@@ -51,18 +67,22 @@ export async function GET() { // Removed unused _request parameter
         completionNotes: order.completionNotes,
         qualityScore: order.qualityScore,
         seoworksTaskId: order.seoworksTaskId,
+ fix/typescript-errors
         // messages: order.messages, // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
         // keywords: order.keywords ? JSON.parse(order.keywords as string) : [], // TODO:AGENT2_PRISMA - Add keywords to Order model
         // targetUrl: order.targetUrl, // TODO:AGENT2_PRISMA - Add targetUrl to Order model
         // wordCount: order.wordCount // TODO:AGENT2_PRISMA - Add wordCount to Order model
       }))
+=======
+        messages: order.messages,
+        keywords: order.keywords ? JSON.parse(order.keywords as string) : [],
+        targetUrl: order.targetUrl,
+        wordCount: order.wordCount,
+      })), main
     })
   } catch (error) {
     logger.error('Error fetching orders:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch orders' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
   }
 }
 
@@ -74,15 +94,22 @@ export async function POST(request: NextRequest) {
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
     const body = await request.json()
-    const { 
-      taskType, 
-      title, 
-      description, 
+    const {
+      taskType,
+      title,
+      description,
       estimatedHours,
+ fix/typescript-errors
       // priority = 'medium', // TODO:AGENT2_PRISMA - Add priority to Order model
       // keywords = [], // TODO:AGENT2_PRISMA - Add keywords to Order model
       // targetUrl, // TODO:AGENT2_PRISMA - Add targetUrl to Order model
       // wordCount // TODO:AGENT2_PRISMA - Add wordCount to Order model
+=======
+      priority = 'medium',
+      keywords = [],
+      targetUrl,
+      wordCount,
+ main
     } = body
 
     // Validate required fields
@@ -104,10 +131,17 @@ export async function POST(request: NextRequest) {
         userEmail: userEmail, // Prisma should automatically connect the relation based on this
         agencyId: agencyId,
         estimatedHours: estimatedHours || null,
+ fix/typescript-errors
         // keywords: keywords.length > 0 ? JSON.stringify(keywords) : null, // TODO:AGENT2_PRISMA
         // targetUrl: targetUrl || null, // TODO:AGENT2_PRISMA
         // wordCount: wordCount || null // TODO:AGENT2_PRISMA
       }
+=======
+        keywords: keywords.length > 0 ? JSON.stringify(keywords) : null,
+        targetUrl: targetUrl || null,
+        wordCount: wordCount || null,
+      },
+ main
     })
 
     // Create audit log
@@ -120,17 +154,24 @@ export async function POST(request: NextRequest) {
         details: {
           taskType,
           title,
+ fix/typescript-errors
           // priority // TODO:AGENT2_PRISMA
         }
       }
+=======
+          priority,
+        },
+      },
+ main
     })
 
     // Queue order for SEO Works processing
     try {
       await queueOrderForSEOWorks(order.id)
       logger.info('Order queued for SEO Works', { orderId: order.id })
-      
+
       // Add initial message
+ fix/typescript-errors
       // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
       // await prisma.orderMessage.create({
       //   data: {
@@ -141,14 +182,26 @@ export async function POST(request: NextRequest) {
       //     content: 'Your request has been submitted and will be processed shortly.'
       //   }
       // })
+=======
+      await prisma.orderMessage.create({
+        data: {
+          orderId: order.id,
+          agencyId: agencyId,
+          userId: userId,
+          type: 'status_update',
+          content: 'Your request has been submitted and will be processed shortly.',
+        },
+      })
+main
     } catch (queueError) {
-      logger.error('Failed to queue order for SEO Works', { 
-        orderId: order.id, 
-        error: queueError 
+      logger.error('Failed to queue order for SEO Works', {
+        orderId: order.id,
+        error: queueError,
       })
       // Don't fail the request - order is created, just not sent yet
-      
+
       // Add error message
+fix/typescript-errors
       // TODO:AGENT2_PRISMA - Define OrderMessage model and relation
       // await prisma.orderMessage.create({
       //   data: {
@@ -159,15 +212,30 @@ export async function POST(request: NextRequest) {
       //     content: 'Your request has been created. We will begin processing it shortly.'
       //   }
       // })
+=======
+      await prisma.orderMessage.create({
+        data: {
+          orderId: order.id,
+          agencyId: agencyId,
+          userId: userId,
+          type: 'status_update',
+          content: 'Your request has been created. We will begin processing it shortly.',
+        },
+      })
+ main
     }
 
     logger.info('Order created successfully', {
       orderId: order.id,
       taskType,
+ fix/typescript-errors
       // priority // TODO:AGENT2_PRISMA
+=======
+      priority,
+ main
     })
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       order: {
         id: order.id,
@@ -178,16 +246,20 @@ export async function POST(request: NextRequest) {
         // priority: order.priority, // TODO:AGENT2_PRISMA
         requestedAt: order.createdAt,
         estimatedHours: order.estimatedHours,
+fix/typescript-errors
         // keywords: keywords, // TODO:AGENT2_PRISMA
         // targetUrl: targetUrl, // TODO:AGENT2_PRISMA
         // wordCount: wordCount // TODO:AGENT2_PRISMA
       }
+=======
+        keywords: keywords,
+        targetUrl: order.targetUrl,
+        wordCount: order.wordCount,
+      },
+ main
     })
   } catch (error) {
     logger.error('Error creating order:', error)
-    return NextResponse.json(
-      { error: 'Failed to create order' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
   }
 }

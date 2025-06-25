@@ -5,11 +5,11 @@ import { prisma } from '@/lib/prisma'
 function validateApiKey(request: NextRequest): boolean {
   const apiKey = request.headers.get('X-API-Key')
   const validApiKey = process.env.SEOWORKS_API_KEY
-  
+
   if (!validApiKey || !apiKey || apiKey !== validApiKey) {
     return false
   }
-  
+
   return true
 }
 
@@ -18,21 +18,11 @@ export async function POST(request: NextRequest) {
   try {
     // Validate API key
     if (!validateApiKey(request)) {
-      return NextResponse.json(
-        { error: 'Invalid or missing API key' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Invalid or missing API key' }, { status: 401 })
     }
 
     const body = await request.json()
-    const {
-      requestId,
-      status,
-      deliverables,
-      completionNotes,
-      actualHours,
-      qualityScore
-    } = body
+    const { requestId, status, deliverables, completionNotes, actualHours, qualityScore } = body
 
     // Validate required fields
     if (!requestId || !status) {
@@ -53,14 +43,11 @@ export async function POST(request: NextRequest) {
 
     // Find the order
     const order = await prisma.order.findUnique({
-      where: { id: requestId }
+      where: { id: requestId },
     })
 
     if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Update the order
@@ -73,8 +60,8 @@ export async function POST(request: NextRequest) {
         completionNotes: completionNotes || order.completionNotes,
         actualHours: actualHours || order.actualHours,
         qualityScore: qualityScore || order.qualityScore,
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     })
 
     // Log the update
@@ -86,10 +73,10 @@ export async function POST(request: NextRequest) {
         details: JSON.stringify({
           status,
           updatedBy: 'seoworks-api',
-          deliverables: deliverables?.length || 0
+          deliverables: deliverables?.length || 0,
         }),
-        userEmail: 'seoworks-api'
-      }
+        userEmail: 'seoworks-api',
+      },
     })
 
     return NextResponse.json({
@@ -100,14 +87,11 @@ export async function POST(request: NextRequest) {
         status: updatedOrder.status,
         completedAt: updatedOrder.completedAt,
         actualHours: updatedOrder.actualHours,
-        qualityScore: updatedOrder.qualityScore
-      }
+        qualityScore: updatedOrder.qualityScore,
+      },
     })
   } catch (error) {
     console.error('Error updating order:', error)
-    return NextResponse.json(
-      { error: 'Failed to update order' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
   }
 }

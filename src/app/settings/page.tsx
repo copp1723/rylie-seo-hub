@@ -132,7 +132,8 @@ export default function SettingsPage() {
             <div className="text-center py-8">
               <p className="text-muted-foreground mb-4">You are not associated with any agency.</p>
               <p className="text-sm text-muted-foreground">
-                To use the chat features, you need to be assigned to an agency. Please contact your administrator.
+                To use the chat features, you need to be assigned to an agency. Please contact your
+                administrator.
               </p>
             </div>
           )}
