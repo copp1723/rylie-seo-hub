@@ -91,6 +91,7 @@ model User {
   conversations Conversation[]
   messages      Message[]
   orders        Order[]
+  orderMessages OrderMessage[] // Added relation to OrderMessage
   auditLogs     AuditLog[]
   sentInvites   UserInvite[]
   
@@ -266,8 +267,9 @@ model AuditLog {
   entityId    String
   
   // User who performed the action
-  userEmail   String
-  user        User?    @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  userId      String   // Changed from userEmail to userId for relation
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userEmail   String   // Keep userEmail for logging if needed, but relation is via userId
   
   // Additional details
   details     Json?
@@ -479,23 +481,24 @@ model OrderMessage {
   id             String   @id @default(cuid())
   
   // Multi-tenant isolation
-  agencyId       String
+  agencyId       String?
   
   // Order relationship
   orderId        String
   order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   
   // User relationship
-  userId         String?
-  userEmail      String
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   // Message details
-  type           String   // comment, status_update, completion_note, internal_note
-  content        String
+  type           String   @default("comment") // comment, status_update, completion_note, internal_note, question
+  content        String   @db.Text
   isInternal     Boolean  @default(false) // Internal notes hidden from agencies
   
   // Timestamps
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
   
   @@index([orderId, createdAt])
   @@index([agencyId, orderId])
