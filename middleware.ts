@@ -55,7 +55,8 @@ export async function middleware(request: NextRequest) {
     '/api/agency',
     '/api/theme',
     '/api/orders',
-    '/api/usage'
+    '/api/usage',
+    '/api/admin'  // Added to ensure all admin API routes are protected
   ]
   
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
@@ -72,30 +73,37 @@ export async function middleware(request: NextRequest) {
           return NextResponse.redirect(signInUrl)
         }
         
-        // Return 401 for API routes
+        // Return 401 for API routes with standardized error format
         return NextResponse.json(
-          { success: false, error: 'Authentication required' },
+          { error: 'Unauthorized', message: 'Authentication required' },
           { status: 401, headers: response.headers }
         )
       }
       
       const user = session.user as ExtendedUser
       
-      // Admin-only routes
+      // Admin-only routes - check both role and isSuperAdmin for compatibility
       const adminRoutes = ['/admin', '/api/admin']
       const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
       
-      if (isAdminRoute && !user.isSuperAdmin) {
-        // Redirect non-admins to dashboard
-        if (!pathname.startsWith('/api/')) {
-          return NextResponse.redirect(new URL('/dashboard', request.url))
-        }
+      if (isAdminRoute) {
+        const hasAdminAccess = user.isSuperAdmin || 
+                              user.role === 'admin' || 
+                              user.role === 'super_admin'
         
-        // Return 403 for API routes
-        return NextResponse.json(
-          { success: false, error: 'Admin access required' },
-          { status: 403, headers: response.headers }
-        )
+        if (!hasAdminAccess) {
+          // Redirect non-admins from admin pages to sign-in
+          if (!pathname.startsWith('/api/')) {
+            const signInUrl = new URL('/auth/signin', request.url)
+            return NextResponse.redirect(signInUrl)
+          }
+          
+          // Return 403 for API routes with standardized error format
+          return NextResponse.json(
+            { error: 'Forbidden', message: 'You do not have the required permissions.' },
+            { status: 403, headers: response.headers }
+          )
+        }
       }
       
       // Agency-specific routes - ensure user has agency
@@ -110,7 +118,7 @@ export async function middleware(request: NextRequest) {
         
         // Return error for API routes
         return NextResponse.json(
-          { success: false, error: 'Agency selection required' },
+          { error: 'Bad Request', message: 'Agency selection required' },
           { status: 400, headers: response.headers }
         )
       }
@@ -136,7 +144,7 @@ export async function middleware(request: NextRequest) {
       }
       
       return NextResponse.json(
-        { success: false, error: 'Authentication error' },
+        { error: 'Internal Server Error', message: 'Authentication error' },
         { status: 500, headers: response.headers }
       )
     }
