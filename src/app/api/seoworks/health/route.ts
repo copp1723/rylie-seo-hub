@@ -7,6 +7,6 @@ export async function GET(request: NextRequest) {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'Rylie SEO Hub - SEO Werks API',
-    version: '1.0.0'
+    version: '1.0.0',
   })
 }

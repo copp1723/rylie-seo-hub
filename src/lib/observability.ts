@@ -180,12 +180,14 @@ export const withErrorBoundary = (Component: React.ComponentType<unknown>) => {
 // Initialize Sentry
 export const initSentry = () => {
   const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN
-  
+
   // Only initialize if we have a valid DSN (not placeholder or empty)
-  if (sentryDsn && 
-      sentryDsn !== 'placeholder-public-sentry-dsn' && 
-      sentryDsn.startsWith('https://') && 
-      sentryDsn.length > 20) {
+  if (
+    sentryDsn &&
+    sentryDsn !== 'placeholder-public-sentry-dsn' &&
+    sentryDsn.startsWith('https://') &&
+    sentryDsn.length > 20
+  ) {
     try {
       Sentry.init({
         dsn: sentryDsn,

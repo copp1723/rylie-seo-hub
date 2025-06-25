@@ -49,13 +49,13 @@ export async function getValidGoogleAccessToken(userId: string) {
   }
 
   // Check if token is expired (with 5 minute buffer)
-  const isExpired = account.expires_at && (account.expires_at * 1000) < (Date.now() + 5 * 60 * 1000)
+  const isExpired = account.expires_at && account.expires_at * 1000 < Date.now() + 5 * 60 * 1000
 
   if (isExpired && account.refresh_token) {
     try {
       // Refresh the token
       const newTokens = await refreshGoogleAccessToken(account.refresh_token)
-      
+
       // Update the database
       await prisma.account.updateMany({
         where: {

@@ -30,7 +30,10 @@ export function apiError(
 /**
  * Create a validation error response
  */
-export function apiValidationError(message: string, details?: Record<string, unknown>): NextResponse {
+export function apiValidationError(
+  message: string,
+  details?: Record<string, unknown>
+): NextResponse {
   return apiError(message, 400, 'VALIDATION_ERROR', details)
 }
 

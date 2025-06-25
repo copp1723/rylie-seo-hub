@@ -6,27 +6,27 @@ import { connectGA4Property } from '@/lib/ga4'
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    
+
     const { propertyId, propertyName } = await request.json()
-    
+
     if (!propertyId || !propertyName) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
-    
+
     // Get user's agency
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { agencyId: true },
     })
-    
+
     if (!user?.agencyId) {
       return NextResponse.json({ error: 'No agency found' }, { status: 400 })
     }
-    
+
     // Get refresh token
     const account = await prisma.account.findFirst({
       where: {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         refresh_token: true,
       },
     })
-    
+
     // Connect GA4 property to agency
     await connectGA4Property(
       user.agencyId,
@@ -45,16 +45,13 @@ export async function POST(request: NextRequest) {
       propertyName,
       account?.refresh_token || undefined
     )
-    
+
     return NextResponse.json({
       success: true,
       message: 'GA4 property connected successfully',
     })
   } catch (error) {
     console.error('GA4 connect error:', error)
-    return NextResponse.json(
-      { error: 'Failed to connect GA4 property' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to connect GA4 property' }, { status: 500 })
   }
 }

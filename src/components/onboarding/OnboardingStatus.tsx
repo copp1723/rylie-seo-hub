@@ -63,7 +63,7 @@ export default function OnboardingStatus() {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     })
   }
 
@@ -86,12 +86,7 @@ export default function OnboardingStatus() {
         <CardContent className="py-8">
           <div className="text-center text-red-600">
             <p>Error loading onboarding records: {error}</p>
-            <Button
-              onClick={fetchOnboardings}
-              variant="outline"
-              size="sm"
-              className="mt-4"
-            >
+            <Button onClick={fetchOnboardings} variant="outline" size="sm" className="mt-4">
               Retry
             </Button>
           </div>
@@ -113,17 +108,14 @@ export default function OnboardingStatus() {
         <Card>
           <CardContent className="text-center py-8">
             <p className="text-gray-600">No onboarding records found.</p>
-            <Button
-              onClick={() => window.location.href = '/onboarding'}
-              className="mt-4"
-            >
+            <Button onClick={() => (window.location.href = '/onboarding')} className="mt-4">
               Start Onboarding
             </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
-          {onboardings.map((onboarding) => (
+          {onboardings.map(onboarding => (
             <Card key={onboarding.id}>
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -148,20 +140,25 @@ export default function OnboardingStatus() {
                   </div>
                   {onboarding.submittedAt && (
                     <div>
-                      <span className="font-medium">Submitted:</span> {formatDate(onboarding.submittedAt)}
+                      <span className="font-medium">Submitted:</span>{' '}
+                      {formatDate(onboarding.submittedAt)}
                     </div>
                   )}
                 </div>
-                
+
                 {onboarding.seoworksResponse && (
                   <div className="mt-4 p-3 bg-gray-50 rounded-md">
                     <div className="text-sm">
                       <span className="font-medium">SEOWerks Response:</span>
                       <div className="mt-1">
                         {onboarding.seoworksResponse.success ? (
-                          <span className="text-green-600">✓ {onboarding.seoworksResponse.message}</span>
+                          <span className="text-green-600">
+                            ✓ {onboarding.seoworksResponse.message}
+                          </span>
                         ) : (
-                          <span className="text-red-600">✗ {onboarding.seoworksResponse.error || 'Submission failed'}</span>
+                          <span className="text-red-600">
+                            ✗ {onboarding.seoworksResponse.error || 'Submission failed'}
+                          </span>
                         )}
                       </div>
                     </div>

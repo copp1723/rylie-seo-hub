@@ -16,7 +16,7 @@ import {
   ShoppingCart,
   Sparkles,
   Target,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react'
 
 interface ChatInterfaceProps {
@@ -46,61 +46,66 @@ const suggestionCards = [
     icon: Target,
     title: 'Submit monthly SEO focus request',
     prompt: 'I want to submit my monthly SEO focus areas',
-    isRequest: true
+    isRequest: true,
   },
   {
     icon: FileText,
     title: 'What does my SEO package include?',
-    prompt: 'Can you tell me what deliverables are included in my SEO package each month?'
+    prompt: 'Can you tell me what deliverables are included in my SEO package each month?',
   },
   {
     icon: Globe,
     title: 'How long for SEO results?',
-    prompt: 'How long does it take for SEO efforts to produce noticeable improvements?'
+    prompt: 'How long does it take for SEO efforts to produce noticeable improvements?',
   },
   {
     icon: Search,
     title: 'What are the KPIs for SEO?',
-    prompt: 'What Key Performance Indicators do you track for SEO and how do I measure success?'
+    prompt: 'What Key Performance Indicators do you track for SEO and how do I measure success?',
   },
   {
     icon: Wrench,
     title: 'Traffic is down - should I worry?',
-    prompt: 'My organic traffic is down this month. Should I be concerned?'
+    prompt: 'My organic traffic is down this month. Should I be concerned?',
   },
   {
     icon: ShoppingCart,
     title: 'What content do you create?',
-    prompt: 'What kind of SEO content do you build, and what\'s the strategy behind it?'
-  }
+    prompt: "What kind of SEO content do you build, and what's the strategy behind it?",
+  },
 ]
 
 const clarifyingQuestions = [
   {
     stage: 1,
-    question: "I'd be happy to help you submit your monthly SEO focus request! To get started, what are your top target areas or cities that you want to rank for this month?",
-    field: 'targetCities'
+    question:
+      "I'd be happy to help you submit your monthly SEO focus request! To get started, what are your top target areas or cities that you want to rank for this month?",
+    field: 'targetCities',
   },
   {
     stage: 2,
-    question: "Great! Now, what are your top target model priorities? Which vehicles should we focus on?",
-    field: 'targetModels'
+    question:
+      'Great! Now, what are your top target model priorities? Which vehicles should we focus on?',
+    field: 'targetModels',
   },
   {
     stage: 3,
-    question: "Which competitor dealerships would you like to target for organic placement in search results?",
-    field: 'competitorDealerships'
+    question:
+      'Which competitor dealerships would you like to target for organic placement in search results?',
+    field: 'competitorDealerships',
   },
   {
     stage: 4,
-    question: "Is there anything specific about your market that we should know? Any unique advantages or specializations?",
-    field: 'marketSpecifics'
+    question:
+      'Is there anything specific about your market that we should know? Any unique advantages or specializations?',
+    field: 'marketSpecifics',
   },
   {
     stage: 5,
-    question: "Finally, are there any additional focus areas or special requests for this month's SEO strategy?",
-    field: 'additionalFocus'
-  }
+    question:
+      "Finally, are there any additional focus areas or special requests for this month's SEO strategy?",
+    field: 'additionalFocus',
+  },
 ]
 
 export function ChatInterface({ user }: ChatInterfaceProps) {
@@ -111,7 +116,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
   const [conversationContext, setConversationContext] = useState<ConversationContext>({})
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [selectedModel] = useState('openai/gpt-4-turbo-preview')
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -133,7 +138,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
 
   const handleRequestSubmit = async (data: RequestData) => {
     setShowRequestForm(false)
-    
+
     // Add user message with the request data
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -141,9 +146,9 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
       content: 'I have submitted my monthly SEO focus request with the following details:',
       timestamp: new Date(),
       type: 'text',
-      metadata: data
+      metadata: data,
     }
-    
+
     setMessages(prev => [...prev, userMessage])
     setIsLoading(true)
 
@@ -155,21 +160,23 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
         body: JSON.stringify({
           taskType: 'seo',
           title: 'Monthly SEO Focus Request',
-          description: `Target Cities: ${data.targetCities || 'Not specified'}\n` +
-                      `Target Models: ${data.targetModels || 'Not specified'}\n` +
-                      `Competitor Dealerships: ${data.competitorDealerships || 'Not specified'}\n` +
-                      `Market Specifics: ${data.marketSpecifics || 'Not specified'}\n` +
-                      `Additional Focus: ${data.additionalFocus || 'Not specified'}`,
-          metadata: data
-        })
+          description:
+            `Target Cities: ${data.targetCities || 'Not specified'}\n` +
+            `Target Models: ${data.targetModels || 'Not specified'}\n` +
+            `Competitor Dealerships: ${data.competitorDealerships || 'Not specified'}\n` +
+            `Market Specifics: ${data.marketSpecifics || 'Not specified'}\n` +
+            `Additional Focus: ${data.additionalFocus || 'Not specified'}`,
+          metadata: data,
+        }),
       })
 
       if (response.ok) {
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: "Thank you for submitting your monthly SEO focus request! I've received your priorities and our team will use this information to guide your content strategy for this month. You can track the progress of your request in the Orders section. Is there anything else I can help you with today?",
-          timestamp: new Date()
+          content:
+            "Thank you for submitting your monthly SEO focus request! I've received your priorities and our team will use this information to guide your content strategy for this month. You can track the progress of your request in the Orders section. Is there anything else I can help you with today?",
+          timestamp: new Date(),
         }
         setMessages(prev => [...prev, assistantMessage])
       }
@@ -182,34 +189,39 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
   }
 
   const processUserIntent = (message: string): boolean => {
-    const requestKeywords = ['request', 'monthly', 'focus', 'seo priorities', 'target areas', 'submit']
-    const isRequest = requestKeywords.some(keyword => 
-      message.toLowerCase().includes(keyword)
-    )
-    
+    const requestKeywords = [
+      'request',
+      'monthly',
+      'focus',
+      'seo priorities',
+      'target areas',
+      'submit',
+    ]
+    const isRequest = requestKeywords.some(keyword => message.toLowerCase().includes(keyword))
+
     if (isRequest) {
       setConversationContext({
         intent: 'request',
         clarificationStage: 1,
-        requestData: {}
+        requestData: {},
       })
       return true
     }
-    
+
     return false
   }
 
   const handleClarifyingResponse = async (response: string) => {
     const currentStage = conversationContext.clarificationStage || 1
     const currentQuestion = clarifyingQuestions.find(q => q.stage === currentStage)
-    
+
     if (currentQuestion) {
       // Update request data
       const updatedData = {
         ...conversationContext.requestData,
-        [currentQuestion.field]: response
+        [currentQuestion.field]: response,
       }
-      
+
       // Check if we need more clarifications
       if (currentStage < clarifyingQuestions.length) {
         // Ask next question
@@ -218,17 +230,17 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
           setConversationContext({
             ...conversationContext,
             clarificationStage: currentStage + 1,
-            requestData: updatedData
+            requestData: updatedData,
           })
-          
+
           const assistantMessage: Message = {
             id: Date.now().toString(),
             role: 'assistant',
             content: nextQuestion.question,
             timestamp: new Date(),
-            type: 'clarifying-question'
+            type: 'clarifying-question',
           }
-          
+
           setMessages(prev => [...prev, assistantMessage])
         }
       } else {
@@ -245,7 +257,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
       id: Date.now().toString(),
       role: 'user',
       content: input.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
     setMessages(prev => [...prev, userMessage])
@@ -264,7 +276,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
           role: 'assistant',
           content: firstQuestion.question,
           timestamp: new Date(),
-          type: 'clarifying-question'
+          type: 'clarifying-question',
         }
         setMessages(prev => [...prev, assistantMessage])
       } else {
@@ -274,9 +286,9 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
           conversationId: conversationId,
           model: selectedModel,
         }
-        
+
         console.log('Sending chat request:', requestData)
-        
+
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: {
@@ -292,18 +304,21 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
         }
 
         const data = await response.json()
-        
+
         const assistantMessage: Message = {
           id: data.assistantMessage?.id || (Date.now() + 1).toString(),
           role: 'assistant',
-          content: data.assistantMessage?.content || data.content || 'Sorry, I could not generate a response.',
+          content:
+            data.assistantMessage?.content ||
+            data.content ||
+            'Sorry, I could not generate a response.',
           timestamp: new Date(data.assistantMessage?.createdAt || Date.now()),
           model: data.assistantMessage?.model || data.model,
-          tokens: data.assistantMessage?.tokens || data.tokens
+          tokens: data.assistantMessage?.tokens || data.tokens,
         }
-        
+
         setMessages(prev => [...prev, assistantMessage])
-        
+
         // Update conversation ID if this was a new conversation
         if (!conversationId && data.conversation?.id) {
           setConversationId(data.conversation.id)
@@ -311,13 +326,13 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
       }
     } catch (error) {
       console.error('Error sending message:', error)
-      
+
       // Show error message to user
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'system',
         content: `Error: ${error instanceof Error ? error.message : 'Failed to send message. Please try again.'}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       }
       setMessages(prev => [...prev, errorMessage])
     } finally {
@@ -363,10 +378,11 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                   <div className="flex-1">
                     <h3 className="font-semibold mb-1">Monthly SEO Focus</h3>
                     <p className="text-sm text-muted-foreground mb-3">
-                      Help us align our SEO strategy with your dealership goals by providing your monthly focus areas.
+                      Help us align our SEO strategy with your dealership goals by providing your
+                      monthly focus areas.
                     </p>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       onClick={() => setShowRequestForm(true)}
                       className="w-full sm:w-auto"
                     >
@@ -394,9 +410,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-medium text-sm mb-1">{card.title}</h3>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {card.prompt}
-                        </p>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{card.prompt}</p>
                       </div>
                     </div>
                   </Card>
@@ -406,22 +420,16 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
           </div>
         ) : showRequestForm ? (
           <div className="max-w-4xl mx-auto">
-            <RequestForm 
-              onSubmit={handleRequestSubmit}
-              isLoading={isLoading}
-            />
+            <RequestForm onSubmit={handleRequestSubmit} isLoading={isLoading} />
             <div className="mt-4 text-center">
-              <Button
-                variant="ghost"
-                onClick={() => setShowRequestForm(false)}
-              >
+              <Button variant="ghost" onClick={() => setShowRequestForm(false)}>
                 Back to Chat
               </Button>
             </div>
           </div>
         ) : (
           <div className="max-w-4xl mx-auto space-y-4">
-            {messages.map((message) => (
+            {messages.map(message => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -430,7 +438,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                   className={`max-w-[80%] rounded-lg p-4 ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
-                      : message.type === 'clarifying-question' 
+                      : message.type === 'clarifying-question'
                         ? 'bg-blue-50 border border-blue-200 text-blue-900'
                         : 'bg-muted'
                   }`}
@@ -448,7 +456,10 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                         .filter(([, value]) => value)
                         .map(([key, value]) => (
                           <div key={key}>
-                            <span className="font-semibold">{key.replace(/([A-Z])/g, ' $1').trim()}:</span> {String(value)}
+                            <span className="font-semibold">
+                              {key.replace(/([A-Z])/g, ' $1').trim()}:
+                            </span>{' '}
+                            {String(value)}
                           </div>
                         ))}
                     </div>
@@ -482,12 +493,12 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
               <Textarea
                 ref={textareaRef}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={
-                  conversationContext.intent === 'request' 
-                    ? "Type your response here..." 
-                    : "Ask me anything about SEO..."
+                  conversationContext.intent === 'request'
+                    ? 'Type your response here...'
+                    : 'Ask me anything about SEO...'
                 }
                 className="flex-1 min-h-[56px] max-h-[200px] resize-none"
                 disabled={isLoading}

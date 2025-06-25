@@ -26,7 +26,7 @@ export default function VerifyRequest() {
             A sign in link has been sent to your email address.
           </p>
         </div>
-        
+
         <div className="rounded-md bg-blue-50 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -44,9 +44,7 @@ export default function VerifyRequest() {
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">
-                Next steps
-              </h3>
+              <h3 className="text-sm font-medium text-blue-800">Next steps</h3>
               <div className="mt-2 text-sm text-blue-700">
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Check your email inbox (and spam folder)</li>
@@ -59,10 +57,7 @@ export default function VerifyRequest() {
         </div>
 
         <div className="text-center">
-          <a
-            href="/"
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
+          <a href="/" className="font-medium text-blue-600 hover:text-blue-500">
             ← Back to sign in
           </a>
         </div>
@@ -70,4 +65,3 @@ export default function VerifyRequest() {
     </div>
   )
 }
-

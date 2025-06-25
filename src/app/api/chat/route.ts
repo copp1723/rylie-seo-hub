@@ -41,11 +41,8 @@ export async function POST(request: NextRequest) {
 
     // Check if user is super admin
     const user = await prisma.user.findFirst({
-      where: { 
-        OR: [
-          { id: session.user.id },
-          { email: session.user.email || '' }
-        ]
+      where: {
+        OR: [{ id: session.user.id }, { email: session.user.email || '' }],
       },
       select: {
         id: true,
@@ -53,7 +50,7 @@ export async function POST(request: NextRequest) {
         isSuperAdmin: true,
         role: true,
         agencyId: true,
-      }
+      },
     })
 
     if (!user) {
@@ -61,10 +58,10 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'User not found',
-          details: { 
+          details: {
             sessionUserId: session.user.id,
-            sessionEmail: session.user.email 
-          }
+            sessionEmail: session.user.email,
+          },
         },
         { status: 401 }
       )
@@ -92,7 +89,7 @@ export async function POST(request: NextRequest) {
           id: user.id,
           email: user.email,
           role: 'admin',
-        }
+        },
       }
     } else {
       // Get tenant context for regular users
@@ -102,7 +99,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             success: false,
-            error: 'You must be associated with an agency to use the chat. Please contact your administrator.',
+            error:
+              'You must be associated with an agency to use the chat. Please contact your administrator.',
           },
           { status: 401 }
         )
@@ -211,7 +209,7 @@ export async function POST(request: NextRequest) {
         // For super admins, create a mock conversation object
         conversation = {
           id: 'super-admin-chat',
-          messages: []
+          messages: [],
         }
       }
     }
@@ -322,7 +320,7 @@ export async function POST(request: NextRequest) {
         success: true,
         content: aiResponse.content,
         model: aiResponse.model || model,
-        tokens: aiResponse.tokens
+        tokens: aiResponse.tokens,
       })
     }
 

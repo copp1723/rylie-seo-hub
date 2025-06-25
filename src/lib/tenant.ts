@@ -209,7 +209,7 @@ export function createTenantPrisma(agencyId: string) {
         },
         async create({ args, query }) {
           // Add agencyId to the data
-          (args.data as any).agencyId = agencyId
+          ;(args.data as any).agencyId = agencyId
           return query(args)
         },
         async update({ args, query }) {
@@ -228,7 +228,7 @@ export function createTenantPrisma(agencyId: string) {
         },
         async create({ args, query }) {
           // Add agencyId to the data
-          (args.data as any).agencyId = agencyId
+          ;(args.data as any).agencyId = agencyId
           return query(args)
         },
       },
@@ -238,9 +238,9 @@ export function createTenantPrisma(agencyId: string) {
           return query(args)
         },
         async upsert({ args, query }) {
-          args.where = { ...args.where, agencyId };
-          (args.create as any).agencyId = agencyId;
-          (args.update as any).agencyId = agencyId;
+          args.where = { ...args.where, agencyId }
+          ;(args.create as any).agencyId = agencyId
+          ;(args.update as any).agencyId = agencyId
           return query(args)
         },
       },

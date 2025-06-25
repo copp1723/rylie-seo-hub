@@ -22,14 +22,14 @@ interface SidebarProps {
   user?: any
 }
 
-export function Sidebar({ 
-  isOpen = true, 
-  onClose, 
-  conversations = [], 
-  currentConversation, 
-  onSelectConversation, 
+export function Sidebar({
+  isOpen = true,
+  onClose,
+  conversations = [],
+  currentConversation,
+  onSelectConversation,
   onNewConversation,
-  user 
+  user,
 }: SidebarProps) {
   const { data: session } = useSession()
   const pathname = usePathname()
@@ -151,14 +151,14 @@ export function Sidebar({
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d={isMobileOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+            d={isMobileOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
           />
         </svg>
       </button>
 
       {/* Overlay for mobile */}
       {isMobileOpen && (
-        <div 
+        <div
           className="md:hidden fixed inset-0 bg-black/50 z-40"
           onClick={() => setIsMobileOpen(false)}
         />
@@ -184,7 +184,12 @@ export function Sidebar({
               className="md:hidden p-1 rounded-md hover:bg-accent"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>

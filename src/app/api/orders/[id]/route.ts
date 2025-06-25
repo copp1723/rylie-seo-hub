@@ -11,7 +11,7 @@ const updateOrderSchema = z.object({
   estimatedHours: z.number().optional(),
   actualHours: z.number().optional(),
   completionNotes: z.string().optional(),
-  qualityScore: z.number().min(1).max(5).optional()
+  qualityScore: z.number().min(1).max(5).optional(),
 })
 
 interface RouteParams {
@@ -23,46 +23,43 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const orderId = params.id
-    
+
     // Auth disabled - using default values
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
     const order = await prisma.order.findFirst({
       where: {
         id: orderId,
-        agencyId: agencyId
+        agencyId: agencyId,
       },
       include: {
         user: {
           select: {
             id: true,
             name: true,
-            email: true
-          }
+            email: true,
+          },
         },
         messages: {
           orderBy: {
-            createdAt: 'desc'
+            createdAt: 'desc',
           },
           include: {
             user: {
               select: {
                 id: true,
                 name: true,
-                email: true
-              }
-            }
-          }
+                email: true,
+              },
+            },
+          },
         },
-        seoworksTask: true
-      }
+        seoworksTask: true,
+      },
     })
 
     if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     return NextResponse.json({
@@ -87,22 +84,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         wordCount: order.wordCount,
         user: order.user,
         messages: order.messages,
-        seoworksTask: order.seoworksTask
-      }
+        seoworksTask: order.seoworksTask,
+      },
     })
   } catch (error) {
     logger.error('Error fetching order:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch order' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 })
   }
 }
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const orderId = params.id
-    
+
     // Auth disabled - using default values
     const userId = process.env.DEFAULT_USER_ID || 'test-user-id'
     const userEmail = process.env.DEFAULT_USER_EMAIL || 'user@example.com'
@@ -125,15 +119,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const existingOrder = await prisma.order.findFirst({
       where: {
         id: orderId,
-        agencyId: agencyId
-      }
+        agencyId: agencyId,
+      },
     })
 
     if (!existingOrder) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Update order
@@ -142,8 +133,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       data: {
         ...updateData,
         updatedAt: new Date(),
-        completedAt: updateData.status === 'completed' ? new Date() : undefined
-      }
+        completedAt: updateData.status === 'completed' ? new Date() : undefined,
+      },
     })
 
     // Create audit log
@@ -154,8 +145,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         entityId: orderId,
         userId: userId,
         userEmail: userEmail,
-        details: updateData
-      }
+        details: updateData,
+      },
     })
 
     // Create status message if status changed
@@ -164,7 +155,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         pending: 'Order status changed to pending.',
         in_progress: 'Your order is now being processed.',
         completed: 'Your order has been completed!',
-        cancelled: 'Your order has been cancelled.'
+        cancelled: 'Your order has been cancelled.',
       }
 
       await prisma.orderMessage.create({
@@ -173,33 +164,30 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           agencyId: agencyId,
           userId: userId,
           type: 'status_update',
-          content: statusMessages[updateData.status]
-        }
+          content: statusMessages[updateData.status],
+        },
       })
     }
 
     logger.info('Order updated successfully', {
       orderId,
-      updates: updateData
+      updates: updateData,
     })
 
     return NextResponse.json({
       success: true,
-      order: updatedOrder
+      order: updatedOrder,
     })
   } catch (error) {
     logger.error('Error updating order:', error)
-    return NextResponse.json(
-      { error: 'Failed to update order' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const orderId = params.id
-    
+
     // Auth disabled - using default values
     const userId = process.env.DEFAULT_USER_ID || 'test-user-id'
     const userEmail = process.env.DEFAULT_USER_EMAIL || 'user@example.com'
@@ -209,23 +197,20 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const existingOrder = await prisma.order.findFirst({
       where: {
         id: orderId,
-        agencyId: agencyId
-      }
+        agencyId: agencyId,
+      },
     })
 
     if (!existingOrder) {
-      return NextResponse.json(
-        { error: 'Order not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Soft delete by updating deletedAt
     await prisma.order.update({
       where: { id: orderId },
       data: {
-        deletedAt: new Date()
-      }
+        deletedAt: new Date(),
+      },
     })
 
     // Create audit log
@@ -237,22 +222,19 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         userId: userId,
         userEmail: userEmail,
         details: {
-          deletedAt: new Date()
-        }
-      }
+          deletedAt: new Date(),
+        },
+      },
     })
 
     logger.info('Order deleted successfully', { orderId })
 
     return NextResponse.json({
       success: true,
-      message: 'Order deleted successfully'
+      message: 'Order deleted successfully',
     })
   } catch (error) {
     logger.error('Error deleting order:', error)
-    return NextResponse.json(
-      { error: 'Failed to delete order' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to delete order' }, { status: 500 })
   }
 }

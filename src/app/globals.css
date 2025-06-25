@@ -13,27 +13,27 @@
     --card-foreground: 222.2 84% 4.9%; /* near black */
     --popover: 0 0% 100%; /* white */
     --popover-foreground: 222.2 84% 4.9%; /* near black */
-    
+
     /* Professional Blue Primary */
     --primary: 221.2 83.2% 53.3%; /* #3B82F6 */
     --primary-foreground: 210 40% 98%; /* white */
-    
+
     /* Subtle Gray Secondary */
     --secondary: 210 40% 96.1%; /* #F1F5F9 */
     --secondary-foreground: 222.2 47.4% 11.2%; /* dark */
-    
+
     /* Muted Colors */
     --muted: 210 40% 96.1%; /* #F1F5F9 */
     --muted-foreground: 215.4 16.3% 46.9%; /* #64748B */
-    
+
     /* Accent Colors */
     --accent: 210 40% 96.1%; /* #F1F5F9 */
     --accent-foreground: 222.2 47.4% 11.2%; /* dark */
-    
+
     /* Status Colors */
     --destructive: 0 84.2% 60.2%; /* red */
     --destructive-foreground: 210 40% 98%; /* white */
-    
+
     /* UI Elements */
     --border: 214.3 31.8% 91.4%; /* #E2E8F0 */
     --input: 214.3 31.8% 91.4%; /* #E2E8F0 */
@@ -49,22 +49,22 @@
     --card-foreground: 210 40% 98%; /* #F8FAFC */
     --popover: 222.2 84% 4.9%; /* #020617 */
     --popover-foreground: 210 40% 98%; /* #F8FAFC */
-    
+
     --primary: 217.2 91.2% 59.8%; /* #5B8DEF */
     --primary-foreground: 222.2 47.4% 11.2%; /* dark */
-    
+
     --secondary: 217.2 32.6% 17.5%; /* #1E293B */
     --secondary-foreground: 210 40% 98%; /* light */
-    
+
     --muted: 217.2 32.6% 17.5%; /* #1E293B */
     --muted-foreground: 215 20.2% 65.1%; /* #94A3B8 */
-    
+
     --accent: 217.2 32.6% 17.5%; /* #1E293B */
     --accent-foreground: 210 40% 98%; /* light */
-    
+
     --destructive: 0 62.8% 30.6%; /* dark red */
     --destructive-foreground: 210 40% 98%; /* light */
-    
+
     --border: 217.2 32.6% 17.5%; /* #1E293B */
     --input: 217.2 32.6% 17.5%; /* #1E293B */
     --ring: 217.2 91.2% 59.8%; /* primary blue */
@@ -76,15 +76,17 @@
     @apply border-border;
     box-sizing: border-box;
   }
-  
+
   html {
     -webkit-text-size-adjust: 100%;
     font-feature-settings: normal;
   }
-  
+
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
@@ -93,10 +95,27 @@
   }
 
   /* Force proper text colors on all elements */
-  h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, label, li, td, th {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  div,
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  label,
+  li,
+  td,
+  th {
     @apply text-foreground;
   }
-  
+
   /* Typography Scale */
   h1 {
     @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl;
@@ -404,18 +423,30 @@
 
   /* Animations */
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes slide-in-from-left {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
   }
 
   @keyframes slide-in-from-right {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
   }
 
   .animate-in {
@@ -437,13 +468,13 @@
 }
 
 /* OVERRIDE ANY PROBLEMATIC COLORS */
-[class*="text-pink"],
-[class*="bg-pink"],
-[style*="color: pink"],
-[style*="color: #FFC0CB"],
-[style*="color: #FFB6C1"],
-[style*="color: #FF69B4"],
-[style*="color: #FF1493"] {
+[class*='text-pink'],
+[class*='bg-pink'],
+[style*='color: pink'],
+[style*='color: #FFC0CB'],
+[style*='color: #FFB6C1'],
+[style*='color: #FF69B4'],
+[style*='color: #FF1493'] {
   color: rgb(var(--foreground)) !important;
 }
 
@@ -470,11 +501,11 @@
   .sidebar-professional {
     @apply fixed -translate-x-full;
   }
-  
+
   .sidebar-professional.open {
     @apply translate-x-0;
   }
-  
+
   .main-content {
     @apply w-full;
   }

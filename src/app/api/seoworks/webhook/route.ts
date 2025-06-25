@@ -12,7 +12,7 @@ const WebhookTaskSchema = z.object({
   post_url: z.string().url().optional(),
   completion_notes: z.string().optional(),
   is_weekly: z.boolean().optional().default(false),
-  payload: z.record(z.any()).optional()
+  payload: z.record(z.any()).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -32,9 +32,9 @@ export async function POST(req: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          error: 'Validation error', 
-          details: validationResult.error.format() 
+        {
+          error: 'Validation error',
+          details: validationResult.error.format(),
         },
         { status: 400 }
       )
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     // Check if this task already exists
     const existingTask = await prisma.sEOWorksTask.findUnique({
       where: { externalId: taskData.id },
-      include: { order: true }
+      include: { order: true },
     })
 
     if (existingTask) {
@@ -55,14 +55,15 @@ export async function POST(req: NextRequest) {
         data: {
           taskType: taskData.task_type,
           status: taskData.status,
-          completionDate: taskData.status === 'completed' ? new Date(taskData.completion_date) : null,
+          completionDate:
+            taskData.status === 'completed' ? new Date(taskData.completion_date) : null,
           postTitle: taskData.post_title,
           postUrl: taskData.post_url,
           completionNotes: taskData.completion_notes,
           isWeekly: taskData.is_weekly,
           payload: taskData.payload,
-          processedAt: new Date()
-        }
+          processedAt: new Date(),
+        },
       })
 
       // Update associated order if exists
@@ -72,14 +73,19 @@ export async function POST(req: NextRequest) {
           data: {
             status: taskData.status,
             completionNotes: taskData.completion_notes,
-            completedAt: taskData.status === 'completed' ? new Date(taskData.completion_date) : null,
-            deliverables: taskData.payload ? JSON.parse(JSON.stringify({
-              ...(existingTask.order.deliverables as object || {}),
-              postUrl: taskData.post_url,
-              postTitle: taskData.post_title,
-              ...taskData.payload
-            })) : existingTask.order.deliverables
-          }
+            completedAt:
+              taskData.status === 'completed' ? new Date(taskData.completion_date) : null,
+            deliverables: taskData.payload
+              ? JSON.parse(
+                  JSON.stringify({
+                    ...((existingTask.order.deliverables as object) || {}),
+                    postUrl: taskData.post_url,
+                    postTitle: taskData.post_title,
+                    ...taskData.payload,
+                  })
+                )
+              : existingTask.order.deliverables,
+          },
         })
       }
 
@@ -94,9 +100,9 @@ export async function POST(req: NextRequest) {
             externalId: taskData.id,
             status: taskData.status,
             isWeekly: taskData.is_weekly,
-            hasOrder: !!existingTask.order
-          }
-        }
+            hasOrder: !!existingTask.order,
+          },
+        },
       })
 
       return NextResponse.json({
@@ -107,8 +113,8 @@ export async function POST(req: NextRequest) {
           externalId: taskData.id,
           status: updatedTask.status,
           completedAt: updatedTask.completionDate,
-          orderId: existingTask.orderId
-        }
+          orderId: existingTask.orderId,
+        },
       })
     } else {
       // Create new task
@@ -117,14 +123,15 @@ export async function POST(req: NextRequest) {
           externalId: taskData.id,
           taskType: taskData.task_type,
           status: taskData.status,
-          completionDate: taskData.status === 'completed' ? new Date(taskData.completion_date) : null,
+          completionDate:
+            taskData.status === 'completed' ? new Date(taskData.completion_date) : null,
           postTitle: taskData.post_title,
           postUrl: taskData.post_url || '',
           completionNotes: taskData.completion_notes,
           isWeekly: taskData.is_weekly,
           payload: taskData.payload,
-          processedAt: new Date()
-        }
+          processedAt: new Date(),
+        },
       })
 
       // Try to match with existing order by task details
@@ -132,20 +139,20 @@ export async function POST(req: NextRequest) {
         where: {
           taskType: taskData.task_type,
           title: { contains: taskData.post_title.slice(0, 20) },
-          seoworksTaskId: null
-        }
+          seoworksTaskId: null,
+        },
       })
 
       if (matchingOrder) {
         // Link task to order
         await prisma.sEOWorksTask.update({
           where: { id: newTask.id },
-          data: { orderId: matchingOrder.id }
+          data: { orderId: matchingOrder.id },
         })
 
         await prisma.order.update({
           where: { id: matchingOrder.id },
-          data: { seoworksTaskId: taskData.id }
+          data: { seoworksTaskId: taskData.id },
         })
       }
 
@@ -161,43 +168,48 @@ export async function POST(req: NextRequest) {
             taskType: taskData.task_type,
             status: taskData.status,
             isWeekly: taskData.is_weekly,
-            matchedOrder: !!matchingOrder
-          }
-        }
+            matchedOrder: !!matchingOrder,
+          },
+        },
       })
 
-      return NextResponse.json({
-        success: true,
-        message: 'Task created successfully',
-        task: {
-          id: newTask.id,
-          externalId: taskData.id,
-          status: newTask.status,
-          matchedOrder: !!matchingOrder
-        }
-      }, { status: 201 })
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Task created successfully',
+          task: {
+            id: newTask.id,
+            externalId: taskData.id,
+            status: newTask.status,
+            matchedOrder: !!matchingOrder,
+          },
+        },
+        { status: 201 }
+      )
     }
   } catch (error) {
     console.error('Webhook processing error:', error)
-    
+
     // Log error to audit log
-    await prisma.auditLog.create({
-      data: {
-        action: 'WEBHOOK_ERROR',
-        entityType: 'webhook',
-        entityId: 'unknown',
-        userEmail: 'seoworks-api@system',
-        details: {
-          error: error instanceof Error ? error.message : 'Unknown error',
-          timestamp: new Date().toISOString()
-        }
-      }
-    }).catch(console.error)
+    await prisma.auditLog
+      .create({
+        data: {
+          action: 'WEBHOOK_ERROR',
+          entityType: 'webhook',
+          entityId: 'unknown',
+          userEmail: 'seoworks-api@system',
+          details: {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            timestamp: new Date().toISOString(),
+          },
+        },
+      })
+      .catch(console.error)
 
     return NextResponse.json(
-      { 
-        error: 'Internal server error', 
-        details: error instanceof Error ? error.message : 'Unknown error' 
+      {
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -207,12 +219,9 @@ export async function POST(req: NextRequest) {
 // GET endpoint for testing webhook connectivity
 export async function GET(req: NextRequest) {
   const apiKey = req.headers.get('x-api-key')
-  
+
   if (!apiKey || apiKey !== process.env.SEOWORKS_API_KEY) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   return NextResponse.json({
@@ -222,7 +231,7 @@ export async function GET(req: NextRequest) {
     acceptedMethods: ['POST', 'GET'],
     requiredHeaders: {
       'x-api-key': 'Required - Your SEOWerks API key',
-      'content-type': 'application/json'
+      'content-type': 'application/json',
     },
     schema: {
       id: 'string (required) - Unique task identifier',
@@ -233,7 +242,7 @@ export async function GET(req: NextRequest) {
       post_url: 'string (optional) - URL to the live content',
       completion_notes: 'string (optional) - Additional notes',
       is_weekly: 'boolean (optional) - Whether this is a weekly rollup',
-      payload: 'object (optional) - Additional data'
-    }
+      payload: 'object (optional) - Additional data',
+    },
   })
 }

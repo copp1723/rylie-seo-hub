@@ -38,15 +38,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
         }
       }
-      
+
       // Fallback: if user is not available, try to find in database
       if (session.user?.email) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { email: session.user.email },
-            select: { id: true, email: true, name: true, image: true }
+            select: { id: true, email: true, name: true, image: true },
           })
-          
+
           if (dbUser) {
             return {
               ...session,
@@ -60,26 +60,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.error('Error fetching user in session callback:', error)
         }
       }
-      
+
       // Last resort: return session without user ID (will cause invite to fail gracefully)
       console.warn('Session callback: No user ID available')
       return session
     },
     signIn: async ({ user, account, profile }: { user: User; account: any; profile?: any }) => {
       // Log sign in attempts for debugging
-      console.log('Magic link sign in attempt:', { 
+      console.log('Magic link sign in attempt:', {
         email: user.email,
         provider: account?.provider,
-        userId: user.id 
+        userId: user.id,
       })
-      
+
       try {
         // Ensure user exists in database with proper defaults
         if (user.email) {
           const existingUser = await prisma.user.findUnique({
-            where: { email: user.email }
+            where: { email: user.email },
           })
-          
+
           if (!existingUser) {
             console.log('Creating user in database:', user.email)
             await prisma.user.create({
@@ -89,7 +89,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 image: user.image || null,
                 role: 'user',
                 isSuperAdmin: false,
-              }
+              },
             })
             console.log('User created successfully in database')
           } else {
@@ -100,13 +100,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         console.error('Error ensuring user exists in database:', error)
         // Don't block sign in if user creation fails
       }
-      
+
       // Always allow sign in - the adapter will create the user if needed
       return true
     },
     redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       console.log('Redirect callback:', { url, baseUrl })
-      
+
       // Redirect to dashboard after sign in
       if (url === baseUrl || url === '/' || url.includes('/?')) {
         return `${baseUrl}/dashboard`

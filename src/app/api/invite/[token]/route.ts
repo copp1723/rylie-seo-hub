@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ token: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params
 
     if (!token) {
-      return NextResponse.json(
-        { error: 'Invalid invitation link' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid invitation link' }, { status: 400 })
     }
 
     // Find invite by token
@@ -21,34 +15,31 @@ export async function GET(
       include: {
         agency: {
           select: {
-            name: true
-          }
+            name: true,
+          },
         },
         invitedByUser: {
           select: {
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     })
 
     if (!invite) {
-      return NextResponse.json(
-        { error: 'Invitation not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 })
     }
 
     // Check if expired
     if (new Date(invite.expiresAt) < new Date()) {
       return NextResponse.json(
-        { 
+        {
           error: 'This invitation has expired',
           invite: {
             status: 'expired',
-            email: invite.email
-          }
+            email: invite.email,
+          },
         },
         { status: 410 }
       )
@@ -63,15 +54,11 @@ export async function GET(
         status: invite.status,
         invitedBy: invite.invitedByUser,
         agency: invite.agency,
-        expiresAt: invite.expiresAt
-      }
+        expiresAt: invite.expiresAt,
+      },
     })
-
   } catch (error) {
     console.error('Error fetching invite:', error)
-    return NextResponse.json(
-      { error: 'Failed to load invitation' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to load invitation' }, { status: 500 })
   }
 }
