@@ -7,10 +7,12 @@ import { initSentry, setUserContext, trackEvent } from '@/lib/observability'
 import { useSession } from 'next-auth/react'
 
 // Initialize PostHog only if properly configured
-if (typeof window !== 'undefined' && 
-    process.env.NEXT_PUBLIC_POSTHOG_KEY && 
-    process.env.NEXT_PUBLIC_POSTHOG_KEY !== 'placeholder-posthog-key' &&
-    process.env.NEXT_PUBLIC_POSTHOG_KEY.length > 10) {
+if (
+  typeof window !== 'undefined' &&
+  process.env.NEXT_PUBLIC_POSTHOG_KEY &&
+  process.env.NEXT_PUBLIC_POSTHOG_KEY !== 'placeholder-posthog-key' &&
+  process.env.NEXT_PUBLIC_POSTHOG_KEY.length > 10
+) {
   try {
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
       api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
@@ -121,4 +123,3 @@ if (typeof window !== 'undefined') {
     }
   })
 }
-

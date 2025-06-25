@@ -208,6 +208,6 @@
 // For now, simply creating the file structure.
 describe('Placeholder Test Suite', () => {
   it('should have tests written for GA4 Auth', () => {
-    expect(true).toBe(true);
-  });
-});
+    expect(true).toBe(true)
+  })
+})

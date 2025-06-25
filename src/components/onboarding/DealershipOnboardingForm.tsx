@@ -14,13 +14,13 @@ interface OnboardingFormData {
   package: 'SILVER' | 'GOLD' | 'PLATINUM'
   mainBrand: string
   otherBrand?: string
-  
+
   // Location Information
   address: string
   city: string
   state: string
   zipCode: string
-  
+
   // Contact Information
   contactName: string
   contactTitle: string
@@ -28,10 +28,10 @@ interface OnboardingFormData {
   phone: string
   websiteUrl: string
   billingEmail: string
-  
+
   // Site Access
   siteAccessNotes: string
-  
+
   // Target Arrays (minimum 3 each)
   targetVehicleModels: string[]
   targetCities: string[]
@@ -57,7 +57,7 @@ export default function DealershipOnboardingForm() {
     siteAccessNotes: '',
     targetVehicleModels: ['', '', ''], // Start with 3 empty fields
     targetCities: ['', '', ''],
-    targetDealers: ['', '', '']
+    targetDealers: ['', '', ''],
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -70,33 +70,52 @@ export default function DealershipOnboardingForm() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const updateArrayField = (field: 'targetVehicleModels' | 'targetCities' | 'targetDealers', index: number, value: string) => {
+  const updateArrayField = (
+    field: 'targetVehicleModels' | 'targetCities' | 'targetDealers',
+    index: number,
+    value: string
+  ) => {
     setFormData(prev => ({
       ...prev,
-      [field]: prev[field].map((item, i) => i === index ? value : item)
+      [field]: prev[field].map((item, i) => (i === index ? value : item)),
     }))
   }
 
   const addArrayItem = (field: 'targetVehicleModels' | 'targetCities' | 'targetDealers') => {
     setFormData(prev => ({
       ...prev,
-      [field]: [...prev[field], '']
+      [field]: [...prev[field], ''],
     }))
   }
 
-  const removeArrayItem = (field: 'targetVehicleModels' | 'targetCities' | 'targetDealers', index: number) => {
-    if (formData[field].length > 3) { // Don't allow removing below minimum
+  const removeArrayItem = (
+    field: 'targetVehicleModels' | 'targetCities' | 'targetDealers',
+    index: number
+  ) => {
+    if (formData[field].length > 3) {
+      // Don't allow removing below minimum
       setFormData(prev => ({
         ...prev,
-        [field]: prev[field].filter((_, i) => i !== index)
+        [field]: prev[field].filter((_, i) => i !== index),
       }))
     }
   }
 
   const validateForm = () => {
     const requiredFields: (keyof OnboardingFormData)[] = [
-      'businessName', 'package', 'mainBrand', 'address', 'city', 'state', 'zipCode',
-      'contactName', 'contactTitle', 'email', 'phone', 'websiteUrl', 'billingEmail'
+      'businessName',
+      'package',
+      'mainBrand',
+      'address',
+      'city',
+      'state',
+      'zipCode',
+      'contactName',
+      'contactTitle',
+      'email',
+      'phone',
+      'websiteUrl',
+      'billingEmail',
     ]
 
     const missingFields = requiredFields.filter(field => {
@@ -118,12 +137,12 @@ export default function DealershipOnboardingForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const validation = validateForm()
     if (!validation.isValid) {
       setSubmitStatus({
         type: 'error',
-        message: `Please fill in all required fields: ${validation.missingFields.join(', ')}`
+        message: `Please fill in all required fields: ${validation.missingFields.join(', ')}`,
       })
       return
     }
@@ -143,7 +162,7 @@ export default function DealershipOnboardingForm() {
       if (response.ok) {
         setSubmitStatus({
           type: 'success',
-          message: 'Onboarding submitted successfully! Your information has been sent to SEOWerks.'
+          message: 'Onboarding submitted successfully! Your information has been sent to SEOWerks.',
         })
         // Reset form after successful submission
         setFormData({
@@ -164,7 +183,7 @@ export default function DealershipOnboardingForm() {
           siteAccessNotes: '',
           targetVehicleModels: ['', '', ''],
           targetCities: ['', '', ''],
-          targetDealers: ['', '', '']
+          targetDealers: ['', '', ''],
         })
       } else {
         const errorData = await response.json()
@@ -173,7 +192,7 @@ export default function DealershipOnboardingForm() {
     } catch (error) {
       setSubmitStatus({
         type: 'error',
-        message: error instanceof Error ? error.message : 'An unexpected error occurred'
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
       })
     } finally {
       setIsSubmitting(false)
@@ -190,8 +209,16 @@ export default function DealershipOnboardingForm() {
       </div>
 
       {submitStatus.type && (
-        <Alert className={submitStatus.type === 'error' ? 'border-red-500 bg-red-50' : 'border-green-500 bg-green-50'}>
-          <AlertDescription className={submitStatus.type === 'error' ? 'text-red-700' : 'text-green-700'}>
+        <Alert
+          className={
+            submitStatus.type === 'error'
+              ? 'border-red-500 bg-red-50'
+              : 'border-green-500 bg-green-50'
+          }
+        >
+          <AlertDescription
+            className={submitStatus.type === 'error' ? 'text-red-700' : 'text-green-700'}
+          >
             {submitStatus.message}
           </AlertDescription>
         </Alert>
@@ -210,7 +237,7 @@ export default function DealershipOnboardingForm() {
                 <Input
                   id="businessName"
                   value={formData.businessName}
-                  onChange={(e) => updateField('businessName', e.target.value)}
+                  onChange={e => updateField('businessName', e.target.value)}
                   placeholder="Enter business name"
                   required
                 />
@@ -221,7 +248,9 @@ export default function DealershipOnboardingForm() {
                   id="package"
                   className="w-full p-2 border border-gray-300 rounded-md"
                   value={formData.package}
-                  onChange={(e) => updateField('package', e.target.value as 'SILVER' | 'GOLD' | 'PLATINUM')}
+                  onChange={e =>
+                    updateField('package', e.target.value as 'SILVER' | 'GOLD' | 'PLATINUM')
+                  }
                   required
                 >
                   <option value="SILVER">Silver</option>
@@ -236,7 +265,7 @@ export default function DealershipOnboardingForm() {
                 <Input
                   id="mainBrand"
                   value={formData.mainBrand}
-                  onChange={(e) => updateField('mainBrand', e.target.value)}
+                  onChange={e => updateField('mainBrand', e.target.value)}
                   placeholder="e.g., Toyota, Ford, BMW"
                   required
                 />
@@ -246,7 +275,7 @@ export default function DealershipOnboardingForm() {
                 <Input
                   id="otherBrand"
                   value={formData.otherBrand || ''}
-                  onChange={(e) => updateField('otherBrand', e.target.value)}
+                  onChange={e => updateField('otherBrand', e.target.value)}
                   placeholder="Additional brand (optional)"
                 />
               </div>
@@ -265,7 +294,7 @@ export default function DealershipOnboardingForm() {
               <Input
                 id="address"
                 value={formData.address}
-                onChange={(e) => updateField('address', e.target.value)}
+                onChange={e => updateField('address', e.target.value)}
                 placeholder="Street address"
                 required
               />
@@ -276,7 +305,7 @@ export default function DealershipOnboardingForm() {
                 <Input
                   id="city"
                   value={formData.city}
-                  onChange={(e) => updateField('city', e.target.value)}
+                  onChange={e => updateField('city', e.target.value)}
                   placeholder="City"
                   required
                 />
@@ -286,7 +315,7 @@ export default function DealershipOnboardingForm() {
                 <Input
                   id="state"
                   value={formData.state}
-                  onChange={(e) => updateField('state', e.target.value)}
+                  onChange={e => updateField('state', e.target.value)}
                   placeholder="State"
                   required
                 />
@@ -296,7 +325,7 @@ export default function DealershipOnboardingForm() {
                 <Input
                   id="zipCode"
                   value={formData.zipCode}
-                  onChange={(e) => updateField('zipCode', e.target.value)}
+                  onChange={e => updateField('zipCode', e.target.value)}
                   placeholder="Zip Code"
                   required
                 />
@@ -317,7 +346,7 @@ export default function DealershipOnboardingForm() {
                 <Input
                   id="contactName"
                   value={formData.contactName}
-                  onChange={(e) => updateField('contactName', e.target.value)}
+                  onChange={e => updateField('contactName', e.target.value)}
                   placeholder="Primary contact name"
                   required
                 />
@@ -327,7 +356,7 @@ export default function DealershipOnboardingForm() {
                 <Input
                   id="contactTitle"
                   value={formData.contactTitle}
-                  onChange={(e) => updateField('contactTitle', e.target.value)}
+                  onChange={e => updateField('contactTitle', e.target.value)}
                   placeholder="Job title"
                   required
                 />
@@ -340,7 +369,7 @@ export default function DealershipOnboardingForm() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => updateField('email', e.target.value)}
+                  onChange={e => updateField('email', e.target.value)}
                   placeholder="contact@example.com"
                   required
                 />
@@ -351,7 +380,7 @@ export default function DealershipOnboardingForm() {
                   id="phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => updateField('phone', e.target.value)}
+                  onChange={e => updateField('phone', e.target.value)}
                   placeholder="(555) 123-4567"
                   required
                 />
@@ -364,7 +393,7 @@ export default function DealershipOnboardingForm() {
                   id="websiteUrl"
                   type="url"
                   value={formData.websiteUrl}
-                  onChange={(e) => updateField('websiteUrl', e.target.value)}
+                  onChange={e => updateField('websiteUrl', e.target.value)}
                   placeholder="https://example.com"
                   required
                 />
@@ -375,7 +404,7 @@ export default function DealershipOnboardingForm() {
                   id="billingEmail"
                   type="email"
                   value={formData.billingEmail}
-                  onChange={(e) => updateField('billingEmail', e.target.value)}
+                  onChange={e => updateField('billingEmail', e.target.value)}
                   placeholder="billing@example.com"
                   required
                 />
@@ -395,7 +424,7 @@ export default function DealershipOnboardingForm() {
               <Textarea
                 id="siteAccessNotes"
                 value={formData.siteAccessNotes}
-                onChange={(e) => updateField('siteAccessNotes', e.target.value)}
+                onChange={e => updateField('siteAccessNotes', e.target.value)}
                 placeholder="Provide any special instructions for accessing your website (admin credentials, special requirements, etc.)"
                 rows={4}
               />
@@ -420,7 +449,7 @@ export default function DealershipOnboardingForm() {
                   <div key={index} className="flex gap-2">
                     <Input
                       value={model}
-                      onChange={(e) => updateArrayField('targetVehicleModels', index, e.target.value)}
+                      onChange={e => updateArrayField('targetVehicleModels', index, e.target.value)}
                       placeholder={`Vehicle model ${index + 1}`}
                       className="flex-1"
                     />
@@ -455,7 +484,7 @@ export default function DealershipOnboardingForm() {
                   <div key={index} className="flex gap-2">
                     <Input
                       value={city}
-                      onChange={(e) => updateArrayField('targetCities', index, e.target.value)}
+                      onChange={e => updateArrayField('targetCities', index, e.target.value)}
                       placeholder={`Target city ${index + 1}`}
                       className="flex-1"
                     />
@@ -490,7 +519,7 @@ export default function DealershipOnboardingForm() {
                   <div key={index} className="flex gap-2">
                     <Input
                       value={dealer}
-                      onChange={(e) => updateArrayField('targetDealers', index, e.target.value)}
+                      onChange={e => updateArrayField('targetDealers', index, e.target.value)}
                       placeholder={`Target dealer ${index + 1}`}
                       className="flex-1"
                     />
@@ -521,12 +550,7 @@ export default function DealershipOnboardingForm() {
 
         {/* Submit Button */}
         <div className="flex justify-center">
-          <Button
-            type="submit"
-            size="lg"
-            disabled={isSubmitting}
-            className="w-full md:w-auto px-8"
-          >
+          <Button type="submit" size="lg" disabled={isSubmitting} className="w-full md:w-auto px-8">
             {isSubmitting ? 'Submitting...' : 'Complete Onboarding'}
           </Button>
         </div>

@@ -1,72 +1,72 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function QuickAddUser() {
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const router = useRouter();
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
+  const router = useRouter()
 
   const handleMakeMeAdmin = async () => {
-    setLoading(true);
-    setMessage('Making you admin...');
+    setLoading(true)
+    setMessage('Making you admin...')
     try {
-      const response = await fetch('/api/make-me-admin');
-      const data = await response.json();
-      
+      const response = await fetch('/api/make-me-admin')
+      const data = await response.json()
+
       if (response.ok) {
-        setMessage(`✅ ${data.message || 'Success! You are now a super admin.'}`);
+        setMessage(`✅ ${data.message || 'Success! You are now a super admin.'}`)
         // Don't redirect, let them stay on the page to add users
       } else {
-        setMessage(`❌ Error: ${data.error || 'Failed to make you admin'}`);
+        setMessage(`❌ Error: ${data.error || 'Failed to make you admin'}`)
       }
     } catch (error) {
-      console.error('Error making admin:', error);
-      setMessage('❌ Error making you admin - check console');
+      console.error('Error making admin:', error)
+      setMessage('❌ Error making you admin - check console')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const handleAddUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
 
     try {
       const response = await fetch('/api/users/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           email,
           role: 'user',
-          isSuperAdmin: false 
-        })
-      });
+          isSuperAdmin: false,
+        }),
+      })
 
-      const data = await response.json();
-      
+      const data = await response.json()
+
       if (response.ok) {
-        setMessage(`✅ Invitation sent to ${email}`);
-        setEmail('');
+        setMessage(`✅ Invitation sent to ${email}`)
+        setEmail('')
       } else {
         // Show the actual error from the server
-        const errorMsg = data.error || 'Failed to send invitation';
-        const details = data.details ? ` (${JSON.stringify(data.details)})` : '';
-        setMessage(`❌ Error: ${errorMsg}${details}`);
+        const errorMsg = data.error || 'Failed to send invitation'
+        const details = data.details ? ` (${JSON.stringify(data.details)})` : ''
+        setMessage(`❌ Error: ${errorMsg}${details}`)
       }
     } catch (error) {
-      setMessage('❌ Error sending invitation');
+      setMessage('❌ Error sending invitation')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-md mx-auto">
         <h1 className="text-3xl font-bold text-center mb-8">Quick User Management</h1>
-        
+
         {/* Make Me Admin Section */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Step 1: Make Yourself Admin</h2>
@@ -89,7 +89,7 @@ export default function QuickAddUser() {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               placeholder="Enter user email"
               className="w-full px-3 py-2 border border-gray-300 rounded mb-4"
               required
@@ -106,11 +106,13 @@ export default function QuickAddUser() {
 
         {/* Message Display */}
         {message && (
-          <div className={`mt-6 p-4 rounded ${message.includes('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          <div
+            className={`mt-6 p-4 rounded ${message.includes('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+          >
             {message}
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }

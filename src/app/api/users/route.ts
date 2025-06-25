@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     // Check if user is super admin
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { isSuperAdmin: true, agencyId: true }
+      select: { isSuperAdmin: true, agencyId: true },
     })
 
     if (!currentUser?.isSuperAdmin) {
@@ -32,21 +32,17 @@ export async function GET(req: NextRequest) {
         agency: {
           select: {
             id: true,
-            name: true
-          }
-        }
+            name: true,
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     })
 
     return NextResponse.json({ users })
-
   } catch (error) {
     console.error('Error fetching users:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch users' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
   }
 }
 
@@ -61,7 +57,7 @@ export async function PATCH(req: NextRequest) {
     // Check if current user is super admin
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { isSuperAdmin: true }
+      select: { isSuperAdmin: true },
     })
 
     if (!currentUser?.isSuperAdmin) {
@@ -80,15 +76,15 @@ export async function PATCH(req: NextRequest) {
       where: { id: userId },
       data: {
         ...(isSuperAdmin !== undefined && { isSuperAdmin }),
-        ...(role && { role })
+        ...(role && { role }),
       },
       select: {
         id: true,
         email: true,
         name: true,
         isSuperAdmin: true,
-        role: true
-      }
+        role: true,
+      },
     })
 
     // Create audit log
@@ -100,22 +96,18 @@ export async function PATCH(req: NextRequest) {
         userEmail: session.user.email,
         details: {
           changes: { isSuperAdmin, role },
-          updatedUser: updatedUser.email
-        }
-      }
+          updatedUser: updatedUser.email,
+        },
+      },
     })
 
     return NextResponse.json({
       success: true,
-      user: updatedUser
+      user: updatedUser,
     })
-
   } catch (error) {
     console.error('Error updating user:', error)
-    return NextResponse.json(
-      { error: 'Failed to update user' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to update user' }, { status: 500 })
   }
 }
 
@@ -130,7 +122,7 @@ export async function DELETE(req: NextRequest) {
     // Check if current user is super admin
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { isSuperAdmin: true, id: true }
+      select: { isSuperAdmin: true, id: true },
     })
 
     if (!currentUser?.isSuperAdmin) {
@@ -152,7 +144,7 @@ export async function DELETE(req: NextRequest) {
     // Get user info before deletion
     const userToDelete = await prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true }
+      select: { email: true },
     })
 
     if (!userToDelete) {
@@ -161,7 +153,7 @@ export async function DELETE(req: NextRequest) {
 
     // Delete user
     await prisma.user.delete({
-      where: { id: userId }
+      where: { id: userId },
     })
 
     // Create audit log
@@ -172,21 +164,17 @@ export async function DELETE(req: NextRequest) {
         entityId: userId,
         userEmail: session.user.email,
         details: {
-          deletedUserEmail: userToDelete.email
-        }
-      }
+          deletedUserEmail: userToDelete.email,
+        },
+      },
     })
 
     return NextResponse.json({
       success: true,
-      message: 'User deleted successfully'
+      message: 'User deleted successfully',
     })
-
   } catch (error) {
     console.error('Error deleting user:', error)
-    return NextResponse.json(
-      { error: 'Failed to delete user' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 })
   }
 }

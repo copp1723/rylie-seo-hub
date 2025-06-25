@@ -1,9 +1,11 @@
 import OpenAI from 'openai'
 
-const openai = process.env.OPENROUTER_API_KEY ? new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY,
-  baseURL: process.env.OPENROUTER_BASE_URL,
-}) : null
+const openai = process.env.OPENROUTER_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.OPENROUTER_API_KEY,
+      baseURL: process.env.OPENROUTER_BASE_URL,
+    })
+  : null
 
 export interface AIModel {
   id: string
@@ -76,9 +78,11 @@ export class AIService {
     stream: boolean = false
   ) {
     if (!openai) {
-      throw new Error('AI service not configured. Please set OPENROUTER_API_KEY environment variable.')
+      throw new Error(
+        'AI service not configured. Please set OPENROUTER_API_KEY environment variable.'
+      )
     }
-    
+
     try {
       const response = await openai.chat.completions.create({
         model,
@@ -110,9 +114,11 @@ export class AIService {
     model: string = 'openai/gpt-4-turbo-preview'
   ): AsyncGenerator<StreamResponse> {
     if (!openai) {
-      throw new Error('AI service not configured. Please set OPENROUTER_API_KEY environment variable.')
+      throw new Error(
+        'AI service not configured. Please set OPENROUTER_API_KEY environment variable.'
+      )
     }
-    
+
     try {
       const stream = await openai.chat.completions.create({
         model,

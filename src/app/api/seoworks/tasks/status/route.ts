@@ -5,11 +5,11 @@ import { prisma } from '@/lib/prisma'
 function validateApiKey(request: NextRequest): boolean {
   const apiKey = request.headers.get('X-API-Key')
   const validApiKey = process.env.SEOWORKS_API_KEY
-  
+
   if (!validApiKey || !apiKey || apiKey !== validApiKey) {
     return false
   }
-  
+
   return true
 }
 
@@ -18,10 +18,7 @@ export async function GET(request: NextRequest) {
   try {
     // Validate API key
     if (!validateApiKey(request)) {
-      return NextResponse.json(
-        { error: 'Invalid or missing API key' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Invalid or missing API key' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -39,9 +36,9 @@ export async function GET(request: NextRequest) {
     const orders = await prisma.order.findMany({
       where,
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'desc',
       },
-      take: 100 // Limit results
+      take: 100, // Limit results
     })
 
     return NextResponse.json({
@@ -60,14 +57,11 @@ export async function GET(request: NextRequest) {
         actualHours: order.actualHours,
         deliverables: order.deliverables ? JSON.parse(order.deliverables as string) : [],
         completionNotes: order.completionNotes,
-        qualityScore: order.qualityScore
-      }))
+        qualityScore: order.qualityScore,
+      })),
     })
   } catch (error) {
     console.error('Error fetching task status:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch task status' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch task status' }, { status: 500 })
   }
 }

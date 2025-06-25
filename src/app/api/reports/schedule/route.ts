@@ -1,26 +1,30 @@
 // src/app/api/reports/schedule/route.ts
 
-import cron from 'node-cron';
-import { NextRequest, NextResponse } from 'next/server';
-import { GA4Service, DateRange, GA4ReportData } from '@/lib/services/ga4-service';
-import { ReportGenerator, ReportTemplateType, ReportBrandingOptions } from '@/lib/services/report-generator';
-import { auditLog } from '@/lib/services/audit-service';
-import nodemailer from 'nodemailer';
+import cron from 'node-cron'
+import { NextRequest, NextResponse } from 'next/server'
+import { GA4Service, DateRange, GA4ReportData } from '@/lib/services/ga4-service'
+import {
+  ReportGenerator,
+  ReportTemplateType,
+  ReportBrandingOptions,
+} from '@/lib/services/report-generator'
+import { auditLog } from '@/lib/services/audit-service'
+import nodemailer from 'nodemailer'
 
 // --- Configuration & Placeholders ---
 
 // TODO: Replace with actual database interaction for schedules
 interface ReportSchedule {
-  id: string;
-  cronPattern: string; // e.g., '0 0 * * MON' for weekly on Monday at midnight
-  ga4PropertyId: string;
-  userId: string; // User whose GA4 tokens should be used
-  agencyId?: string; // For branding and email recipients
-  reportType: ReportTemplateType;
-  emailRecipients: string[];
-  brandingOptions?: ReportBrandingOptions; // Specific branding for this schedule
-  lastRun?: Date;
-  isActive: boolean;
+  id: string
+  cronPattern: string // e.g., '0 0 * * MON' for weekly on Monday at midnight
+  ga4PropertyId: string
+  userId: string // User whose GA4 tokens should be used
+  agencyId?: string // For branding and email recipients
+  reportType: ReportTemplateType
+  emailRecipients: string[]
+  brandingOptions?: ReportBrandingOptions // Specific branding for this schedule
+  lastRun?: Date
+  isActive: boolean
 }
 
 // In-memory store for schedules (replace with DB)
@@ -36,7 +40,7 @@ const reportSchedules: ReportSchedule[] = [
   //   brandingOptions: { agencyName: 'Scheduled Test Agency' },
   //   isActive: true,
   // },
-];
+]
 
 // --- Email Setup (using Nodemailer) ---
 // TODO: Configure with actual email service credentials (e.g., SMTP, SendGrid, AWS SES)
@@ -51,7 +55,7 @@ const transporter = nodemailer.createTransport({
   // }
   // For now, use JSON transport to log to console (no actual email sent)
   jsonTransport: true,
-});
+})
 
 // --- Report Archival Placeholder ---
 async function archiveReport(
@@ -63,40 +67,45 @@ async function archiveReport(
   pdfBuffer: Buffer
 ): Promise<{ htmlPath: string; pdfPath: string }> {
   // TODO: Implement actual report archival (e.g., S3, Google Cloud Storage, local filesystem, database)
-  const timestamp = new Date().toISOString().replace(/:/g, '-');
-  const htmlPath = `reports/${userId}/${scheduleId}/${timestamp}-${reportType.replace(/\s+/g, '_')}.html`;
-  const pdfPath = `reports/${userId}/${scheduleId}/${timestamp}-${reportType.replace(/\s+/g, '_')}.pdf`;
+  const timestamp = new Date().toISOString().replace(/:/g, '-')
+  const htmlPath = `reports/${userId}/${scheduleId}/${timestamp}-${reportType.replace(/\s+/g, '_')}.html`
+  const pdfPath = `reports/${userId}/${scheduleId}/${timestamp}-${reportType.replace(/\s+/g, '_')}.pdf`
 
-  console.log(`Simulating report archival:\nHTML: ${htmlPath}\nPDF: ${pdfPath} (Size: ${pdfBuffer.length} bytes)`);
+  console.log(
+    `Simulating report archival:\nHTML: ${htmlPath}\nPDF: ${pdfPath} (Size: ${pdfBuffer.length} bytes)`
+  )
   await auditLog({
     event: 'REPORT_ARCHIVED_SIMULATED',
     userId,
     details: `Schedule: ${scheduleId}, HTML: ${htmlPath}, PDF: ${pdfPath}`,
-  });
-  return { htmlPath, pdfPath };
+  })
+  return { htmlPath, pdfPath }
 }
-
 
 // --- Core Job Processing Logic ---
 async function processSchedule(schedule: ReportSchedule) {
-  await auditLog({ event: 'REPORT_SCHEDULE_PROCESSING_START', userId: schedule.userId, details: `Schedule ID: ${schedule.id}` });
+  await auditLog({
+    event: 'REPORT_SCHEDULE_PROCESSING_START',
+    userId: schedule.userId,
+    details: `Schedule ID: ${schedule.id}`,
+  })
 
   try {
     // 1. Determine Date Range based on schedule type (simplified)
     //    For a real system, this needs to be robust, considering last run time, etc.
-    const endDate = new Date();
-    let startDate = new Date();
+    const endDate = new Date()
+    const startDate = new Date()
     if (schedule.reportType === ReportTemplateType.WeeklySummary) {
-      startDate.setDate(endDate.getDate() - 7);
+      startDate.setDate(endDate.getDate() - 7)
     } else if (schedule.reportType === ReportTemplateType.MonthlyReport) {
-      startDate.setMonth(endDate.getMonth() - 1);
+      startDate.setMonth(endDate.getMonth() - 1)
     } else if (schedule.reportType === ReportTemplateType.QuarterlyReview) {
-      startDate.setMonth(endDate.getMonth() - 3);
+      startDate.setMonth(endDate.getMonth() - 3)
     }
     const dateRange: DateRange = {
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0],
-    };
+    }
 
     // 2. Fetch GA4 Data
     //    Crucially, GA4Service needs a valid access token for schedule.userId.
@@ -105,15 +114,31 @@ async function processSchedule(schedule: ReportSchedule) {
     //    For now, GA4Service constructor might need an initial valid token passed,
     //    or its internal token fetching logic must be robust.
     //    Let's assume GA4Service is instantiated and handles token internally based on userId.
-    const ga4Service = new GA4Service(schedule.userId /*, potentially pass initial token if available */);
-    const reportData: GA4ReportData = await ga4Service.fetchComprehensiveReportData(schedule.ga4PropertyId, dateRange);
+    const ga4Service = new GA4Service(
+      schedule.userId /*, potentially pass initial token if available */
+    )
+    const reportData: GA4ReportData = await ga4Service.fetchComprehensiveReportData(
+      schedule.ga4PropertyId,
+      dateRange
+    )
 
     // 3. Generate Report
-    const reportGenerator = new ReportGenerator(schedule.brandingOptions);
-    const { html, pdf } = await reportGenerator.generateReport(schedule.reportType, reportData, dateRange);
+    const reportGenerator = new ReportGenerator(schedule.brandingOptions)
+    const { html, pdf } = await reportGenerator.generateReport(
+      schedule.reportType,
+      reportData,
+      dateRange
+    )
 
     // 4. Archive Report (Simulated)
-    const { htmlPath, pdfPath } = await archiveReport(schedule.userId, schedule.id, schedule.reportType, dateRange, html, pdf);
+    const { htmlPath, pdfPath } = await archiveReport(
+      schedule.userId,
+      schedule.id,
+      schedule.reportType,
+      dateRange,
+      html,
+      pdf
+    )
 
     // 5. Email Report
     const mailOptions = {
@@ -131,33 +156,36 @@ async function processSchedule(schedule: ReportSchedule) {
           contentType: 'application/pdf',
         },
       ],
-    };
+    }
 
-    const emailInfo = await transporter.sendMail(mailOptions);
+    const emailInfo = await transporter.sendMail(mailOptions)
     await auditLog({
       event: 'REPORT_EMAIL_SENT_SIMULATED',
       userId: schedule.userId,
       details: `Schedule ID: ${schedule.id}, Message ID: ${emailInfo.messageId}, Recipients: ${schedule.emailRecipients.join(',')}`,
-    });
+    })
     // If using jsonTransport, emailInfo will be the email object. For ethereal, it gives a URL.
-    console.log("Email sent (simulated): ", JSON.stringify(emailInfo, null, 2));
+    console.log('Email sent (simulated): ', JSON.stringify(emailInfo, null, 2))
     if (emailInfo.messageId && emailInfo.messageId.includes('ethereal.email')) {
-        console.log(`Preview URL (Ethereal): ${nodemailer.getTestMessageUrl(emailInfo)}`);
+      console.log(`Preview URL (Ethereal): ${nodemailer.getTestMessageUrl(emailInfo)}`)
     }
-
 
     // 6. Update schedule's lastRun (if storing in DB)
     //    Example: await db.updateSchedule(schedule.id, { lastRun: new Date() });
-    console.log(`Schedule ${schedule.id} processed successfully. Last run updated (simulated).`);
-    await auditLog({ event: 'REPORT_SCHEDULE_PROCESSING_SUCCESS', userId: schedule.userId, details: `Schedule ID: ${schedule.id}` });
-
-  } catch (error: any) {
-    console.error(`Error processing schedule ${schedule.id}:`, error);
+    console.log(`Schedule ${schedule.id} processed successfully. Last run updated (simulated).`)
+    await auditLog({
+      event: 'REPORT_SCHEDULE_PROCESSING_SUCCESS',
+      userId: schedule.userId,
+      details: `Schedule ID: ${schedule.id}`,
+    })
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error(`Error processing schedule ${schedule.id}:`, error) // Log the original error object for full context
     await auditLog({
       event: 'REPORT_SCHEDULE_PROCESSING_ERROR',
       userId: schedule.userId,
-      details: `Schedule ID: ${schedule.id}, Error: ${error.message}`,
-    });
+      details: `Schedule ID: ${schedule.id}, Error: ${errorMessage}`,
+    })
   }
 }
 
@@ -166,30 +194,38 @@ async function processSchedule(schedule: ReportSchedule) {
 // It iterates through defined schedules and sets up cron jobs for each.
 
 // A Set to keep track of initialized cron jobs to avoid duplicates during HMR (Hot Module Replacement) in dev
-const initializedCronJobs = new Set<string>();
+const initializedCronJobs = new Set<string>()
 
 function initializeScheduledJobs() {
   reportSchedules.forEach(schedule => {
     if (!schedule.isActive || initializedCronJobs.has(schedule.id)) {
-      return; // Skip inactive or already initialized jobs
+      return // Skip inactive or already initialized jobs
     }
 
     if (cron.validate(schedule.cronPattern)) {
       cron.schedule(schedule.cronPattern, () => {
-        console.log(`Running scheduled job for ID: ${schedule.id} at ${new Date().toISOString()}`);
+        console.log(`Running scheduled job for ID: ${schedule.id} at ${new Date().toISOString()}`)
         processSchedule(schedule).catch(e => {
-            // Catch errors from async processSchedule to prevent unhandled promise rejections
-            console.error(`Unhandled error in cron task for schedule ${schedule.id}:`, e);
-        });
-      });
-      initializedCronJobs.add(schedule.id);
-      console.log(`Scheduled job configured for ID: ${schedule.id}, Pattern: ${schedule.cronPattern}`);
-      auditLog({ event: 'REPORT_SCHEDULE_JOB_INITIALIZED', details: `Schedule ID: ${schedule.id}, Pattern: ${schedule.cronPattern}` });
+          // Catch errors from async processSchedule to prevent unhandled promise rejections
+          console.error(`Unhandled error in cron task for schedule ${schedule.id}:`, e)
+        })
+      })
+      initializedCronJobs.add(schedule.id)
+      console.log(
+        `Scheduled job configured for ID: ${schedule.id}, Pattern: ${schedule.cronPattern}`
+      )
+      auditLog({
+        event: 'REPORT_SCHEDULE_JOB_INITIALIZED',
+        details: `Schedule ID: ${schedule.id}, Pattern: ${schedule.cronPattern}`,
+      })
     } else {
-      console.error(`Invalid cron pattern for schedule ${schedule.id}: ${schedule.cronPattern}`);
-      auditLog({ event: 'REPORT_SCHEDULE_JOB_INIT_ERROR', details: `Invalid pattern for schedule ID: ${schedule.id}` });
+      console.error(`Invalid cron pattern for schedule ${schedule.id}: ${schedule.cronPattern}`)
+      auditLog({
+        event: 'REPORT_SCHEDULE_JOB_INIT_ERROR',
+        details: `Invalid pattern for schedule ID: ${schedule.id}`,
+      })
     }
-  });
+  })
 }
 
 // Call initialization. In a Next.js app, this needs to be called appropriately,
@@ -206,15 +242,17 @@ function initializeScheduledJobs() {
 export async function GET(req: NextRequest) {
   // TODO: Implement API to list schedules (fetch from DB)
   // For now, just initialize jobs if not already done and return current in-memory schedules
-  if (initializedCronJobs.size === 0) { // Simple check, might need refinement for prod
-      initializeScheduledJobs(); // Typically done on server start, not in a GET request
-      console.log("Scheduled jobs initialized via GET request (dev behavior).");
+  if (initializedCronJobs.size === 0) {
+    // Simple check, might need refinement for prod
+    initializeScheduledJobs() // Typically done on server start, not in a GET request
+    console.log('Scheduled jobs initialized via GET request (dev behavior).')
   }
   return NextResponse.json({
-    message: "Report schedules (in-memory). In a real app, these come from a database. Cron jobs are set up on server start.",
+    message:
+      'Report schedules (in-memory). In a real app, these come from a database. Cron jobs are set up on server start.',
     schedules: reportSchedules,
-    initializedJobIds: Array.from(initializedCronJobs)
-  });
+    initializedJobIds: Array.from(initializedCronJobs),
+  })
 }
 
 export async function POST(req: NextRequest) {
@@ -224,12 +262,14 @@ export async function POST(req: NextRequest) {
   // 2. Storing schedule in DB.
   // 3. If it's a new schedule or pattern changed, stop old cron job (if any) and start new one.
   //    This requires managing cron.ScheduledTask objects.
-  const newScheduleData = await req.json();
-  console.log("Received data for new schedule (conceptual):", newScheduleData);
+  const newScheduleData = await req.json()
+  console.log('Received data for new schedule (conceptual):', newScheduleData)
   // For now, just log it. A real implementation would add to `reportSchedules` and re-init.
-  return NextResponse.json({ message: "POST request received. Schedule management API not fully implemented." }, { status: 202 });
+  return NextResponse.json(
+    { message: 'POST request received. Schedule management API not fully implemented.' },
+    { status: 202 }
+  )
 }
-
 
 // --- Initial Call for a Long-Running Server ---
 // This is problematic for serverless environments.
@@ -242,8 +282,19 @@ export async function POST(req: NextRequest) {
 // The GET handler above providing an "initialize" is a dev workaround.
 
 // Placeholder for auditLog if not already globally defined
-// @ts-ignore
-global.auditLog = global.auditLog || (async (log: any) => console.log("AUDIT_LOG (placeholder ReportScheduler):", log));
+// @ts-expect-error TS7017: Element implicitly has an 'any' type because type 'typeof globalThis' has no index signature.
+global.auditLog =
+  global.auditLog ||
+  (async (log: any) => console.log('AUDIT_LOG (placeholder ReportScheduler):', log))
+// @ts-expect-error TS7017: Element implicitly has an 'any' type because type 'typeof globalThis' has no index signature.
+global.refreshAccessTokenFinal = // This was the missing one for ReportGenerator placeholders
+  global.refreshAccessTokenFinal ||
+  (async (userId: string) => {
+    console.warn(
+      `refreshAccessTokenFinal (placeholder ReportScheduler) called for ${userId}. Returning null.`
+    )
+    return null
+  })
 
 // Ensure this module initializes jobs when it's first loaded in a long-running context.
 // This is a common pattern but has caveats with HMR in Next.js development.
@@ -254,7 +305,9 @@ global.auditLog = global.auditLog || (async (log: any) => console.log("AUDIT_LOG
 // Let's make initialization more explicit, e.g. triggered by an admin action or server start script.
 // For now, the GET request can act as a manual trigger for initialization in a dev environment.
 
-console.log("Report scheduling module loaded. Call initializeScheduledJobs() or hit GET endpoint to start cron jobs based on current schedules.");
+console.log(
+  'Report scheduling module loaded. Call initializeScheduledJobs() or hit GET endpoint to start cron jobs based on current schedules.'
+)
 
 // To actually start jobs in a dev environment where this file is part of a Next.js build,
 // you might need a mechanism outside the request-response cycle, or ensure the GET /api/reports/schedule
@@ -284,14 +337,20 @@ console.log("Report scheduling module loaded. Call initializeScheduledJobs() or 
 // The API parts are for future management.
 
 // To make this somewhat self-starting for dev:
-if (process.env.NODE_ENV === 'development' && typeof global !== 'undefined' && !(global as any)._cronJobsInitialized) {
-    console.log("Attempting to initialize cron jobs in development (once per process)...");
-    initializeScheduledJobs();
-    (global as any)._cronJobsInitialized = true;
+if (
+  process.env.NODE_ENV === 'development' &&
+  typeof global !== 'undefined' &&
+  !(global as any)._cronJobsInitialized
+) {
+  console.log('Attempting to initialize cron jobs in development (once per process)...')
+  initializeScheduledJobs()
+  ;(global as any)._cronJobsInitialized = true
 } else if (process.env.NODE_ENV !== 'development') {
-    // In production, initialization should be handled by a proper deployment strategy for cron jobs.
-    // This file might be part of a worker service, not a serverless API route.
-    console.log("In non-development environment, cron job initialization should be handled by a dedicated deployment strategy.");
+  // In production, initialization should be handled by a proper deployment strategy for cron jobs.
+  // This file might be part of a worker service, not a serverless API route.
+  console.log(
+    'In non-development environment, cron job initialization should be handled by a dedicated deployment strategy.'
+  )
 }
 
 // The above auto-init is still tricky with Next.js HMR.
@@ -322,12 +381,12 @@ if (process.env.NODE_ENV === 'development' && typeof global !== 'undefined' && !
 
 // Adding a default export for Next.js API route convention, though the main logic is in cron setup.
 export default async function handler(req: NextRequest) {
-    if (req.method === 'GET') {
-        return GET(req);
-    } else if (req.method === 'POST') {
-        return POST(req);
-    }
-    return NextResponse.json({ message: 'Method Not Allowed' }, { status: 405 });
+  if (req.method === 'GET') {
+    return GET(req)
+  } else if (req.method === 'POST') {
+    return POST(req)
+  }
+  return NextResponse.json({ message: 'Method Not Allowed' }, { status: 405 })
 }
 
 // Initialize jobs if not already done (simple dev-time auto-init)

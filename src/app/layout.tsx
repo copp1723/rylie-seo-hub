@@ -6,7 +6,7 @@ import { auth } from '@/lib/auth'
 import { ObservabilityProvider } from '@/components/ObservabilityProvider'
 import { FeatureFlagProvider } from '@/components/FeatureFlagProvider'
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',

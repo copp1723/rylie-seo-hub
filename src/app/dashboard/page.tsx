@@ -17,7 +17,7 @@ import {
   Users,
   Globe,
   X,
-  CheckCircle2
+  CheckCircle2,
 } from 'lucide-react'
 
 interface DashboardStats {
@@ -31,14 +31,14 @@ interface DashboardStats {
 const mockUser = {
   name: 'Test User',
   email: 'test@example.com',
-  id: 'test-user-id'
+  id: 'test-user-id',
 }
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     totalOrders: 0,
     completedOrders: 0,
-    activeRequests: 0
+    activeRequests: 0,
   })
   const [showRequestModal, setShowRequestModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -54,12 +54,12 @@ export default function DashboardPage() {
       if (response.ok) {
         const data = await response.json()
         const orders = data.orders || []
-        
+
         setStats({
           totalOrders: orders.length,
           completedOrders: orders.filter((o: any) => o.status === 'completed').length,
           activeRequests: orders.filter((o: any) => o.status === 'in_progress').length,
-          monthlyFocus: orders.find((o: any) => o.taskType === 'seo' && o.metadata)?.metadata
+          monthlyFocus: orders.find((o: any) => o.taskType === 'seo' && o.metadata)?.metadata,
         })
       }
     } catch (error) {
@@ -76,20 +76,21 @@ export default function DashboardPage() {
         body: JSON.stringify({
           taskType: 'seo',
           title: 'Monthly SEO Focus Request',
-          description: `Target Cities: ${data.targetCities || 'Not specified'}\n` +
-                      `Target Models: ${data.targetModels || 'Not specified'}\n` +
-                      `Competitor Dealerships: ${data.competitorDealerships || 'Not specified'}\n` +
-                      `Market Specifics: ${data.marketSpecifics || 'Not specified'}\n` +
-                      `Additional Focus: ${data.additionalFocus || 'Not specified'}`,
-          metadata: data
-        })
+          description:
+            `Target Cities: ${data.targetCities || 'Not specified'}\n` +
+            `Target Models: ${data.targetModels || 'Not specified'}\n` +
+            `Competitor Dealerships: ${data.competitorDealerships || 'Not specified'}\n` +
+            `Market Specifics: ${data.marketSpecifics || 'Not specified'}\n` +
+            `Additional Focus: ${data.additionalFocus || 'Not specified'}`,
+          metadata: data,
+        }),
       })
 
       if (response.ok) {
         setSubmissionSuccess(true)
         setShowRequestModal(false)
         await loadDashboardData()
-        
+
         // Show success message for 5 seconds
         setTimeout(() => {
           setSubmissionSuccess(false)
@@ -106,7 +107,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
       <Sidebar user={mockUser} />
-      
+
       {/* Main Content */}
       <div className="flex-1">
         {/* Header */}
@@ -213,8 +214,8 @@ export default function DashboardPage() {
                       </div>
                     )}
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full"
                     onClick={() => setShowRequestModal(true)}
                   >
@@ -225,7 +226,8 @@ export default function DashboardPage() {
                 <div className="text-center py-6">
                   <Target className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
                   <p className="text-muted-foreground mb-4">
-                    No monthly focus set yet. Share your priorities to help us create targeted content.
+                    No monthly focus set yet. Share your priorities to help us create targeted
+                    content.
                   </p>
                   <Button onClick={() => setShowRequestModal(true)}>
                     Submit Monthly Request
@@ -238,7 +240,10 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/onboarding'}>
+            <Card
+              className="hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => (window.location.href = '/onboarding')}
+            >
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Building2 className="h-5 w-5 text-primary" />
@@ -252,7 +257,10 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/chat'}>
+            <Card
+              className="hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => (window.location.href = '/chat')}
+            >
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Search className="h-5 w-5 text-primary" />
@@ -266,7 +274,10 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/orders'}>
+            <Card
+              className="hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => (window.location.href = '/orders')}
+            >
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <FileText className="h-5 w-5 text-primary" />
@@ -280,7 +291,10 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/settings/ga4'}>
+            <Card
+              className="hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => (window.location.href = '/settings/ga4')}
+            >
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Globe className="h-5 w-5 text-primary" />
@@ -309,10 +323,7 @@ export default function DashboardPage() {
                 <X className="h-4 w-4" />
               </Button>
               <div className="p-6">
-                <RequestForm 
-                  onSubmit={handleRequestSubmit}
-                  isLoading={isSubmitting}
-                />
+                <RequestForm onSubmit={handleRequestSubmit} isLoading={isSubmitting} />
               </div>
             </div>
           </div>

@@ -66,14 +66,14 @@ export default function InviteAcceptancePage() {
 
   const acceptInvite = async () => {
     if (!session?.user?.email) return
-    
+
     setAccepting(true)
     setError('')
 
     try {
       const res = await fetch(`/api/invite/${token}/accept`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const data = await res.json()
@@ -140,9 +140,7 @@ export default function InviteAcceptancePage() {
             <Mail className="h-5 w-5" />
             Platform Invitation
           </CardTitle>
-          <CardDescription>
-            You've been invited to join Rylie SEO Hub
-          </CardDescription>
+          <CardDescription>You've been invited to join Rylie SEO Hub</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {invite && (
@@ -155,9 +153,7 @@ export default function InviteAcceptancePage() {
 
                 <div>
                   <p className="text-sm text-muted-foreground">Invited by:</p>
-                  <p className="font-medium">
-                    {invite.invitedBy.name || invite.invitedBy.email}
-                  </p>
+                  <p className="font-medium">{invite.invitedBy.name || invite.invitedBy.email}</p>
                 </div>
 
                 {invite.agency && (
@@ -189,11 +185,7 @@ export default function InviteAcceptancePage() {
                 </div>
               </div>
 
-              {error && (
-                <div className="text-sm text-destructive">
-                  {error}
-                </div>
-              )}
+              {error && <div className="text-sm text-destructive">{error}</div>}
 
               {!isExpired && !isAccepted && (
                 <>
@@ -211,19 +203,16 @@ export default function InviteAcceptancePage() {
                   {sessionStatus === 'authenticated' && (
                     <>
                       {session.user?.email === invite.email ? (
-                        <Button 
-                          onClick={acceptInvite} 
-                          disabled={accepting}
-                          className="w-full"
-                        >
+                        <Button onClick={acceptInvite} disabled={accepting} className="w-full">
                           {accepting ? 'Accepting...' : 'Accept Invitation'}
                         </Button>
                       ) : (
                         <div className="space-y-3">
                           <p className="text-sm text-destructive">
-                            This invitation is for {invite.email}, but you're signed in as {session.user?.email}
+                            This invitation is for {invite.email}, but you're signed in as{' '}
+                            {session.user?.email}
                           </p>
-                          <Button 
+                          <Button
                             onClick={() => signIn('google', { callbackUrl: `/invite/${token}` })}
                             variant="outline"
                             className="w-full"
@@ -238,11 +227,7 @@ export default function InviteAcceptancePage() {
               )}
 
               {(isExpired || isAccepted) && (
-                <Button 
-                  onClick={() => router.push('/')} 
-                  variant="outline"
-                  className="w-full"
-                >
+                <Button onClick={() => router.push('/')} variant="outline" className="w-full">
                   Go to Home
                 </Button>
               )}

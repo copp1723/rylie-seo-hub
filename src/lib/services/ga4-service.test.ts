@@ -174,6 +174,6 @@
 // and handle the complexities of mocking the Google API client and internal token management.
 describe('Placeholder Test Suite', () => {
   it('should have tests written for GA4 Service', () => {
-    expect(true).toBe(true);
-  });
-});
+    expect(true).toBe(true)
+  })
+})

@@ -97,15 +97,5 @@
     "printWidth": 100,
     "bracketSpacing": true,
     "arrowParens": "avoid"
-  },
-  "eslintConfig": {
-    "extends": [
-      "next/core-web-vitals"
-    ],
-    "rules": {
-      "@typescript-eslint/no-unused-vars": "warn",
-      "prefer-const": "warn",
-      "no-console": "warn"
-    }
   }
 }

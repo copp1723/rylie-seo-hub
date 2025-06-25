@@ -170,6 +170,6 @@
 // This is a high-level sketch. Actual tests would need to be fleshed out.
 describe('Placeholder Test Suite', () => {
   it('should have tests written for Report Generator', () => {
-    expect(true).toBe(true);
-  });
-});
+    expect(true).toBe(true)
+  })
+})

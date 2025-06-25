@@ -179,6 +179,6 @@
 // and potentially refactoring parts of route.ts for better testability (e.g., exporting processSchedule).
 describe('Placeholder Test Suite', () => {
   it('should have tests written for Report Scheduler', () => {
-    expect(true).toBe(true);
-  });
-});
+    expect(true).toBe(true)
+  })
+})

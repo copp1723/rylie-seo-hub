@@ -40,12 +40,12 @@ export class GA4Service {
       // First list all accounts the user has access to
       const accountsResponse = await this.analyticsadmin.accounts.list({})
       const accounts = accountsResponse.data.accounts || []
-      
+
       if (accounts.length === 0) {
         console.log('No GA4 accounts found for user')
         return []
       }
-      
+
       // List properties for each account
       const allProperties = []
       for (const account of accounts) {
@@ -55,7 +55,7 @@ export class GA4Service {
         const properties = propertiesResponse.data.properties || []
         allProperties.push(...properties)
       }
-      
+
       return allProperties
     } catch (error: any) {
       console.error('Error listing GA4 properties:', error)
@@ -65,7 +65,7 @@ export class GA4Service {
         status: error.status,
         errors: error.errors,
       })
-      
+
       // Provide more specific error messages
       if (error.code === 401) {
         throw new Error('Authentication failed. Please reconnect your Google account.')
@@ -74,7 +74,7 @@ export class GA4Service {
       } else if (error.message?.includes('Request had insufficient authentication scopes')) {
         throw new Error('Insufficient permissions. Please reconnect with analytics permissions.')
       }
-      
+
       throw new Error(`Failed to list GA4 properties: ${error.message || 'Unknown error'}`)
     }
   }
@@ -134,10 +134,7 @@ export class GA4Service {
         property: `properties/${propertyId}`,
         requestBody: {
           dateRanges: [this.getDateRange(dateRange)],
-          dimensions: [
-            { name: 'googleSearchQuery' },
-            { name: 'googleSearchKeyword' },
-          ],
+          dimensions: [{ name: 'googleSearchQuery' }, { name: 'googleSearchKeyword' }],
           metrics: [
             { name: 'googleSearchClicks' },
             { name: 'googleSearchImpressions' },
@@ -276,8 +273,7 @@ export class GA4Service {
       totalSessions: metrics.totalSessions,
       totalUsers: metrics.totalUsers,
       avgBounceRate:
-        metrics.bounceRates.reduce((a: number, b: number) => a + b, 0) /
-        metrics.bounceRates.length,
+        metrics.bounceRates.reduce((a: number, b: number) => a + b, 0) / metrics.bounceRates.length,
       avgSessionDuration:
         metrics.sessionDurations.reduce((a: number, b: number) => a + b, 0) /
         metrics.sessionDurations.length,

@@ -58,10 +58,7 @@ export default function ChatPage() {
 
       {/* Sidebar */}
       <div className={`sidebar-professional ${sidebarOpen ? 'open' : ''}`}>
-        <Sidebar 
-          isOpen={sidebarOpen}
-          onClose={() => isMobile && setSidebarOpen(false)} 
-        />
+        <Sidebar isOpen={sidebarOpen} onClose={() => isMobile && setSidebarOpen(false)} />
       </div>
 
       {/* Main Content */}
@@ -70,10 +67,7 @@ export default function ChatPage() {
         <header className="page-header">
           <div className="flex items-center space-x-4">
             {/* Mobile Menu Button */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="mobile-menu-toggle"
-            >
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="mobile-menu-toggle">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
