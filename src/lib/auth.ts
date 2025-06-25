@@ -2,9 +2,11 @@ import NextAuth from 'next-auth'
 import Email from 'next-auth/providers/email'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from './prisma'
+import type { Session, User } from 'next-auth'
+import type { JWT } from 'next-auth/jwt'
 
 // Production-ready auth configuration with magic link
-const authConfig = {
+export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   trustHost: true, // Trust the host in production
   providers: [
@@ -25,7 +27,7 @@ const authConfig = {
     verifyRequest: '/auth/verify-request',
   },
   callbacks: {
-    session: async ({ session, user, token }) => {
+    session: async ({ session, user, token }: { session: Session; user?: User; token?: JWT }) => {
       // If user is available from database (normal case)
       if (user) {
         return {
@@ -63,7 +65,7 @@ const authConfig = {
       console.warn('Session callback: No user ID available')
       return session
     },
-    signIn: async ({ user, account, profile }) => {
+    signIn: async ({ user, account, profile }: { user: User; account: any; profile?: any }) => {
       // Log sign in attempts for debugging
       console.log('Magic link sign in attempt:', { 
         email: user.email,
@@ -102,7 +104,7 @@ const authConfig = {
       // Always allow sign in - the adapter will create the user if needed
       return true
     },
-    redirect({ url, baseUrl }) {
+    redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       console.log('Redirect callback:', { url, baseUrl })
       
       // Redirect to dashboard after sign in
@@ -116,6 +118,4 @@ const authConfig = {
       return `${baseUrl}/dashboard`
     },
   },
-}
-
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)
+})
