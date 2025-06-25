@@ -10,9 +10,10 @@ const createMessageSchema = z.object({
 })
 
 // Using inline type for context directly in function signature
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const orderId = context.params.id;
+    const params = await context.params;
+    const orderId = params.id;
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
     const order = await prisma.order.findFirst({
@@ -54,9 +55,10 @@ export async function GET(request: NextRequest, context: { params: { id: string 
   }
 }
 
-export async function POST(request: NextRequest, context: { params: { id: string } }) {
+export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const orderId = context.params.id;
+    const params = await context.params;
+    const orderId = params.id;
     const userId = process.env.DEFAULT_USER_ID || 'test-user-id'
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 

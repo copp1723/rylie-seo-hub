@@ -18,14 +18,14 @@ const updateOrderSchema = z.object({
 })
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const orderId = params.id
+    const { id: orderId } = await params
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
 
     const order = await prisma.order.findFirst({
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const orderId = params.id
+    const { id: orderId } = await params
     const userId = process.env.DEFAULT_USER_ID || 'test-user-id'
     const userEmail = process.env.DEFAULT_USER_EMAIL || 'user@example.com'
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
@@ -157,7 +157,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const orderId = params.id
+    const { id: orderId } = await params
     const userId = process.env.DEFAULT_USER_ID || 'test-user-id'
     const userEmail = process.env.DEFAULT_USER_EMAIL || 'user@example.com'
     const agencyId = process.env.DEFAULT_AGENCY_ID || 'default-agency'
