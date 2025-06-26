@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import cronParser from 'cron-parser'
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,13 +36,18 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await requireAuth()
-    const { reportType, cronPattern, emailRecipients, isActive, brandingOptionsJson } = await request.json()
+    const body = await request.json()
+    const { reportType, cronPattern, emailRecipients, isActive, brandingOptionsJson } = body
 
     // Validation
-    if (!reportType || !cronPattern || !emailRecipients || emailRecipients.length === 0) {
-      return NextResponse.json({ 
-        error: 'Missing required fields' 
-      }, { status: 400 })
+    if (!reportType || !cronPattern || !emailRecipients || !Array.isArray(emailRecipients) || emailRecipients.length === 0) {
+      return NextResponse.json({ error: 'Missing or invalid required fields (reportType, cronPattern, emailRecipients)' }, { status: 400 })
+    }
+
+    try {
+      cronParser.parseExpression(cronPattern)
+    } catch (err) {
+      return NextResponse.json({ error: 'Invalid cronPattern format' }, { status: 400 })
     }
 
     // Get user's agency and GA4 property
@@ -58,19 +64,14 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user?.agency) {
-      return NextResponse.json({ 
-        error: 'User not associated with an agency' 
-      }, { status: 400 })
+      return NextResponse.json({ error: 'User not associated with an agency' }, { status: 400 })
     }
 
     if (!user.agency.ga4PropertyId) {
-      return NextResponse.json({ 
-        error: 'No GA4 property connected. Please connect a GA4 property first.' 
-      }, { status: 400 })
+      return NextResponse.json({ error: 'No GA4 property connected. Please connect a GA4 property first.' }, { status: 400 })
     }
 
-    // Calculate next run time based on cron pattern
-    const nextRun = calculateNextRun(cronPattern)
+    const nextRun = cronParser.parseExpression(cronPattern).next().toDate()
 
     const schedule = await prisma.reportSchedule.create({
       data: {
@@ -83,25 +84,30 @@ export async function POST(request: NextRequest) {
         isActive: isActive ?? true,
         brandingOptionsJson: brandingOptionsJson || null,
         nextRun,
+        status: 'active', // Initialize status
       },
     })
 
-    return NextResponse.json({ schedule })
-  } catch (error) {
+    // Audit Log
+    await prisma.auditLog.create({
+      data: {
+        action: 'CREATE_REPORT_SCHEDULE',
+        entityType: 'ReportSchedule',
+        entityId: schedule.id,
+        userId: session.user.id,
+        userEmail: session.user.email || '',
+        details: { ...body, scheduleId: schedule.id },
+      },
+    })
+
+    return NextResponse.json(schedule, { status: 201 })
+  } catch (error: any) {
     console.error('Error creating report schedule:', error)
-    return NextResponse.json({ 
-      error: 'Failed to create report schedule' 
-    }, { status: 500 })
+    // Check for Prisma unique constraint violation if necessary, though not typical for create
+    if (error.code === 'P2002') { // Example: Unique constraint failed
+        return NextResponse.json({ error: 'Failed to create report schedule due to a conflict.' }, { status: 409 });
+    }
+    return NextResponse.json({ error: `Failed to create report schedule: ${error.message || 'Unknown error'}` }, { status: 500 })
   }
 }
-
-function calculateNextRun(cronPattern: string): Date {
-  // Simple next run calculation - in production you'd use a proper cron library
-  const now = new Date()
-  const nextRun = new Date(now)
-  
-  // For demo purposes, just add 1 day
-  nextRun.setDate(now.getDate() + 1)
-  
-  return nextRun
-}
+// Removed old calculateNextRun function

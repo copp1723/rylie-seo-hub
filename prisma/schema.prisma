@@ -588,6 +588,8 @@ model ReportSchedule {
   isActive           Boolean   @default(true)
   lastRun            DateTime?
   nextRun            DateTime?
+  status             String?   // e.g., "active", "processing", "error"
+  lastErrorMessage   String?   @db.Text
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   agency             Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
