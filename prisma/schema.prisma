@@ -592,7 +592,7 @@ model ReportSchedule {
   retryCount        Int       @default(0)
   
   // Failure tracking
-  lastExecutionId     String?
+  lastExecutionId     String?   @unique
   consecutiveFailures Int       @default(0)
   lastFailureAt       DateTime?
   lastSuccessAt       DateTime?
