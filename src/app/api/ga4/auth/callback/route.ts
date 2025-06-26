@@ -30,10 +30,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/settings/ga4?status=error&error=Failed to obtain tokens`)
     }
 
+    // Check for encryption key
+    if (!process.env.ENCRYPTION_KEY) {
+      console.error('ENCRYPTION_KEY is not set in environment variables')
+      return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/settings/ga4?status=error&error=Server configuration error`)
+    }
+
     // Encrypt and store tokens
     const crypto = require('crypto')
     const algorithm = 'aes-256-cbc'
-    const key = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex')
+    const key = Buffer.from(process.env.ENCRYPTION_KEY, 'hex')
     
     const encryptToken = (token: string) => {
       const iv = crypto.randomBytes(16)
