@@ -219,6 +219,106 @@ export function validateSEOWerksData(data: Partial<SEOWerksSubmissionData>): {
 }
 
 /**
+ * Transform onboarding data to Jeff's webhook format with semicolon-delimited lists
+ */
+export function transformToWebhookFormat(onboardingData: OnboardingFormData) {
+  return {
+    timestamp: new Date().toISOString(),
+    businessName: onboardingData.businessName,
+    package: onboardingData.package,
+    mainBrand: onboardingData.mainBrand,
+    otherBrand: onboardingData.otherBrand || '',
+    address: onboardingData.address,
+    city: onboardingData.city,
+    state: onboardingData.state,
+    zipCode: onboardingData.zipCode,
+    contactName: onboardingData.contactName,
+    contactTitle: onboardingData.contactTitle,
+    email: onboardingData.email,
+    phone: onboardingData.phone,
+    websiteUrl: onboardingData.websiteUrl,
+    billingEmail: onboardingData.billingEmail,
+    siteAccessNotes: onboardingData.siteAccessNotes || '',
+    // Convert arrays to semicolon-delimited strings
+    targetVehicleModels: onboardingData.targetVehicleModels.filter(Boolean).join(';'),
+    targetCities: onboardingData.targetCities.filter(Boolean).join(';'),
+    targetDealers: onboardingData.targetDealers.filter(Boolean).join(';'),
+  }
+}
+
+/**
+ * Submit onboarding data to Jeff's webhook endpoint
+ */
+export async function submitToWebhook(onboardingData: OnboardingFormData): Promise<{
+  success: boolean
+  message: string
+  error?: string
+  referenceId?: string
+}> {
+  try {
+    const webhookUrl = process.env.SEOWORKS_WEBHOOK_URL || process.env.SEOWORKS_API_URL
+    const apiKey = process.env.SEOWORKS_WEBHOOK_SECRET || process.env.SEOWORKS_API_KEY
+
+    if (!webhookUrl || !apiKey) {
+      console.warn('Webhook URL or API key not configured, skipping webhook submission')
+      return {
+        success: false,
+        message: 'Webhook not configured',
+        error: 'Missing webhook URL or API key in environment',
+      }
+    }
+
+    // Transform data to webhook format
+    const webhookData = transformToWebhookFormat(onboardingData)
+
+    // Log the submission for debugging
+    console.log('Submitting onboarding to webhook:', {
+      url: webhookUrl,
+      businessName: webhookData.businessName,
+      package: webhookData.package,
+    })
+
+    // Submit to webhook
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(webhookData),
+    })
+
+    console.log('Webhook response status:', response.status)
+
+    if (response.ok) {
+      const responseData = await response.json()
+      return {
+        success: true,
+        message: 'Successfully submitted onboarding data',
+        referenceId: responseData.referenceId,
+      }
+    } else {
+      const responseText = await response.text()
+      console.error('Webhook submission failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        response: responseText,
+      })
+
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    }
+  } catch (error) {
+    console.error('Webhook submission error:', error)
+    return {
+      success: false,
+      message: 'Failed to submit onboarding data',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
+/**
  * Get package details for display purposes
  */
 export function getPackageDetails(packageType: 'SILVER' | 'GOLD' | 'PLATINUM') {

@@ -5,6 +5,7 @@ import {
   validateSEOWerksData,
   transformToSEOWerksFormat,
   submitToSEOWerks,
+  submitToWebhook,
 } from '@/lib/seoworks-onboarding'
 
 interface OnboardingFormData {
@@ -90,16 +91,22 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Submit to SEOWerks
+    // Submit to Jeff's webhook endpoint
+    const webhookResult = await submitToWebhook(formData)
+
+    // Also submit to SEOWerks (if needed)
     const seoworksResult = await submitToSEOWerks(seoworksData)
 
     // Update onboarding record with submission status
     await prisma.dealershipOnboarding.update({
       where: { id: onboarding.id },
       data: {
-        status: seoworksResult.success ? 'submitted' : 'failed',
-        seoworksResponse: seoworksResult,
-        submittedAt: seoworksResult.success ? new Date() : null,
+        status: webhookResult.success ? 'submitted' : 'failed',
+        seoworksResponse: {
+          webhookResult,
+          seoworksResult,
+        },
+        submittedAt: webhookResult.success ? new Date() : null,
       },
     })
 
@@ -111,25 +118,29 @@ export async function POST(req: NextRequest) {
         entityId: onboarding.id,
         userEmail: user.email,
         details: JSON.stringify({
-          success: seoworksResult.success,
+          webhookSuccess: webhookResult.success,
+          seoworksSuccess: seoworksResult.success,
           businessName: formData.businessName,
           package: formData.package,
+          webhookResponse: webhookResult,
           seoworksResponse: seoworksResult,
         }),
       },
     })
 
-    if (seoworksResult.success) {
+    if (webhookResult.success) {
       return NextResponse.json({
         success: true,
         message: 'Onboarding submitted successfully',
         onboardingId: onboarding.id,
+        referenceId: webhookResult.referenceId,
       })
     } else {
       return NextResponse.json(
         {
-          error: 'Failed to submit to SEOWerks',
-          details: seoworksResult.error,
+          error: 'Failed to submit onboarding',
+          webhookError: webhookResult.error,
+          seoworksError: seoworksResult.error,
         },
         { status: 500 }
       )
