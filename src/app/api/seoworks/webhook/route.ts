@@ -26,16 +26,15 @@ const WebhookPayloadSchema = z.object({
   }),
 })
 
-// Verify webhook signature
-function verifyWebhookSignature(payload: string, signature: string, secret: string): boolean {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex')
-  
+// Verify API key
+function verifyApiKey(providedKey: string | null, expectedKey: string): boolean {
+  if (!providedKey || !expectedKey) {
+    return false
+  }
+  // Use timing-safe comparison to prevent timing attacks
   return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
+    Buffer.from(providedKey),
+    Buffer.from(expectedKey)
   )
 }
 
@@ -48,29 +47,28 @@ export async function POST(req: NextRequest) {
     const rawBody = await req.text()
     const body = JSON.parse(rawBody)
     
-    // Verify authentication
+    // Verify API key authentication
+    const apiKey = req.headers.get('x-api-key')
+    const expectedKey = process.env.SEOWORKS_WEBHOOK_SECRET || process.env.SEOWORKS_API_KEY || ''
+    
     if (!isMockMode) {
-      // Production mode: verify signature
-      const signature = req.headers.get('x-seoworks-signature')
-      const secret = process.env.SEOWORKS_WEBHOOK_SECRET || ''
-      
-      if (!signature || !secret) {
+      // Production mode: verify API key
+      if (!apiKey || !expectedKey) {
         return NextResponse.json(
-          { error: 'Unauthorized', details: 'Missing signature or webhook secret' },
+          { error: 'Unauthorized', details: 'Missing API key or webhook secret' },
           { status: 401 }
         )
       }
       
-      if (!verifyWebhookSignature(rawBody, signature, secret)) {
+      if (!verifyApiKey(apiKey, expectedKey)) {
         return NextResponse.json(
-          { error: 'Unauthorized', details: 'Invalid webhook signature' },
+          { error: 'Unauthorized', details: 'Invalid API key' },
           { status: 401 }
         )
       }
     } else {
-      // Mock mode: verify API key for testing
-      const apiKey = req.headers.get('x-api-key')
-      if (apiKey !== 'test-api-key' && apiKey !== process.env.SEOWORKS_API_KEY) {
+      // Mock mode: accept test key or configured key
+      if (apiKey !== 'test-api-key' && apiKey !== expectedKey) {
         console.log('Mock mode: Using test authentication')
       }
     }
@@ -301,7 +299,7 @@ export async function GET(req: NextRequest) {
       : {
           mode: 'production',
           requiredHeaders: {
-            'x-seoworks-signature': 'HMAC-SHA256 signature of request body',
+            'x-api-key': 'API key configured in SEOWORKS_WEBHOOK_SECRET or SEOWORKS_API_KEY',
           },
         },
     schema: {
