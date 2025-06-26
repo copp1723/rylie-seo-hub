@@ -58,6 +58,7 @@ model Agency {
   seoworksTasks SEOWorksTask[]
   userInvites   UserInvite[]
   reportSchedules ReportSchedule[]
+  reportExecutionHistory ReportExecutionHistory[]
   
   @@map("agencies")
 }
@@ -585,16 +586,65 @@ model ReportSchedule {
   reportType         String    // WeeklySummary, MonthlyReport, QuarterlyBusinessReview
   emailRecipients    String[]
   brandingOptionsJson String?   @db.Text
-  isActive           Boolean   @default(true)
-  lastRun            DateTime?
-  nextRun            DateTime?
+  status            String    @default("active") // active, paused, error
+  errorMessage      String?   @db.Text
+  errorDetails      Json?     // To store structured error info
+  retryCount        Int       @default(0)
+  
+  // Failure tracking
+  lastExecutionId     String?
+  consecutiveFailures Int       @default(0)
+  lastFailureAt       DateTime?
+  lastSuccessAt       DateTime?
+  isPaused           Boolean   @default(false)
+  pausedReason       String?
+  
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+  
+  // Relations
   agency             Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastExecution      ReportExecutionHistory? @relation("LastExecution", fields: [lastExecutionId], references: [id])
+  executions         ReportExecutionHistory[] @relation("ScheduleExecutions")
   
   @@index([agencyId])
   @@index([userId])
   @@index([isActive, nextRun])
+  @@index([isPaused])
   @@map("report_schedules")
+}
+
+// Report Execution History
+model ReportExecutionHistory {
+  id              String    @id @default(cuid())
+  scheduleId      String
+  agencyId       String
+  status         String    @default("pending") // pending, running, completed, failed, retrying
+  attemptCount   Int       @default(0)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  failedAt       DateTime?
+  error          String?   @db.Text
+  errorCode      String?   // OAUTH_EXPIRED, API_RATE_LIMIT, GENERATION_FAILED, etc.
+  reportUrl      String?
+  emailsSent     Boolean   @default(false)
+  retryAfter     DateTime?
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relations
+  schedule       ReportSchedule @relation("ScheduleExecutions", fields: [scheduleId], references: [id], onDelete: Cascade)
+  agency         Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // This is for the reverse relation of lastExecution
+  scheduleAsLastExecution ReportSchedule? @relation("LastExecution")
+  
+  @@index([scheduleId])
+  @@index([agencyId])
+  @@index([status])
+  @@index([failedAt])
+  @@index([retryAfter])
+  @@map("report_execution_history")
 }
