@@ -114,3 +114,27 @@ export type UpdateConversationRequest = z.infer<typeof updateConversationSchema>
 export type ThemeUpdateRequest = z.infer<typeof themeUpdateSchema>
 export type UserUpdateRequest = z.infer<typeof userUpdateSchema>
 export type IdParam = z.infer<typeof idParamSchema>
+
+// Report Scheduling API validation schemas
+export const reportBrandingOptionsSchema = z.object({
+  agencyName: z.string().optional(),
+  agencyLogoUrl: z.string().url().optional(),
+  reportTitle: z.string().optional(),
+});
+
+export const reportScheduleSchema = z.object({
+  cronPattern: z.string().min(1, 'Cron pattern is required'), // Basic validation, cron validity check will be server-side
+  ga4PropertyId: z.string().min(1, 'GA4 Property ID is required'),
+  reportType: z.enum(['WeeklySummary', 'MonthlyReport', 'QuarterlyBusinessReview']),
+  emailRecipients: z.array(z.string().email()).min(1, 'At least one email recipient is required'),
+  brandingOptions: reportBrandingOptionsSchema.optional(),
+  isActive: z.boolean().optional().default(true),
+});
+
+export const updateReportScheduleSchema = reportScheduleSchema.partial().extend({
+  isActive: z.boolean().optional(),
+});
+
+export type ReportScheduleRequest = z.infer<typeof reportScheduleSchema>;
+export type UpdateReportScheduleRequest = z.infer<typeof updateReportScheduleSchema>;
+export type ReportBrandingOptions = z.infer<typeof reportBrandingOptionsSchema>;

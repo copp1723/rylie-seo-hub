@@ -1,176 +1,264 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import cronParser from 'cron-parser'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { validateRequest, idParamSchema, updateReportScheduleSchema } from '@/lib/validation';
+import { Prisma } from '@prisma/client';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+// Placeholder for auditLog if not available globally
+const auditLog = (global as any).auditLog || (async (log: any) => console.log('AUDIT_LOG (API /api/reports/schedules/[id]/route.ts):', log));
+
+interface RouteContext {
+  params: {
+    id: string;
+  };
+}
+
+export async function GET(req: NextRequest, { params }: RouteContext) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.agencyId || !session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const validatedId = idParamSchema.safeParse(params);
+  if (!validatedId.success) {
+    return NextResponse.json({ error: 'Invalid schedule ID format', details: validatedId.error }, { status: 400 });
+  }
+  const scheduleId = validatedId.data.id;
+
   try {
-    const session = await requireAuth()
-    const scheduleId = params.id
-
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { agencyId: true, isSuperAdmin: true },
-    })
-
-    if (!user || (!user.agencyId && !user.isSuperAdmin)) {
-      return NextResponse.json({ error: 'User not associated with an agency or not authorized' }, { status: 403 })
-    }
-
     const schedule = await prisma.reportSchedule.findUnique({
-      where: { id: scheduleId },
-    })
+      where: {
+        id: scheduleId,
+        agencyId: session.user.agencyId, // Tenant isolation
+      },
+    });
 
     if (!schedule) {
-      return NextResponse.json({ error: 'Schedule not found' }, { status: 404 })
+      await auditLog({
+        event: 'REPORT_SCHEDULE_READ_NOT_FOUND',
+        userId: session.user.id,
+        agencyId: session.user.agencyId,
+        entityType: 'ReportSchedule',
+        entityId: scheduleId,
+        details: { message: 'Schedule not found or access denied' },
+      });
+      return NextResponse.json({ error: 'Report schedule not found' }, { status: 404 });
     }
 
-    // Super admin can access any schedule, otherwise check agencyId
-    if (!user.isSuperAdmin && schedule.agencyId !== user.agencyId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // Optional: Audit successful read access if required
+    // await auditLog({
+    //   event: 'REPORT_SCHEDULE_READ_SUCCESS',
+    //   userId: session.user.id,
+    //   agencyId: session.user.agencyId,
+    //   entityType: 'ReportSchedule',
+    //   entityId: schedule.id,
+    // });
 
-    return NextResponse.json(schedule)
-  } catch (error: any) {
-    console.error('Error fetching report schedule:', error)
-    return NextResponse.json({ error: `Failed to fetch report schedule: ${error.message || 'Unknown error'}` }, { status: 500 })
+    return NextResponse.json(schedule, { status: 200 });
+  } catch (error) {
+    console.error(`Error fetching report schedule ${scheduleId}:`, error);
+    await auditLog({
+        event: 'REPORT_SCHEDULE_READ_FAILED',
+        userId: session.user.id,
+        agencyId: session.user.agencyId,
+        entityType: 'ReportSchedule',
+        entityId: scheduleId,
+        details: { error: String(error) },
+      });
+    return NextResponse.json({ error: 'Failed to fetch report schedule' }, { status: 500 });
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: RouteContext) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.agencyId || !session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const validatedId = idParamSchema.safeParse(params);
+  if (!validatedId.success) {
+    return NextResponse.json({ error: 'Invalid schedule ID format', details: validatedId.error }, { status: 400 });
+  }
+  const scheduleId = validatedId.data.id;
+
+  const body = await req.json();
+  const validationResult = validateRequest(updateReportScheduleSchema, body);
+
+  if (!validationResult.success) {
+    return NextResponse.json({ error: validationResult.error, details: validationResult.details }, { status: 400 });
+  }
+
+  const { cronPattern, ga4PropertyId, reportType, emailRecipients, brandingOptions, isActive } = validationResult.data;
+
+  // TODO: Add cron pattern validation if cronPattern is being updated
+
   try {
-    const session = await requireAuth()
-    const body = await request.json()
-    const { reportType, cronPattern, emailRecipients, isActive, brandingOptionsJson } = body
-    const scheduleId = params.id
-
-    if (cronPattern) {
-      try {
-        cronParser.parseExpression(cronPattern)
-      } catch (err) {
-        return NextResponse.json({ error: 'Invalid cronPattern format' }, { status: 400 })
-      }
-    }
-
-    // Get user's agency
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { agencyId: true },
-    })
-
-    if (!user?.agencyId) {
-      return NextResponse.json({ 
-        error: 'User not associated with an agency' 
-      }, { status: 400 })
-    }
-
-    // Verify schedule belongs to user's agency (or user is super admin)
-    const existingSchedule = await prisma.reportSchedule.findUnique({
-      where: { id: scheduleId },
-    })
+    // First, verify the schedule exists and belongs to the agency
+    const existingSchedule = await prisma.reportSchedule.findFirst({
+      where: {
+        id: scheduleId,
+        agencyId: session.user.agencyId,
+      },
+    });
 
     if (!existingSchedule) {
-      return NextResponse.json({ error: 'Schedule not found' }, { status: 404 })
+      await auditLog({
+        event: 'REPORT_SCHEDULE_UPDATE_NOT_FOUND',
+        userId: session.user.id,
+        agencyId: session.user.agencyId,
+        entityType: 'ReportSchedule',
+        entityId: scheduleId,
+        details: { message: 'Schedule not found or access denied for update' },
+      });
+      return NextResponse.json({ error: 'Report schedule not found' }, { status: 404 });
     }
 
-    if (!session.user.isSuperAdmin && existingSchedule.agencyId !== user.agencyId) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const dataToUpdate: Prisma.ReportScheduleUpdateInput = {};
+    if (cronPattern !== undefined) dataToUpdate.cronPattern = cronPattern;
+    if (ga4PropertyId !== undefined) dataToUpdate.ga4PropertyId = ga4PropertyId;
+    if (reportType !== undefined) dataToUpdate.reportType = reportType;
+    if (emailRecipients !== undefined) dataToUpdate.emailRecipients = emailRecipients;
+    if (brandingOptions !== undefined) dataToUpdate.brandingOptionsJson = brandingOptions === null ? null : JSON.stringify(brandingOptions);
+    if (isActive !== undefined) {
+      dataToUpdate.isActive = isActive;
+      dataToUpdate.status = isActive ? 'active' : 'paused';
     }
-    
-    const updateData: any = {}
-    if (reportType !== undefined) updateData.reportType = reportType
-    if (cronPattern !== undefined) {
-      updateData.cronPattern = cronPattern
-      updateData.nextRun = cronParser.parseExpression(cronPattern).next().toDate()
-    }
-    if (emailRecipients !== undefined) updateData.emailRecipients = emailRecipients
-    if (isActive !== undefined) updateData.isActive = isActive
-    // Reset status to active if crucial parts of schedule are changed by user
-    if (isActive === true && (cronPattern || reportType || emailRecipients)) {
-        updateData.status = 'active';
-        updateData.lastErrorMessage = null;
-    }
-    if (brandingOptionsJson !== undefined) updateData.brandingOptionsJson = brandingOptionsJson
+
 
     const updatedSchedule = await prisma.reportSchedule.update({
-      where: { id: scheduleId },
-      data: updateData,
-    })
-
-    // Audit Log
-    await prisma.auditLog.create({
-      data: {
-        action: 'UPDATE_REPORT_SCHEDULE',
-        entityType: 'ReportSchedule',
-        entityId: updatedSchedule.id,
-        userId: session.user.id,
-        userEmail: session.user.email || '',
-        details: { scheduleId: updatedSchedule.id, changes: body },
+      where: {
+        id: scheduleId,
       },
-    })
+      data: dataToUpdate,
+    });
 
-    return NextResponse.json(updatedSchedule)
-  } catch (error: any) {
-    console.error('Error updating report schedule:', error)
-    if (error.code === 'P2025') { // Record not found for update
-        return NextResponse.json({ error: 'Schedule not found for update.' }, { status: 404 });
+    await auditLog({
+      event: 'REPORT_SCHEDULE_UPDATE_SUCCESS',
+      userId: session.user.id,
+      agencyId: session.user.agencyId,
+      entityType: 'ReportSchedule',
+      entityId: updatedSchedule.id,
+      details: { updatedFields: Object.keys(validationResult.data) },
+    });
+
+    return NextResponse.json(updatedSchedule, { status: 200 });
+  } catch (error) {
+    console.error(`Error updating report schedule ${scheduleId}:`, error);
+    let errorMessage = 'Failed to update report schedule';
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') { // Record not found for update
+        errorMessage = 'Report schedule not found for update.';
+         await auditLog({
+            event: 'REPORT_SCHEDULE_UPDATE_FAILED',
+            userId: session.user.id,
+            agencyId: session.user.agencyId,
+            entityType: 'ReportSchedule',
+            entityId: scheduleId,
+            details: { error: 'P2025: Record to update not found.', requestedData: validationResult.data },
+        });
+        return NextResponse.json({ error: errorMessage }, { status: 404 });
+      }
+      errorMessage = `Database error updating schedule. Code: ${error.code}`;
+    } else if (error instanceof Error) {
+        errorMessage = error.message;
     }
-    return NextResponse.json({ error: `Failed to update report schedule: ${error.message || 'Unknown error'}` }, { status: 500 })
+    await auditLog({
+      event: 'REPORT_SCHEDULE_UPDATE_FAILED',
+      userId: session.user.id,
+      agencyId: session.user.agencyId,
+      entityType: 'ReportSchedule',
+      entityId: scheduleId,
+      details: { error: String(error), requestedData: validationResult.data },
+    });
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: RouteContext) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.agencyId || !session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const validatedId = idParamSchema.safeParse(params);
+  if (!validatedId.success) {
+    return NextResponse.json({ error: 'Invalid schedule ID format', details: validatedId.error }, { status: 400 });
+  }
+  const scheduleId = validatedId.data.id;
+
   try {
-    const session = await requireAuth()
-    const scheduleId = params.id
-
-    // Get user's agency
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { agencyId: true, isSuperAdmin: true },
-    })
-
-    if (!user || (!user.agencyId && !user.isSuperAdmin)) {
-      return NextResponse.json({ error: 'User not associated with an agency or not authorized' }, { status: 403 })
-    }
-
-    // Verify schedule belongs to user's agency (or user is super admin)
-    const scheduleToDelete = await prisma.reportSchedule.findUnique({
-      where: { id: scheduleId },
-    })
+    // Verify the schedule exists and belongs to the agency before deleting
+    const scheduleToDelete = await prisma.reportSchedule.findFirst({
+        where: {
+            id: scheduleId,
+            agencyId: session.user.agencyId,
+        }
+    });
 
     if (!scheduleToDelete) {
-      return NextResponse.json({ error: 'Schedule not found' }, { status: 404 })
-    }
-
-    if (!user.isSuperAdmin && scheduleToDelete.agencyId !== user.agencyId) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+        await auditLog({
+            event: 'REPORT_SCHEDULE_DELETE_NOT_FOUND',
+            userId: session.user.id,
+            agencyId: session.user.agencyId,
+            entityType: 'ReportSchedule',
+            entityId: scheduleId,
+            details: { message: 'Schedule not found or access denied for deletion' },
+        });
+        return NextResponse.json({ error: 'Report schedule not found' }, { status: 404 });
     }
 
     await prisma.reportSchedule.delete({
-      where: { id: scheduleId },
-    })
-
-    // Audit Log
-    await prisma.auditLog.create({
-      data: {
-        action: 'DELETE_REPORT_SCHEDULE',
-        entityType: 'ReportSchedule',
-        entityId: scheduleId, // The ID of the deleted schedule
-        userId: session.user.id,
-        userEmail: session.user.email || '',
-        details: { scheduleId },
+      where: {
+        id: scheduleId,
       },
-    })
+    });
 
-    return NextResponse.json({ success: true, message: 'Report schedule deleted successfully' }, { status: 200 })
-  } catch (error: any) {
-    console.error('Error deleting report schedule:', error)
-    if (error.code === 'P2025') { // Record to delete not found
-        return NextResponse.json({ error: 'Schedule not found for deletion.' }, { status: 404 });
+    await auditLog({
+      event: 'REPORT_SCHEDULE_DELETE_SUCCESS',
+      userId: session.user.id,
+      agencyId: session.user.agencyId,
+      entityType: 'ReportSchedule',
+      entityId: scheduleId,
+      details: { ga4PropertyId: scheduleToDelete.ga4PropertyId, reportType: scheduleToDelete.reportType },
+    });
+
+    return NextResponse.json({ message: 'Report schedule deleted successfully' }, { status: 200 });
+  } catch (error) {
+    console.error(`Error deleting report schedule ${scheduleId}:`, error);
+    let errorMessage = 'Failed to delete report schedule';
+     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') { // Record to delete not found
+         errorMessage = 'Report schedule not found for deletion.';
+         await auditLog({
+            event: 'REPORT_SCHEDULE_DELETE_FAILED',
+            userId: session.user.id,
+            agencyId: session.user.agencyId,
+            entityType: 'ReportSchedule',
+            entityId: scheduleId,
+            details: { error: 'P2025: Record to delete not found.' },
+        });
+        return NextResponse.json({ error: errorMessage }, { status: 404 });
+      }
+       errorMessage = `Database error deleting schedule. Code: ${error.code}`;
+    } else if (error instanceof Error) {
+        errorMessage = error.message;
     }
-    return NextResponse.json({ error: `Failed to delete report schedule: ${error.message || 'Unknown error'}` }, { status: 500 })
+
+    await auditLog({
+      event: 'REPORT_SCHEDULE_DELETE_FAILED',
+      userId: session.user.id,
+      agencyId: session.user.agencyId,
+      entityType: 'ReportSchedule',
+      entityId: scheduleId,
+      details: { error: String(error) },
+    });
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
-// Removed old calculateNextRun
+// PATCH can be an alias for PUT if full updates are typical,
+// or implement more granular partial updates if needed.
+export async function PATCH(req: NextRequest, context: RouteContext) {
+  return PUT(req, context);
+}

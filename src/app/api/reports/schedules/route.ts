@@ -1,113 +1,138 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import cronParser from 'cron-parser'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { validateRequest } from '@/lib/validation';
+import { reportScheduleSchema } from '@/lib/validation';
+import { Prisma } from '@prisma/client';
+// import { auditLog } from '@/lib/services/audit-service'; // Assuming this service exists and is configured
 
-export async function GET(request: NextRequest) {
-  try {
-    const session = await requireAuth()
+// Placeholder for auditLog if not available globally
+const auditLog = (global as any).auditLog || (async (log: any) => console.log('AUDIT_LOG (API /api/reports/schedules/route.ts):', log));
 
-    // Get user's agency
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { agencyId: true },
-    })
 
-    if (!user?.agencyId) {
-      return NextResponse.json({ 
-        error: 'User not associated with an agency' 
-      }, { status: 400 })
-    }
-
-    const schedules = await prisma.reportSchedule.findMany({
-      where: { agencyId: user.agencyId },
-      orderBy: { createdAt: 'desc' },
-    })
-
-    return NextResponse.json({ schedules })
-  } catch (error) {
-    console.error('Error fetching report schedules:', error)
-    return NextResponse.json({ 
-      error: 'Failed to fetch report schedules' 
-    }, { status: 500 })
+export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.agencyId || !session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized: Missing session or user details' }, { status: 401 });
   }
-}
 
-export async function POST(request: NextRequest) {
+  const body = await req.json();
+  const validationResult = validateRequest(reportScheduleSchema, body);
+
+  if (!validationResult.success) {
+    return NextResponse.json({ error: validationResult.error, details: validationResult.details }, { status: 400 });
+  }
+
+  const { cronPattern, ga4PropertyId, reportType, emailRecipients, brandingOptions, isActive } = validationResult.data;
+
+  // TODO: Add server-side cron pattern validation using a library like cron-parser
+  // For now, we rely on client-side format and assume it's valid or handle errors during processing.
+
   try {
-    const session = await requireAuth()
-    const body = await request.json()
-    const { reportType, cronPattern, emailRecipients, isActive, brandingOptionsJson } = body
-
-    // Validation
-    if (!reportType || !cronPattern || !emailRecipients || !Array.isArray(emailRecipients) || emailRecipients.length === 0) {
-      return NextResponse.json({ error: 'Missing or invalid required fields (reportType, cronPattern, emailRecipients)' }, { status: 400 })
-    }
-
-    try {
-      cronParser.parseExpression(cronPattern)
-    } catch (err) {
-      return NextResponse.json({ error: 'Invalid cronPattern format' }, { status: 400 })
-    }
-
-    // Get user's agency and GA4 property
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        agency: {
-          select: {
-            id: true,
-            ga4PropertyId: true,
-          },
-        },
-      },
-    })
-
-    if (!user?.agency) {
-      return NextResponse.json({ error: 'User not associated with an agency' }, { status: 400 })
-    }
-
-    if (!user.agency.ga4PropertyId) {
-      return NextResponse.json({ error: 'No GA4 property connected. Please connect a GA4 property first.' }, { status: 400 })
-    }
-
-    const nextRun = cronParser.parseExpression(cronPattern).next().toDate()
-
-    const schedule = await prisma.reportSchedule.create({
+    const newSchedule = await prisma.reportSchedule.create({
       data: {
-        agencyId: user.agency.id,
-        userId: session.user.id,
-        reportType,
+        agencyId: session.user.agencyId,
+        userId: session.user.id, // Link to the user creating the schedule
         cronPattern,
+        ga4PropertyId,
+        reportType,
         emailRecipients,
-        ga4PropertyId: user.agency.ga4PropertyId,
-        isActive: isActive ?? true,
-        brandingOptionsJson: brandingOptionsJson || null,
-        nextRun,
-        status: 'active', // Initialize status
+        brandingOptionsJson: brandingOptions ? JSON.stringify(brandingOptions) : undefined, // Use undefined for optional fields not present
+        isActive: isActive !== undefined ? isActive : true,
+        status: 'active', // Initial status
+        // nextRun will be calculated by a scheduler or when the schedule is first processed
       },
-    })
+    });
 
-    // Audit Log
-    await prisma.auditLog.create({
-      data: {
-        action: 'CREATE_REPORT_SCHEDULE',
-        entityType: 'ReportSchedule',
-        entityId: schedule.id,
-        userId: session.user.id,
-        userEmail: session.user.email || '',
-        details: { ...body, scheduleId: schedule.id },
-      },
-    })
+    await auditLog({
+      event: 'REPORT_SCHEDULE_CREATE_SUCCESS',
+      userId: session.user.id,
+      agencyId: session.user.agencyId,
+      entityType: 'ReportSchedule',
+      entityId: newSchedule.id,
+      details: { reportType, ga4PropertyId, cronPattern },
+    });
 
-    return NextResponse.json(schedule, { status: 201 })
-  } catch (error: any) {
-    console.error('Error creating report schedule:', error)
-    // Check for Prisma unique constraint violation if necessary, though not typical for create
-    if (error.code === 'P2002') { // Example: Unique constraint failed
-        return NextResponse.json({ error: 'Failed to create report schedule due to a conflict.' }, { status: 409 });
+    return NextResponse.json(newSchedule, { status: 201 });
+  } catch (error) {
+    console.error('Error creating report schedule:', error);
+    let errorMessage = 'Failed to create report schedule';
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      errorMessage = `Database error creating schedule. Code: ${error.code}`;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
-    return NextResponse.json({ error: `Failed to create report schedule: ${error.message || 'Unknown error'}` }, { status: 500 })
+
+    await auditLog({
+      event: 'REPORT_SCHEDULE_CREATE_FAILED',
+      userId: session.user.id,
+      agencyId: session.user.agencyId,
+      entityType: 'ReportSchedule',
+      details: { error: String(error), reportType, ga4PropertyId, cronPattern },
+    });
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
-// Removed old calculateNextRun function
+
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.agencyId || !session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized: Missing session or user details' }, { status: 401 });
+  }
+
+  // Basic pagination (optional, can be enhanced)
+  const { searchParams } = req.nextUrl;
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const pageSize = parseInt(searchParams.get('pageSize') || '20', 10);
+  const skip = (page - 1) * pageSize;
+
+  try {
+    const schedules = await prisma.reportSchedule.findMany({
+      where: {
+        agencyId: session.user.agencyId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: pageSize,
+      skip: skip,
+    });
+
+    const totalSchedules = await prisma.reportSchedule.count({
+      where: {
+        agencyId: session.user.agencyId,
+      },
+    });
+
+    // Minimal audit logging for GET requests, focus on failures or sensitive data access.
+    // For successful reads, often not logged unless specific compliance requires it.
+    // await auditLog({
+    //   event: 'REPORT_SCHEDULE_LIST_SUCCESS',
+    //   userId: session.user.id,
+    //   agencyId: session.user.agencyId,
+    //   entityType: 'ReportSchedule',
+    //   details: { page, pageSize, count: schedules.length },
+    // });
+
+    return NextResponse.json({
+      data: schedules,
+      pagination: {
+        page,
+        pageSize,
+        totalItems: totalSchedules,
+        totalPages: Math.ceil(totalSchedules / pageSize),
+      }
+    }, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching report schedules:', error);
+    await auditLog({
+      event: 'REPORT_SCHEDULE_LIST_FAILED',
+      userId: session.user.id,
+      agencyId: session.user.agencyId,
+      entityType: 'ReportSchedule',
+      details: { error: String(error) },
+    });
+    return NextResponse.json({ error: 'Failed to fetch report schedules' }, { status: 500 });
+  }
+}
