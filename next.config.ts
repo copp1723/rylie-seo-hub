@@ -10,10 +10,13 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // Disable TypeScript errors during builds for faster deployment
-    ignoreBuildErrors: false,
+    // Allow Render deployments to bypass type errors when the flag is set
+    ignoreBuildErrors: process.env.SKIP_TS_ERRORS === 'true',
   },
-  webpack: (config, { isServer }) => {
+  webpack: (
+    config: import('webpack').Configuration,
+    { isServer }: { isServer: boolean }
+  ) => {
     // Ignore handlebars dynamic requires warning
     config.module = {
       ...config.module,
