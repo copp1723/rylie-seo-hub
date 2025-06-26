@@ -2,7 +2,13 @@
 
 import * as puppeteer from 'puppeteer'
 // Use dynamic import for Handlebars to avoid webpack issues
-const handlebars = require('handlebars')
+let handlebars: any;
+if (typeof window === 'undefined') {
+  handlebars = require('handlebars');
+} else {
+  // Client-side fallback
+  handlebars = { compile: () => () => '', registerHelper: () => {} };
+}
 import { GA4ReportData, DateRange } from '@/lib/types/ga4' // Corrected import path
 // import { auditLog } from '@/lib/services/audit-service' // Removed audit-service import
 

@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth } from '@/lib/api/route-handler';
+import { withAuth, AuthenticatedContext } from '@/lib/api/route-handler';
 import { processSchedule } from '@/lib/services/scheduler-service';
 import { auditLog } from '@/lib/audit';
 
 export const POST = withAuth(
-  async (request: NextRequest, { user, tenant, params }: { user: any; tenant: any; params: { id: string } }) => {
-    const scheduleId = params.id;
-    const userId = user.id;
-    const userRole = user.role;
-    const isSuperAdmin = user.isSuperAdmin;
+  async (request: NextRequest, context: AuthenticatedContext & { params?: { id: string } }) => {
+    const scheduleId = context.params?.id;
+    if (!scheduleId) {
+      return NextResponse.json({ error: 'Schedule ID is required' }, { status: 400 });
+    }
+    
+    const userId = context.user.id;
+    const userRole = context.user.role;
+    const isSuperAdmin = context.user.isSuperAdmin;
 
     if (userRole !== 'admin' && !isSuperAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -23,7 +27,7 @@ export const POST = withAuth(
       return NextResponse.json({ error: 'Report schedule not found' }, { status: 404 });
     }
 
-    if (!isSuperAdmin && schedule.agencyId !== user.agencyId) {
+    if (!isSuperAdmin && schedule.agencyId !== context.user.agencyId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
