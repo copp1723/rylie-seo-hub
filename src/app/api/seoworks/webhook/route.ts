@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import crypto from 'crypto'
+import { Prisma } from '@prisma/client'
 
 // Validation schema for incoming webhook data
 const WebhookPayloadSchema = z.object({
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
             deliverables: taskData.deliverables,
             actualHours: taskData.actualHours,
             qualityScore: taskData.qualityScore,
-          },
+          } as Prisma.InputJsonValue,
           processedAt: new Date(),
         },
       })
@@ -132,8 +133,8 @@ export async function POST(req: NextRequest) {
                     actualHours: taskData.actualHours,
                     qualityScore: taskData.qualityScore,
                   },
-                }
-              : existingTask.order.deliverables,
+                } as Prisma.InputJsonValue
+              : (existingTask.order.deliverables as Prisma.InputJsonValue),
           },
         })
       }
@@ -193,7 +194,7 @@ export async function POST(req: NextRequest) {
             deliverables: taskData.deliverables,
             actualHours: taskData.actualHours,
             qualityScore: taskData.qualityScore,
-          },
+          } as Prisma.InputJsonValue,
           processedAt: new Date(),
         },
       })
