@@ -129,43 +129,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         userId: user.id,
       })
 
-      try {
-        // Ensure user exists in database with proper defaults
-        if (user.email) {
-          const existingUser = await prisma.user.findUnique({
-            where: { email: user.email },
-          })
-
-          if (!existingUser) {
-            console.log('Creating user in database:', user.email)
-            
-            // Check if this is the first user (should be super admin)
-            const userCount = await prisma.user.count()
-            const isFirstUser = userCount === 0
-            
-            await prisma.user.create({
-              data: {
-                email: user.email,
-                name: user.name || null,
-                image: user.image || null,
-                role: isFirstUser ? 'admin' : 'user',
-                isSuperAdmin: isFirstUser,
-              },
-            })
-            console.log('User created successfully in database', {
-              isFirstUser,
-              role: isFirstUser ? 'admin' : 'user'
-            })
-          } else {
-            console.log('User already exists in database:', existingUser.id)
-          }
-        }
-      } catch (error) {
-        console.error('Error ensuring user exists in database:', error)
-        // Don't block sign in if user creation fails
-      }
-
-      // Always allow sign in - the adapter will create the user if needed
+      // Let the adapter handle user creation
+      // This prevents conflicts with OAuth account linking
       return true
     },
     redirect({ url, baseUrl }) {
@@ -201,10 +166,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         provider: account?.provider 
       })
     },
-    signOut: async ({ session, token }) => {
-      console.log('SignOut event:', { 
-        userId: session?.user?.id || token?.sub,
-        email: session?.user?.email || token?.email
+    signOut: async (data) => {
+      const userId = 'session' in data ? data.session?.user?.id : data.token?.sub
+      const email = 'session' in data ? data.session?.user?.email : data.token?.email
+      console.log('SignOut event:', {
+        userId,
+        email,
       })
     },
   },
