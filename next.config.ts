@@ -25,9 +25,12 @@ const nextConfig = {
     
     // Alternative: Replace handlebars dynamic requires
     if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'handlebars/runtime': 'handlebars/dist/handlebars.runtime',
+      config.resolve = {
+        ...(config.resolve ?? {}),
+        alias: {
+          ...((config.resolve?.alias as Record<string, string>) ?? {}),
+          'handlebars/runtime': 'handlebars/dist/handlebars.runtime',
+        },
       }
     }
     
@@ -50,4 +53,3 @@ export default withSentryConfig(nextConfig, {
   disableLogger: true,
   automaticVercelMonitors: true,
 })
-
