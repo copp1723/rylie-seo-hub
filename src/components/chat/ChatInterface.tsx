@@ -99,6 +99,10 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
     setIsLoading(true)
 
     try {
+      console.log('Sending chat request:', {
+        message: userMessage.content,
+        model: 'gpt-4-turbo-preview',
+      })
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -109,7 +113,9 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorData = await response.json()
+        console.error('Chat API error:', response.status, errorData)
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
       }
 
       const data = await response.json()

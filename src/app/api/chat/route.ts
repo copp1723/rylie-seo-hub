@@ -64,6 +64,7 @@ export const POST = withAuth(async (request, context) => {
 
     // Validate request body
     const body = await request.json()
+    console.log('[CHAT API] Received body:', JSON.stringify(body))
     const validation = validateRequest(chatRequestSchema, body)
 
     if (!validation.success) {
@@ -80,7 +81,9 @@ export const POST = withAuth(async (request, context) => {
             field: err.path.join('.'),
             message: err.message,
           })),
-          received: process.env.NODE_ENV === 'development' ? body : undefined,
+          received: body, // Always include for debugging
+          receivedKeys: Object.keys(body || {}),
+          receivedType: typeof body,
         },
         { status: 400 }
       )
