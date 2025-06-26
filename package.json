@@ -19,6 +19,7 @@
     "db:migrate:reset": "prisma migrate reset",
     "db:studio": "prisma studio",
     "db:setup": "chmod +x scripts/migrate-database.sh && ./scripts/migrate-database.sh",
+    "test": "jest",
     "onboarding:deploy": "npm run db:setup && npm run build",
     "postinstall": "prisma generate",
     "clean": "rm -rf .next && rm -rf node_modules/.cache",
@@ -67,10 +68,13 @@
     "@types/react-dom": "^19.0.2",
     "eslint": "^9.29.0",
     "eslint-config-next": "15.3.4",
+    "jest": "^30.0.3",
+    "jest-environment-jsdom": "^30.0.2",
     "postcss": "^8.5.1",
     "prettier": "^3.5.3",
     "prisma": "^6.10.1",
     "tailwindcss": "^3.4.17",
+    "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
   },
   "engines": {
