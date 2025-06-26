@@ -167,12 +167,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       })
     },
     signOut: async (data) => {
-      const userId = 'session' in data ? data.session?.user?.id : data.token?.sub
-      const email = 'session' in data ? data.session?.user?.email : data.token?.email
-      console.log('SignOut event:', {
-        userId,
-        email,
-      })
+      // AdapterSession doesn't include `user`, so we need a runtime guard
+      let userId: string | undefined
+      let email: string | undefined
+
+      if ('session' in data && data.session) {
+        const maybeSession = data.session as unknown
+        // Safely access possible user object
+        if (
+          typeof maybeSession === 'object' &&
+          maybeSession !== null &&
+          'user' in maybeSession
+        ) {
+          const u = (maybeSession as { user?: { id?: string; email?: string } }).user
+          userId = u?.id
+          email = u?.email
+        }
+      } else if ('token' in data && data.token) {
+        userId = data.token.sub
+        // `email` isn't guaranteed on JWT; cast defensively
+        email = (data.token as unknown as { email?: string }).email
+      }
+
+      console.log('SignOut event:', { userId, email })
     },
   },
 })

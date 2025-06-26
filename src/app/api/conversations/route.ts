@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/api/route-handler'
 import { getTenantDB } from '@/lib/db/tenant-filter'
 import { rateLimits } from '@/lib/rate-limit'
+import { Prisma } from '@prisma/client'
+
+// Define helper type for conversations with messages
+type ConversationWithMsgs = Prisma.ConversationGetPayload<{
+  include: {
+    messages: true
+    _count: {
+      select: {
+        messages: true
+      }
+    }
+  }
+}>
 
 export const GET = withAuth(async (request, context) => {
   try {
@@ -22,7 +35,7 @@ export const GET = withAuth(async (request, context) => {
     // For super admins without agency, use regular prisma
     if (context.user.isSuperAdmin && !context.tenant.agencyId) {
       const { prisma } = await import('@/lib/prisma')
-      const conversations = await prisma.conversation.findMany({
+      const conversations = (await prisma.conversation.findMany({
         where: { userId: context.user.id },
         include: {
           messages: {
@@ -33,7 +46,7 @@ export const GET = withAuth(async (request, context) => {
             select: { messages: true },
           },
         },
-      })
+      })) as unknown as ConversationWithMsgs[]
 
       const formattedConversations = conversations.map(conv => ({
         id: conv.id,
@@ -57,7 +70,7 @@ export const GET = withAuth(async (request, context) => {
     // Get tenant-aware database instance
     const db = getTenantDB(context as any)
 
-    const conversations = await db.findConversations(
+    const conversations = (await db.findConversations(
       { userId: context.user.id },
       {
         messages: {
@@ -68,7 +81,7 @@ export const GET = withAuth(async (request, context) => {
           select: { messages: true },
         },
       }
-    )
+    )) as unknown as ConversationWithMsgs[]
 
     const formattedConversations = conversations.map(conv => ({
       id: conv.id,
@@ -115,6 +128,7 @@ export const POST = withAuth(async (request, context) => {
           title: title || 'New Conversation',
           userId: context.user.id,
           model,
+          agencyId: 'public', // placeholder for super admin
         },
         include: {
           messages: true,
@@ -133,7 +147,7 @@ export const POST = withAuth(async (request, context) => {
 
     // Check conversation limits for regular users
     const conversationCount = await prisma.conversation.count({
-      where: { agencyId: context.tenant.agencyId }
+      where: { agencyId: context.tenant.agencyId! }
     })
     
     const agency = await prisma.agency.findUnique({

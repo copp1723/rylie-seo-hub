@@ -599,6 +599,12 @@ model ReportSchedule {
   isPaused           Boolean   @default(false)
   pausedReason       String?
   
+  // Remote fields
+  isActive           Boolean   @default(true)
+  lastRun            DateTime?
+  nextRun            DateTime?
+  lastErrorMessage   String?   @db.Text
+  
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   

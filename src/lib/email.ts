@@ -5,6 +5,11 @@ interface EmailOptions {
   subject: string
   html: string
   text?: string
+  attachments?: Array<{
+    filename: string
+    content: Buffer | string // Buffer for PDF, string for path (less likely for dynamic content)
+    contentType: string
+  }>
 }
 
 class EmailService {
@@ -15,7 +20,7 @@ class EmailService {
     this.transporter = nodemailer.createTransport({
       host: 'smtp.mailgun.org',
       port: 587,
-      secure: false,
+      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.MAILGUN_SMTP_USER || `postmaster@${process.env.MAILGUN_DOMAIN}`,
         pass: process.env.MAILGUN_SMTP_PASSWORD || process.env.MAILGUN_API_KEY,
@@ -23,7 +28,7 @@ class EmailService {
     })
   }
 
-  async sendEmail({ to, subject, html, text }: EmailOptions) {
+  async sendEmail({ to, subject, html, text, attachments }: EmailOptions) {
     try {
       const info = await this.transporter.sendMail({
         from: process.env.EMAIL_FROM || `"Rylie SEO Hub" <noreply@${process.env.MAILGUN_DOMAIN}>`,
@@ -31,9 +36,10 @@ class EmailService {
         subject,
         html,
         text: text || this.stripHtml(html),
+        attachments,
       })
 
-      console.log('Email sent successfully:', info.messageId)
+      console.log('Email sent successfully:', info.messageId, 'Recipients:', to)
       return { success: true, messageId: info.messageId }
     } catch (error) {
       console.error('Email sending failed:', error)
