@@ -169,25 +169,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true
     },
     redirect({ url, baseUrl }) {
-      console.log('Redirect callback:', { url, baseUrl })
+      // Remove any trailing periods from baseUrl
+      const cleanBaseUrl = baseUrl.replace(/\.$/, '')
+      console.log('Redirect callback:', { url, baseUrl: cleanBaseUrl })
 
       // Handle sign out - redirect to home
       if (url.includes('/api/auth/signout')) {
-        return baseUrl
+        return cleanBaseUrl
       }
 
       // Redirect to dashboard after sign in
-      if (url === baseUrl || url === '/' || url.includes('/?')) {
-        return `${baseUrl}/dashboard`
+      if (url === cleanBaseUrl || url === '/' || url.includes('/?')) {
+        return `${cleanBaseUrl}/dashboard`
       }
       
       // Allow relative callback URLs
-      if (url.startsWith('/')) return `${baseUrl}${url}`
+      if (url.startsWith('/')) return `${cleanBaseUrl}${url}`
       
       // Allow callback URLs on the same origin
-      if (new URL(url).origin === baseUrl) return url
+      if (new URL(url).origin === cleanBaseUrl) return url
       
-      return `${baseUrl}/dashboard`
+      return `${cleanBaseUrl}/dashboard`
     },
   },
   events: {
