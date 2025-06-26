@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth } from '@/lib/auth';
+import { withAuth } from '@/lib/api/route-handler';
 import { processSchedule } from '@/lib/services/scheduler-service';
 import { auditLog } from '@/lib/audit';
 
 export const POST = withAuth(
-  async ({ req, session }, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, { user, tenant, params }: { user: any; tenant: any; params: { id: string } }) => {
     const scheduleId = params.id;
-    const userId = session.user.id;
-    const userRole = session.user.role;
-    const isSuperAdmin = session.user.isSuperAdmin;
+    const userId = user.id;
+    const userRole = user.role;
+    const isSuperAdmin = user.isSuperAdmin;
 
     if (userRole !== 'admin' && !isSuperAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -23,7 +23,7 @@ export const POST = withAuth(
       return NextResponse.json({ error: 'Report schedule not found' }, { status: 404 });
     }
 
-    if (!isSuperAdmin && schedule.agencyId !== session.user.agencyId) {
+    if (!isSuperAdmin && schedule.agencyId !== user.agencyId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

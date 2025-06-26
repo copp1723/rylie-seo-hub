@@ -1,7 +1,8 @@
 // src/lib/services/report-generator.ts
 
 import * as puppeteer from 'puppeteer'
-import * as handlebars from 'handlebars'
+// Use dynamic import for Handlebars to avoid webpack issues
+const handlebars = require('handlebars')
 import { GA4ReportData, DateRange } from '@/lib/types/ga4' // Corrected import path
 // import { auditLog } from '@/lib/services/audit-service' // Removed audit-service import
 

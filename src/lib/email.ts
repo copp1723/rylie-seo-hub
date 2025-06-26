@@ -206,3 +206,6 @@ class EmailService {
 }
 
 export const emailService = new EmailService()
+
+// Export sendEmail as a convenience function
+export const sendEmail = emailService.sendEmail.bind(emailService)
