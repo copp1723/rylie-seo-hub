@@ -41,6 +41,8 @@ export default function GA4SettingsPage() {
     variant: 'success',
     message: ''
   })
+  
+  console.log('GA4SettingsPage rendering, session:', session)
 
   // Check for OAuth callback status
   useEffect(() => {
@@ -65,21 +67,30 @@ export default function GA4SettingsPage() {
 
   const checkConnectionStatus = async () => {
     try {
+      console.log('Checking GA4 connection status...')
       const response = await fetch('/api/agencies/current')
-      if (response.ok) {
-        const agency = await response.json()
-        setConnectionStatus({
-          isConnected: !!agency.ga4PropertyId,
-          propertyId: agency.ga4PropertyId,
-          propertyName: agency.ga4PropertyName,
-          lastSynced: agency.updatedAt
-        })
-        
-        // If connected, load properties to populate selector
-        if (agency.ga4PropertyId) {
-          await fetchProperties()
-          setSelectedProperty(agency.ga4PropertyId)
-        }
+      console.log('Agency API response status:', response.status)
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Agency API error:', errorData)
+        return
+      }
+      
+      const agency = await response.json()
+      console.log('Agency data:', agency)
+      
+      setConnectionStatus({
+        isConnected: !!agency.ga4PropertyId,
+        propertyId: agency.ga4PropertyId,
+        propertyName: agency.ga4PropertyName,
+        lastSynced: agency.updatedAt
+      })
+      
+      // If connected, load properties to populate selector
+      if (agency.ga4PropertyId) {
+        await fetchProperties()
+        setSelectedProperty(agency.ga4PropertyId)
       }
     } catch (err) {
       console.error('Error checking connection status:', err)
