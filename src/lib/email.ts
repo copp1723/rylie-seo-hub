@@ -17,7 +17,7 @@ class EmailService {
       port: 587,
       secure: false,
       auth: {
-        user: `postmaster@${process.env.MAILGUN_DOMAIN}`,
+        user: process.env.MAILGUN_SMTP_USER || `postmaster@${process.env.MAILGUN_DOMAIN}`,
         pass: process.env.MAILGUN_SMTP_PASSWORD || process.env.MAILGUN_API_KEY,
       },
     })
@@ -26,7 +26,7 @@ class EmailService {
   async sendEmail({ to, subject, html, text }: EmailOptions) {
     try {
       const info = await this.transporter.sendMail({
-        from: `"Rylie SEO Hub" <noreply@${process.env.MAILGUN_DOMAIN}>`,
+        from: process.env.EMAIL_FROM || `"Rylie SEO Hub" <noreply@${process.env.MAILGUN_DOMAIN}>`,
         to,
         subject,
         html,
