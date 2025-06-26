@@ -1,52 +1,79 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import { GA4Service } from '@/lib/ga4'
-import { getValidGoogleAccessToken } from '@/lib/google-auth'
+import { prisma } from '@/lib/prisma'
+
+async function getDecryptedToken(userId: string): Promise<string | null> {
+  const tokenRecord = await prisma.userGA4Token.findUnique({
+    where: { userId },
+  })
+
+  if (!tokenRecord) return null
+
+  // Decrypt access token
+  const crypto = require('crypto')
+  const algorithm = 'aes-256-cbc'
+  const key = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex')
+
+  try {
+    const parts = tokenRecord.encryptedAccessToken.split(':')
+    const iv = Buffer.from(parts[0], 'hex')
+    const encryptedData = parts[1]
+    const decipher = crypto.createDecipher(algorithm, key)
+    let decrypted = decipher.update(encryptedData, 'hex', 'utf8')
+    decrypted += decipher.final('utf8')
+    return decrypted
+  } catch (error) {
+    console.error('Token decryption failed:', error)
+    return null
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const session = await requireAuth()
+    
+    const accessToken = await getDecryptedToken(session.user.id)
+    if (!accessToken) {
+      return NextResponse.json({ 
+        error: 'No GA4 access token found. Please connect your GA4 account first.' 
+      }, { status: 401 })
     }
 
-    // Get a valid access token (will refresh if needed)
-    const accessToken = await getValidGoogleAccessToken(session.user.id)
+    const ga4Service = new GA4Service(accessToken)
+    const properties = await ga4Service.listProperties()
 
-    // List GA4 properties
-    const ga4 = new GA4Service(accessToken)
-    const properties = await ga4.listProperties()
+    // Format properties for the frontend
+    const formattedProperties = properties.map((property: any) => ({
+      accountName: property.parent?.replace('accounts/', '') || 'Unknown Account',
+      accountId: property.parent?.replace('accounts/', '') || '',
+      propertyName: property.displayName || 'Unknown Property',
+      propertyId: property.name?.replace('properties/', '') || '',
+      measurementId: property.measurementId || undefined,
+    }))
 
-    return NextResponse.json({
-      success: true,
-      properties: properties.map((prop: import('googleapis').analyticsadmin_v1alpha.Schema$GoogleAnalyticsAdminV1alphaProperty) => ({
-        id: prop.name ? prop.name.split('/').pop() : '',
-        name: prop.displayName,
-        fullName: prop.name,
-      })),
+    return NextResponse.json({ 
+      properties: formattedProperties 
     })
-  } catch (error: any) {
-    console.error('GA4 properties error:', error)
-
-    // Return more specific error messages
-    if (error.message?.includes('No Google account connected')) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    } else if (
-      error.message?.includes('Authentication failed') ||
-      error.message?.includes('Token expired')
-    ) {
-      return NextResponse.json({ error: error.message }, { status: 401 })
-    } else if (
-      error.message?.includes('Access denied') ||
-      error.message?.includes('Insufficient permissions')
-    ) {
-      return NextResponse.json({ error: error.message }, { status: 403 })
+  } catch (error) {
+    console.error('Error fetching GA4 properties:', error)
+    
+    if (error instanceof Error) {
+      if (error.message.includes('401') || error.message.includes('Authentication')) {
+        return NextResponse.json({ 
+          error: 'Authentication failed. Please reconnect your GA4 account.' 
+        }, { status: 401 })
+      }
+      
+      if (error.message.includes('403') || error.message.includes('Access denied')) {
+        return NextResponse.json({ 
+          error: 'Access denied. Please ensure you have granted analytics permissions.' 
+        }, { status: 403 })
+      }
     }
 
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch GA4 properties' },
-      { status: 500 }
-    )
+    return NextResponse.json({ 
+      error: 'Failed to fetch GA4 properties. Please try again.' 
+    }, { status: 500 })
   }
 }

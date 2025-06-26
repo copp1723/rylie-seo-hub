@@ -1,20 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { connectGA4Property } from '@/lib/ga4'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth()
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+    const session = await requireAuth()
     const { propertyId, propertyName } = await request.json()
 
     if (!propertyId || !propertyName) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      return NextResponse.json({ 
+        error: 'Property ID and name are required' 
+      }, { status: 400 })
     }
 
     // Get user's agency
@@ -24,34 +20,32 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user?.agencyId) {
-      return NextResponse.json({ error: 'No agency found' }, { status: 400 })
+      return NextResponse.json({ 
+        error: 'User not associated with an agency' 
+      }, { status: 400 })
     }
 
-    // Get refresh token
-    const account = await prisma.account.findFirst({
-      where: {
-        userId: session.user.id,
-        provider: 'google',
-      },
-      select: {
-        refresh_token: true,
+    // Update agency with GA4 property
+    const updatedAgency = await prisma.agency.update({
+      where: { id: user.agencyId },
+      data: {
+        ga4PropertyId: propertyId,
+        ga4PropertyName: propertyName,
       },
     })
 
-    // Connect GA4 property to agency
-    await connectGA4Property(
-      user.agencyId,
-      propertyId,
-      propertyName,
-      account?.refresh_token || undefined
-    )
-
-    return NextResponse.json({
+    return NextResponse.json({ 
       success: true,
-      message: 'GA4 property connected successfully',
+      agency: {
+        id: updatedAgency.id,
+        ga4PropertyId: updatedAgency.ga4PropertyId,
+        ga4PropertyName: updatedAgency.ga4PropertyName,
+      }
     })
   } catch (error) {
-    console.error('GA4 connect error:', error)
-    return NextResponse.json({ error: 'Failed to connect GA4 property' }, { status: 500 })
+    console.error('Error connecting GA4 property:', error)
+    return NextResponse.json({ 
+      error: 'Failed to connect GA4 property' 
+    }, { status: 500 })
   }
 }
