@@ -57,6 +57,7 @@ model Agency {
   dealershipOnboardings DealershipOnboarding[]
   seoworksTasks SEOWorksTask[]
   userInvites   UserInvite[]
+  reportSchedules ReportSchedule[]
   
   @@map("agencies")
 }
@@ -94,6 +95,8 @@ model User {
   orderMessages OrderMessage[] // Added relation to OrderMessage
   auditLogs     AuditLog[]
   sentInvites   UserInvite[]
+  ga4Token      UserGA4Token?
+  reportSchedules ReportSchedule[]
   
   @@map("users")
 }
@@ -554,4 +557,44 @@ model TimeEntry {
   @@index([orderId, date])
   @@index([userEmail, date])
   @@map("time_entries")
+}
+
+// GA4 OAuth token storage
+model UserGA4Token {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  encryptedAccessToken  String    @db.Text
+  encryptedRefreshToken String?   @db.Text
+  expiryDate           DateTime?
+  scope                String?
+  tokenType            String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_ga4_tokens")
+}
+
+// GA4 Report Scheduling
+model ReportSchedule {
+  id                  String    @id @default(cuid())
+  agencyId           String
+  cronPattern        String
+  ga4PropertyId      String
+  userId             String
+  reportType         String    // WeeklySummary, MonthlyReport, QuarterlyBusinessReview
+  emailRecipients    String[]
+  brandingOptionsJson String?   @db.Text
+  isActive           Boolean   @default(true)
+  lastRun            DateTime?
+  nextRun            DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  agency             Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([agencyId])
+  @@index([userId])
+  @@index([isActive, nextRun])
+  @@map("report_schedules")
 }
