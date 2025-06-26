@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: starter
     region: oregon
-    buildCommand: npm ci && npm run build && npx prisma generate
+    buildCommand: npm ci --legacy-peer-deps && npm run build && npx prisma generate
     startCommand: npm start
     healthCheckPath: /
     envVars:
