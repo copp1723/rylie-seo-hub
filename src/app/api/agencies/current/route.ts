@@ -4,6 +4,18 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
+    // Handle auth disabled mode
+    if (process.env.AUTH_DISABLED === 'true') {
+      const mockAgency = {
+        id: process.env.DEFAULT_AGENCY_ID || 'default-agency',
+        name: 'Default Agency',
+        ga4PropertyId: null,
+        ga4PropertyName: null,
+        updatedAt: new Date().toISOString(),
+      }
+      return NextResponse.json(mockAgency)
+    }
+
     const session = await requireAuth()
 
     // Get user with agency
