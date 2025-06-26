@@ -412,7 +412,23 @@ This system integrates with Google Analytics 4 (GA4) to provide automated SEO pe
 
 5.  **Cron Job Runner (Production)**:
     *   The `node-cron` setup in `src/app/api/reports/schedule/route.ts` is suitable for single-process, long-running Node.js servers (e.g., when running `npm start` with a custom server, or a non-serverless Docker deployment).
-    *   **For Vercel deployments (default for Next.js):** Internal `node-cron` schedulers will **not** work reliably for background jobs. You **must** use Vercel Cron Jobs (configured in `vercel.json` or the Vercel dashboard) or an external scheduler service (e.g., AWS EventBridge Scheduler, Google Cloud Scheduler, EasyCron) to trigger an API endpoint (e.g., `POST /api/reports/trigger-scheduled-jobs`). This endpoint would then be responsible for fetching due schedules from the database and processing them (e.g., by calling a function similar to `processSchedule` for each due job, possibly asynchronously or via a queue).
+    *   **For Vercel deployments (default for Next.js):** Internal `node-cron` schedulers will **not** work reliably for background jobs. You **must** use Vercel Cron Jobs (configured in `vercel.json` or the Vercel dashboard) or an external scheduler service (e.g., AWS EventBridge Scheduler, Google Cloud Scheduler, EasyCron) to trigger an API endpoint.
+    *   The recommended endpoint for this is `POST /api/reports/trigger-scheduled-jobs`.
+        *   This endpoint is secured by a secret header, `x-api-key`.
+        *   The value for this header must be set in the environment variable `REPORT_TRIGGER_SECRET`.
+        *   When invoked, this endpoint finds all due/overdue active report schedules and processes them by calling the `processSchedule` function for each. It updates the `lastRun` and `nextRun` timestamps for each schedule accordingly.
+    *   Example Vercel Cron Job configuration (`vercel.json`):
+        ```json
+        {
+          "crons": [
+            {
+              "path": "/api/reports/trigger-scheduled-jobs",
+              "schedule": "0 * * * *" // Every hour
+            }
+          ]
+        }
+        ```
+        Remember to set the `REPORT_TRIGGER_SECRET` in your Vercel project's environment variables and configure your cron job runner to send this secret in the `x-api-key` header with each request to the trigger endpoint.
 
 ### API Endpoints (New or Enhanced)
 
