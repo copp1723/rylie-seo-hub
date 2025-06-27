@@ -5,6 +5,7 @@ import { EnhancedOrderList } from '@/components/orders/EnhancedOrderList'
 import { Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { UI_TEXT } from '@/constants/terminology'
 
 interface Order {
   id: string
@@ -29,7 +30,7 @@ interface Order {
   userEmail: string
 }
 
-export default function OrdersPage() {
+export default function RequestsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [orders, setOrders] = useState<Order[]>([])
@@ -51,10 +52,10 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/orders')
+      const response = await fetch('/api/requests')
       
       if (!response.ok) {
-        throw new Error('Failed to fetch orders')
+        throw new Error(`Failed to fetch ${UI_TEXT.EMPTY_STATE.toLowerCase()}`)
       }
 
       const data = await response.json()
@@ -68,7 +69,7 @@ export default function OrdersPage() {
 
   const handleOrderClick = (order: Order) => {
     // Navigate to order detail page or open modal
-    router.push(`/orders/${order.id}`)
+    router.push(`/requests/${order.id}`)
   }
 
   if (status === 'loading' || loading) {
@@ -100,16 +101,16 @@ export default function OrdersPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">SEO Tasks</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{UI_TEXT.PAGE_TITLE}</h1>
           <p className="mt-2 text-gray-600">
-            Manage and track your SEO content creation tasks
+            {UI_TEXT.PAGE_DESCRIPTION}
           </p>
         </div>
 
         {/* Active Tasks Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <h3 className="text-sm font-medium text-gray-600">Total Tasks</h3>
+            <h3 className="text-sm font-medium text-gray-600">{UI_TEXT.TOTAL_COUNT}</h3>
             <p className="text-2xl font-bold text-gray-900 mt-1">{orders.length}</p>
           </div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -132,7 +133,7 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        {/* Orders List */}
+        {/* Requests List */}
         <EnhancedOrderList
           orders={orders}
           onOrderClick={handleOrderClick}

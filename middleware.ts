@@ -15,6 +15,16 @@ interface ExtendedUser {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
+  // Terminology redirects - orders to requests
+  if (pathname === '/orders') {
+    return NextResponse.redirect(new URL('/requests', request.url))
+  }
+  
+  if (pathname.startsWith('/api/orders')) {
+    const newPath = pathname.replace('/api/orders', '/api/requests')
+    return NextResponse.redirect(new URL(newPath, request.url))
+  }
+  
   // Apply security headers to all responses
   let response = NextResponse.next()
   response = securityHeaders(response)
@@ -54,7 +64,7 @@ export async function middleware(request: NextRequest) {
     '/api/upload',
     '/api/agency',
     '/api/theme',
-    '/api/orders',
+    '/api/requests',
     '/api/usage',
     '/api/admin'  // Added to ensure all admin API routes are protected
   ]
