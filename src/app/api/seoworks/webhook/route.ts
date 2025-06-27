@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import crypto from 'crypto'
 import { Prisma } from '@prisma/client'
+import { mapTaskTypeToCategory, extractDeliverableData } from '@/lib/seoworks/utils'
 
 // Validation schema for incoming webhook data
 const WebhookPayloadSchema = z.object({
@@ -88,6 +89,26 @@ export async function POST(req: NextRequest) {
 
     const { eventType, data: taskData } = validationResult.data
 
+    // Extract enhanced data from deliverables
+    const { pageTitle, contentUrl, allDeliverables } = extractDeliverableData(taskData)
+    const taskCategory = mapTaskTypeToCategory(taskData.taskType)
+
+    // Log webhook processing details
+    console.log('Webhook received:', {
+      eventType,
+      externalId: taskData.externalId,
+      taskType: taskData.taskType,
+      hasDeliverables: !!taskData.deliverables,
+      deliverableCount: taskData.deliverables?.length || 0
+    })
+
+    // Log extracted data
+    console.log('Extracted data:', {
+      pageTitle,
+      contentUrl,
+      taskCategory
+    })
+
     // Check if this task already exists
     const existingTask = await prisma.sEOWorksTask.findUnique({
       where: { externalId: taskData.externalId },
@@ -123,6 +144,11 @@ export async function POST(req: NextRequest) {
             completedAt: taskData.status === 'completed' && taskData.completionDate 
               ? new Date(taskData.completionDate) 
               : null,
+            pageTitle,
+            contentUrl,
+            taskCategory,
+            actualHours: taskData.actualHours,
+            qualityScore: taskData.qualityScore,
             deliverables: taskData.deliverables
               ? {
                   ...((existingTask.order.deliverables as object) || {}),
@@ -150,6 +176,12 @@ export async function POST(req: NextRequest) {
             status: taskData.status,
             hasOrder: !!existingTask.order,
             isMockMode,
+            extractedData: {
+              pageTitle,
+              contentUrl,
+              taskCategory,
+              deliverableCount: allDeliverables.length,
+            },
           },
         },
       })
@@ -183,8 +215,8 @@ export async function POST(req: NextRequest) {
           taskType: taskData.taskType,
           status: taskData.status,
           completionDate: taskData.completionDate ? new Date(taskData.completionDate) : null,
-          postTitle: `${taskData.taskType} Task - ${taskData.externalId}`,
-          postUrl: '',
+          postTitle: pageTitle || `${taskData.taskType} Task - ${taskData.externalId}`,
+          postUrl: contentUrl || '',
           completionNotes: taskData.completionNotes,
           isWeekly: false,
           payload: {
@@ -205,10 +237,26 @@ export async function POST(req: NextRequest) {
       })
 
       if (matchingOrder) {
-        // Link task to order
+        // Link task to order and update order with enhanced data
         await prisma.sEOWorksTask.update({
           where: { id: newTask.id },
           data: { orderId: matchingOrder.id },
+        })
+
+        // Update order with extracted data
+        await prisma.order.update({
+          where: { id: matchingOrder.id },
+          data: {
+            status: taskData.status,
+            pageTitle,
+            contentUrl,
+            taskCategory,
+            actualHours: taskData.actualHours,
+            qualityScore: taskData.qualityScore,
+            deliverables: allDeliverables.length > 0
+              ? allDeliverables as Prisma.InputJsonValue
+              : undefined,
+          },
         })
       }
 
@@ -226,6 +274,12 @@ export async function POST(req: NextRequest) {
             status: taskData.status,
             matchedOrder: !!matchingOrder,
             isMockMode,
+            extractedData: {
+              pageTitle,
+              contentUrl,
+              taskCategory,
+              deliverableCount: allDeliverables.length,
+            },
           },
         },
       })
@@ -274,51 +328,53 @@ export async function POST(req: NextRequest) {
 }
 
 // GET endpoint for testing webhook connectivity
-export async function GET(req: NextRequest) {
-  const isMockMode = !process.env.SEOWORKS_API_KEY || process.env.SEOWORKS_MOCK_MODE === 'true'
+export async function GET(request: NextRequest) {
+  const apiKey = request.headers.get('x-api-key')
+  const expectedKey = process.env.SEOWORKS_WEBHOOK_SECRET || process.env.SEOWORKS_API_KEY || ''
   
-  // In production, require API key
-  if (!isMockMode) {
-    const apiKey = req.headers.get('x-api-key')
-    if (!apiKey || apiKey !== process.env.SEOWORKS_API_KEY) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  if (!expectedKey) {
+    return NextResponse.json(
+      { error: 'Webhook not configured' },
+      { status: 500 }
+    )
   }
-
+  
+  if (!verifyApiKey(apiKey, expectedKey)) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    )
+  }
+  
   return NextResponse.json({
-    success: true,
+    status: 'healthy',
     endpoint: '/api/seoworks/webhook',
-    status: 'ready',
-    mode: isMockMode ? 'mock' : 'production',
-    acceptedMethods: ['POST', 'GET'],
-    authentication: isMockMode 
-      ? {
-          mode: 'mock',
-          info: 'Mock mode enabled - using test authentication',
-        }
-      : {
-          mode: 'production',
-          requiredHeaders: {
-            'x-api-key': 'API key configured in SEOWORKS_WEBHOOK_SECRET or SEOWORKS_API_KEY',
-          },
-        },
-    schema: {
-      eventType: 'string (required) - One of: task.created, task.updated, task.completed, task.cancelled',
-      timestamp: 'string (required) - ISO 8601 datetime',
+    acceptedMethods: ['GET', 'POST'],
+    expectedFormat: {
+      eventType: 'task.completed',
+      timestamp: '2024-03-15T10:30:00Z',
       data: {
-        externalId: 'string (required) - Unique task identifier from SEO Works',
-        taskType: 'string (required) - One of: blog, page, gbp, maintenance, seo, seo_audit',
-        status: 'string (required) - One of: pending, in_progress, completed, cancelled',
-        assignedTo: 'string (optional) - Email of assigned team member',
-        completionDate: 'string (optional) - ISO 8601 datetime when completed',
-        deliverables: 'array (optional) - List of deliverable objects with type, url, title, description',
-        completionNotes: 'string (optional) - Additional notes from SEO Works',
-        actualHours: 'number (optional) - Actual hours spent on task',
-        qualityScore: 'number (optional) - Quality score 1-5',
-      },
+        externalId: 'task-123',
+        taskType: 'blog | page | gbp | maintenance | seo | seo_audit',
+        status: 'pending | in_progress | completed | cancelled',
+        completionDate: '2024-03-15T10:30:00Z (optional)',
+        completionNotes: 'Notes about completion (optional)',
+        deliverables: [
+          {
+            type: 'blog_post',
+            url: 'https://example.com/blog/post',
+            title: 'Post Title',
+            description: 'Post description'
+          }
+        ],
+        actualHours: 5,
+        qualityScore: 5
+      }
     },
-    testingInstructions: isMockMode 
-      ? 'Use the /api/seoworks/test endpoint to simulate webhook calls'
-      : 'Contact SEO Works for webhook testing credentials',
+    enhancedFields: {
+      pageTitle: 'Extracted from first deliverable title',
+      contentUrl: 'Extracted from first deliverable URL',
+      taskCategory: 'Auto-mapped from taskType (e.g., Content Creation, Local SEO)'
+    }
   })
 }

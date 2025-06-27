@@ -115,7 +115,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
   const [showRequestForm, setShowRequestForm] = useState(false)
   const [conversationContext, setConversationContext] = useState<ConversationContext>({})
   const [conversationId, setConversationId] = useState<string | null>(null)
-  const [selectedModel] = useState('openai/gpt-4-turbo-preview')
+  const [selectedModel] = useState('openai/gpt-4o')
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -281,10 +281,14 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
         setMessages(prev => [...prev, assistantMessage])
       } else {
         // Regular chat response - Call the actual API
-        const requestData = {
+        const requestData: any = {
           message: userMessage.content,
-          conversationId: conversationId,
           model: selectedModel,
+        }
+        
+        // Only include conversationId if it's not null
+        if (conversationId) {
+          requestData.conversationId = conversationId
         }
 
         console.log('Sending chat request:', requestData)

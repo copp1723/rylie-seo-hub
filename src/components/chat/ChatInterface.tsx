@@ -101,14 +101,14 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
     try {
       console.log('Sending chat request:', {
         message: userMessage.content,
-        model: 'gpt-4-turbo-preview',
+        model: 'openai/gpt-4o',
       })
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage.content,
-          model: 'gpt-4-turbo-preview',
+          model: 'openai/gpt-4o',
         }),
       })
 

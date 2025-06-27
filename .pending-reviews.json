@@ -8,7 +8,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:20.073Z"
+    "timestamp": "2025-06-27T03:54:19.973Z"
   },
   {
     "branch": "feature/4-multi-tenant-middleware",
@@ -17,13 +17,13 @@
       "riskLevel": "high",
       "issues": [
         "database-change: prisma/schema.prisma",
-        "security-sensitive: scripts/setup-google-oauth.sh",
         "api-change: src/app/api/admin/agencies/route.ts",
-        "api-change: src/app/api/admin/feature-flags/route.ts",
+        "api-change: src/app/api/agencies/current/route.ts",
+        "api-change: src/app/api/agency/onboarding/approve/route.ts",
+        "api-change: src/app/api/agency/onboarding/route.ts",
         "api-change: src/app/api/chat/route.ts",
         "api-change: src/app/api/conversations/[id]/route.ts",
         "api-change: src/app/api/conversations/route.ts",
-        "api-change: src/app/api/ga4/connect/route.ts",
         "api-change: src/app/api/ga4/properties/route.ts",
         "api-change: src/app/api/invite/[token]/accept/route.ts",
         "api-change: src/app/api/invite/[token]/route.ts",
@@ -31,11 +31,13 @@
         "api-change: src/app/api/orders/[id]/messages/route.ts",
         "api-change: src/app/api/orders/[id]/route.ts",
         "api-change: src/app/api/orders/route.ts",
+        "api-change: src/app/api/reports/failed/route.ts",
+        "api-change: src/app/api/reports/retry/[executionId]/route.ts",
         "api-change: src/app/api/reports/schedule/route.ts",
-        "api-change: src/app/api/seoworks/webhook/route.ts",
-        "api-change: src/app/api/simple-invite/route.ts",
-        "api-change: src/app/api/user/theme/route.ts",
-        "api-change: src/app/api/users/invite/route.ts",
+        "api-change: src/app/api/reports/schedules/[id]/pause/route.ts",
+        "api-change: src/app/api/reports/schedules/[id]/retry/route.ts",
+        "api-change: src/app/api/reports/schedules/[id]/route.ts",
+        "api-change: src/app/api/reports/schedules/route.ts",
         "api-change: src/app/api/users/route.ts",
         "security-sensitive: src/app/auth/error/page.tsx",
         "security-sensitive: src/app/auth/signin/page.tsx",
@@ -44,7 +46,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:20.371Z"
+    "timestamp": "2025-06-27T03:54:20.272Z"
   },
   {
     "branch": "feature/5-seoworks-integration-testing",
@@ -55,7 +57,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:20.650Z"
+    "timestamp": "2025-06-27T03:54:20.729Z"
   },
   {
     "branch": "feature/7-typescript-fixes",
@@ -66,19 +68,47 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:20.910Z"
+    "timestamp": "2025-06-27T03:54:21.055Z"
+  },
+  {
+    "branch": "feature/TICKET-001-package-definitions",
+    "files": 50,
+    "analysis": {
+      "riskLevel": "high",
+      "issues": [
+        "api-change: src/app/api/package-progress/route.ts",
+        "api-change: test-ai/debug-api.js",
+        "api-change: test-ai/test-api.js"
+      ],
+      "suggestions": [],
+      "conflicts": []
+    },
+    "timestamp": "2025-06-27T03:54:21.342Z"
+  },
+  {
+    "branch": "feature/TICKET-002-order-enhancement-fields",
+    "files": 54,
+    "analysis": {
+      "riskLevel": "high",
+      "issues": [
+        "database-change: prisma/schema.prisma",
+        "api-change: src/app/api/package-progress/route.ts",
+        "api-change: test-ai/debug-api.js",
+        "api-change: test-ai/test-api.js"
+      ],
+      "suggestions": [],
+      "conflicts": []
+    },
+    "timestamp": "2025-06-27T03:54:21.603Z"
   },
   {
     "branch": "feature/TICKET-003-webhook-enhanced-data",
-    "files": 263,
+    "files": 177,
     "analysis": {
       "riskLevel": "high",
       "issues": [
         "environment-change: .env.example",
-        "environment-change: .env.production",
-        "api-change: docs/api/ga4-properties.md",
         "database-change: prisma/schema.prisma",
-        "security-sensitive: scripts/setup-google-oauth.sh",
         "api-change: scripts/test-seoworks-api.sh",
         "api-change: src/app/api/admin/agencies/route.ts",
         "api-change: src/app/api/admin/feature-flags/route.ts",
@@ -90,11 +120,8 @@
         "api-change: src/app/api/conversations/[id]/route.ts",
         "api-change: src/app/api/conversations/route.ts",
         "api-change: src/app/api/debug-user/route.ts",
-        "security-sensitive: src/app/api/ga4/auth/callback/route.ts",
         "api-change: src/app/api/ga4/auth/callback/route.ts",
-        "security-sensitive: src/app/api/ga4/auth/route.test.ts",
         "api-change: src/app/api/ga4/auth/route.test.ts",
-        "security-sensitive: src/app/api/ga4/auth/route.ts",
         "api-change: src/app/api/ga4/auth/route.ts",
         "api-change: src/app/api/ga4/connect/route.ts",
         "api-change: src/app/api/ga4/disconnect/route.ts",
@@ -104,8 +131,10 @@
         "api-change: src/app/api/make-me-admin/route.ts",
         "api-change: src/app/api/models/route.ts",
         "api-change: src/app/api/onboarding/route.ts",
+        "api-change: src/app/api/onboarding/test/route.ts",
         "api-change: src/app/api/orders/[id]/messages/route.ts",
         "api-change: src/app/api/orders/[id]/route.ts",
+        "api-change: src/app/api/orders/[id]/upload/route.ts",
         "api-change: src/app/api/orders/route.ts",
         "api-change: src/app/api/reports/failed/route.ts",
         "api-change: src/app/api/reports/retry/[executionId]/route.ts",
@@ -123,6 +152,7 @@
         "api-change: src/app/api/seoworks/tasks/complete/route.ts",
         "api-change: src/app/api/seoworks/tasks/status/route.ts",
         "api-change: src/app/api/seoworks/tasks/types/route.ts",
+        "api-change: src/app/api/seoworks/test-webhook/README.md",
         "api-change: src/app/api/seoworks/test-webhook/route.ts",
         "api-change: src/app/api/seoworks/test/route.ts",
         "api-change: src/app/api/seoworks/webhook/README.md",
@@ -142,12 +172,13 @@
         "api-change: src/lib/api/route-handler.ts",
         "security-sensitive: src/lib/auth.ts",
         "security-sensitive: src/lib/auth/user-resolver.ts",
-        "security-sensitive: src/lib/google-auth.ts"
+        "security-sensitive: src/lib/google-auth.ts",
+        "security-sensitive: src/types/next-auth.d.ts"
       ],
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:21.275Z"
+    "timestamp": "2025-06-27T03:54:21.937Z"
   },
   {
     "branch": "feature/agency-isolation",
@@ -162,7 +193,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:21.790Z"
+    "timestamp": "2025-06-27T03:54:22.189Z"
   },
   {
     "branch": "feature/audit-logging",
@@ -171,28 +202,29 @@
       "riskLevel": "high",
       "issues": [
         "environment-change: .env.example",
-        "environment-change: .env.production",
-        "environment-change: .env.production.example",
-        "security-sensitive: auth-disabled.patch",
         "database-change: prisma/schema.prisma",
-        "security-sensitive: scripts/migrate-auth-routes.ts",
-        "security-sensitive: scripts/test-auth-system.ts",
-        "api-change: src/app/api/admin/audit-logs/cleanup/route.ts",
-        "api-change: src/app/api/admin/audit-logs/route.ts",
+        "api-change: src/app/api/admin/agencies/route.ts",
+        "api-change: src/app/api/agencies/current/route.ts",
+        "security-sensitive: src/app/api/auth/[...nextauth]/route.ts",
+        "api-change: src/app/api/auth/[...nextauth]/route.ts",
         "api-change: src/app/api/chat/route.ts",
-        "api-change: src/app/api/chat/stream/route.ts",
         "api-change: src/app/api/conversations/[id]/route.ts",
         "api-change: src/app/api/conversations/route.ts",
+        "api-change: src/app/api/ga4/properties/route.ts",
+        "api-change: src/app/api/invite/[token]/accept/route.ts",
+        "api-change: src/app/api/invite/[token]/route.ts",
+        "api-change: src/app/api/onboarding/route.ts",
         "api-change: src/app/api/orders/[id]/messages/route.ts",
         "api-change: src/app/api/orders/[id]/route.ts",
-        "api-change: src/app/api/orders/[id]/upload/route.ts",
         "api-change: src/app/api/orders/route.ts",
-        "api-change: src/app/api/seoworks/queue/route.ts",
-        "api-change: src/app/api/seoworks/test/route.ts",
-        "api-change: src/app/api/seoworks/webhook/route.ts",
-        "api-change: src/app/api/user/details/route.ts",
-        "api-change: src/app/api/user/theme/route.ts",
-        "api-change: src/lib/api/route-handler-patched.ts",
+        "api-change: src/app/api/reports/failed/route.ts",
+        "api-change: src/app/api/reports/retry/[executionId]/route.ts",
+        "api-change: src/app/api/reports/schedule/route.ts",
+        "api-change: src/app/api/reports/schedules/[id]/pause/route.ts",
+        "api-change: src/app/api/reports/schedules/[id]/retry/route.ts",
+        "api-change: src/app/api/reports/schedules/[id]/route.ts",
+        "api-change: src/app/api/reports/schedules/route.ts",
+        "api-change: src/app/api/users/route.ts",
         "api-change: src/lib/api/route-handler.ts",
         "security-sensitive: src/lib/auth.ts",
         "security-sensitive: src/lib/auth/user-resolver.ts",
@@ -201,7 +233,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:22.107Z"
+    "timestamp": "2025-06-27T03:54:22.480Z"
   },
   {
     "branch": "feature/auth-google-oauth",
@@ -217,7 +249,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:22.395Z"
+    "timestamp": "2025-06-27T03:54:23.008Z"
   },
   {
     "branch": "feature/cleanup-and-dependency-update",
@@ -226,7 +258,7 @@
       "riskLevel": "high",
       "issues": [
         "api-change: src/app/api/admin/agencies/route.ts",
-        "api-change: src/app/api/chat/route.ts",
+        "api-change: src/app/api/admin/feature-flags/route.ts",
         "api-change: src/app/api/onboarding/route.ts",
         "api-change: src/app/api/upload/route.ts",
         "security-sensitive: src/lib/auth-utils.ts",
@@ -235,7 +267,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:22.673Z"
+    "timestamp": "2025-06-27T03:54:23.300Z"
   },
   {
     "branch": "feature/dealership-onboarding",
@@ -250,7 +282,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:22.953Z"
+    "timestamp": "2025-06-27T03:54:23.579Z"
   },
   {
     "branch": "feature/phase-1-core-features",
@@ -259,7 +291,7 @@
       "riskLevel": "high",
       "issues": [
         "database-change: prisma/schema.prisma",
-        "api-change: src/app/api/chat/stream/route.ts",
+        "api-change: src/app/api/admin/agencies/route.ts",
         "api-change: src/app/api/orders/[id]/messages/route.ts",
         "api-change: src/app/api/orders/[id]/route.ts",
         "api-change: src/app/api/orders/[id]/upload/route.ts",
@@ -269,7 +301,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:23.371Z"
+    "timestamp": "2025-06-27T03:54:23.838Z"
   },
   {
     "branch": "feature/ui-enhancements",
@@ -278,38 +310,33 @@
       "riskLevel": "high",
       "issues": [
         "environment-change: .env.example",
-        "environment-change: .env.production",
-        "environment-change: .env.production.example",
-        "security-sensitive: auth-disabled.patch",
         "database-change: prisma/schema.prisma",
-        "security-sensitive: scripts/migrate-auth-routes.ts",
-        "security-sensitive: scripts/test-auth-system.ts",
-        "api-change: src/app/api/admin/audit-logs/cleanup/route.ts",
-        "api-change: src/app/api/admin/audit-logs/route.ts",
-        "api-change: src/app/api/agency/branding/route.ts",
-        "api-change: src/app/api/agency/onboarding/approve/route.ts",
-        "api-change: src/app/api/agency/onboarding/route.ts",
-        "api-change: src/app/api/agency/theme/route.ts",
+        "api-change: src/app/api/admin/agencies/route.ts",
+        "api-change: src/app/api/agencies/current/route.ts",
+        "security-sensitive: src/app/api/auth/[...nextauth]/route.ts",
+        "api-change: src/app/api/auth/[...nextauth]/route.ts",
         "api-change: src/app/api/chat/route.ts",
-        "api-change: src/app/api/chat/stream/route.ts",
         "api-change: src/app/api/conversations/[id]/route.ts",
         "api-change: src/app/api/conversations/route.ts",
+        "api-change: src/app/api/ga4/properties/route.ts",
+        "api-change: src/app/api/invite/[token]/accept/route.ts",
+        "api-change: src/app/api/invite/[token]/route.ts",
+        "api-change: src/app/api/models/route.ts",
         "api-change: src/app/api/onboarding/route.ts",
-        "api-change: src/app/api/orders/[id]/assign/route.ts",
-        "api-change: src/app/api/orders/[id]/deliverables/route.ts",
         "api-change: src/app/api/orders/[id]/messages/route.ts",
-        "api-change: src/app/api/orders/[id]/notes/route.ts",
         "api-change: src/app/api/orders/[id]/route.ts",
-        "api-change: src/app/api/orders/[id]/status/route.ts",
-        "api-change: src/app/api/orders/[id]/time/route.ts",
-        "api-change: src/app/api/orders/[id]/upload/route.ts",
         "api-change: src/app/api/orders/route.ts",
-        "api-change: src/app/api/seoworks/queue/route.ts",
-        "api-change: src/app/api/seoworks/test/route.ts",
-        "api-change: src/app/api/seoworks/webhook/route.ts",
-        "api-change: src/app/api/user/details/route.ts",
+        "api-change: src/app/api/reports/failed/route.ts",
+        "api-change: src/app/api/reports/retry/[executionId]/route.ts",
+        "api-change: src/app/api/reports/schedule/route.ts",
+        "api-change: src/app/api/reports/schedules/[id]/pause/route.ts",
+        "api-change: src/app/api/reports/schedules/[id]/retry/route.ts",
+        "api-change: src/app/api/reports/schedules/[id]/route.ts",
+        "api-change: src/app/api/reports/schedules/route.ts",
+        "api-change: src/app/api/simple-invite/route.ts",
         "api-change: src/app/api/user/theme/route.ts",
-        "api-change: src/lib/api/route-handler-patched.ts",
+        "api-change: src/app/api/users/invite/route.ts",
+        "api-change: src/app/api/users/route.ts",
         "api-change: src/lib/api/route-handler.ts",
         "security-sensitive: src/lib/auth.ts",
         "security-sensitive: src/lib/auth/user-resolver.ts",
@@ -318,7 +345,7 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:23.701Z"
+    "timestamp": "2025-06-27T03:54:24.133Z"
   },
   {
     "branch": "feature/unified-auth-system",
@@ -327,7 +354,7 @@
       "riskLevel": "high",
       "issues": [
         "environment-change: .env.example",
-        "security-sensitive: scripts/migrate-auth-routes.ts",
+        "database-change: prisma/schema.prisma",
         "security-sensitive: scripts/test-auth-system.ts",
         "api-change: src/app/api/orders/route.ts",
         "api-change: src/lib/api/route-handler.ts",
@@ -336,6 +363,6 @@
       "suggestions": [],
       "conflicts": []
     },
-    "timestamp": "2025-06-27T03:24:23.979Z"
+    "timestamp": "2025-06-27T03:54:24.415Z"
   }
 ]
