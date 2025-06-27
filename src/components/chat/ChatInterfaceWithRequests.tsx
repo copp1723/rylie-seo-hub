@@ -424,12 +424,10 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
           </div>
         ) : showRequestForm ? (
           <div className="max-w-4xl mx-auto">
-            <RequestForm onSubmit={handleRequestSubmit} isLoading={isLoading} />
-            <div className="mt-4 text-center">
-              <Button variant="ghost" onClick={() => setShowRequestForm(false)}>
-                Back to Chat
-              </Button>
-            </div>
+            <RequestForm 
+              onSubmit={handleRequestSubmit} 
+              onCancel={() => setShowRequestForm(false)} 
+            />
           </div>
         ) : (
           <div className="max-w-4xl mx-auto space-y-4">

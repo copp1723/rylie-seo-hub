@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Alert } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Toast } from '@/components/ui/toast'
 import { CheckCircle, AlertCircle, BarChart, ExternalLink, RefreshCw, Unlink, Settings } from 'lucide-react'
 
 interface GA4Property {
@@ -204,11 +203,9 @@ export default function GA4SettingsContent() {
 
       {/* Toast Notifications */}
       {toast.show && (
-        <Toast
-          variant={toast.variant}
-          description={toast.message}
-          onClose={dismissToast}
-        />
+        <Alert variant={toast.variant === 'error' ? 'destructive' : 'default'}>
+          <p>{toast.message}</p>
+        </Alert>
       )}
 
       {/* Error Alert */}

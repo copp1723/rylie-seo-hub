@@ -8,7 +8,6 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Download, FileText, Table, Code } from 'lucide-react';
-import { toast } from 'sonner';
 
 export function ExportReport({ data }: { data: any }) {
   const handleExport = async (format: 'pdf' | 'csv' | 'json') => {
@@ -34,10 +33,10 @@ export function ExportReport({ data }: { data: any }) {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success(`Report exported as ${format.toUpperCase()}`);
+      // Success - file downloaded
     } catch (error) {
       console.error('Export failed:', error);
-      toast.error('Failed to export report');
+      alert('Failed to export report');
     }
   };
 

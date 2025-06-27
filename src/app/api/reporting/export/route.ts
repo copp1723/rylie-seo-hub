@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import { exportReport } from '@/lib/reporting/dataAggregator';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -20,6 +19,13 @@ export async function POST(req: NextRequest) {
     }
 
     const exportedData = await exportReport(data, format as 'pdf' | 'csv' | 'json');
+
+    if (!exportedData) {
+      return NextResponse.json(
+        { error: 'Failed to generate export' },
+        { status: 500 }
+      );
+    }
 
     // Set appropriate headers based on format
     const headers = new Headers();

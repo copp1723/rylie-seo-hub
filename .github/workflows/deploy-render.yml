@@ -1,0 +1,73 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Get commit info
+      id: commit
+      run: |
+        echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
+        echo "author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
+        
+    - name: Deploy to Render
+      env:
+        deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      run: |
+        if [ -z "$deploy_url" ]; then
+          echo "❌ RENDER_DEPLOY_HOOK_URL secret not set!"
+          echo "Please add your Render deploy hook URL as a GitHub secret"
+          exit 1
+        fi
+        
+        echo "🚀 Triggering Render deployment..."
+        echo "📍 Commit: ${{ steps.commit.outputs.sha_short }}"
+        echo "💬 Message: ${{ steps.commit.outputs.message }}"
+        echo "👤 Author: ${{ steps.commit.outputs.author }}"
+        
+        response=$(curl -s -w "\n%{http_code}" "$deploy_url")
+        http_code=$(echo "$response" | tail -1)
+        body=$(echo "$response" | head -n -1)
+        
+        if [ "$http_code" = "200" ] || [ "$http_code" = "201" ] || [ "$http_code" = "202" ]; then
+          echo "✅ Deployment triggered successfully!"
+          echo "Response: $body"
+        else
+          echo "❌ Failed to trigger deployment"
+          echo "HTTP Code: $http_code"
+          echo "Response: $body"
+          exit 1
+        fi
+        
+    - name: Create deployment status
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const deployment = await github.rest.repos.createDeployment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha,
+            environment: 'production',
+            description: 'Deploying to Render',
+            auto_merge: false,
+            required_contexts: []
+          });
+          
+          await github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: deployment.data.id,
+            state: 'success',
+            environment_url: 'https://rylie-seo-hub.onrender.com',
+            description: 'Deployment triggered on Render'
+          });

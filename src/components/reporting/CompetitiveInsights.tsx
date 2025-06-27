@@ -11,8 +11,12 @@ import { Info, TrendingUp, TrendingDown } from 'lucide-react';
 export function CompetitiveInsights() {
   const { data: searchData, loading } = useSearchConsole('primary', 30);
 
-  const competitiveKeywords = searchData?.competitive || [];
-  const marketShare = searchData?.marketShare || {};
+  // Process search data to extract competitive insights
+  const topQueries = searchData?.queries?.slice(0, 10) || [];
+  const totalImpressions = searchData?.queries?.reduce((sum, q) => sum + q.impressions, 0) || 0;
+  const totalClicks = searchData?.queries?.reduce((sum, q) => sum + q.clicks, 0) || 0;
+  const avgPosition = searchData?.queries?.reduce((sum, q, idx, arr) => 
+    idx === arr.length - 1 ? (sum + q.position) / arr.length : sum + q.position, 0) || 0;
 
   return (
     <div className="space-y-6">
@@ -34,33 +38,33 @@ export function CompetitiveInsights() {
       {/* Competitive Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <MetricCard
-          title="Market Visibility"
-          value={marketShare.visibility || 0}
-          change={marketShare.visibilityChange || 0}
-          period="vs last period"
+          title="Search Impressions"
+          value={totalImpressions}
+          change={0}
+          period="last 30 days"
+          loading={loading}
+        />
+        <MetricCard
+          title="Click-Through Rate"
+          value={totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0}
+          change={0}
+          period="last 30 days"
           format="percentage"
           loading={loading}
         />
         <MetricCard
-          title="Share of Voice"
-          value={marketShare.shareOfVoice || 0}
-          change={marketShare.sovChange || 0}
-          period="vs last period"
-          format="percentage"
+          title="Total Keywords"
+          value={searchData?.queries?.length || 0}
+          change={0}
+          period="last 30 days"
           loading={loading}
         />
         <MetricCard
-          title="Ranking Keywords"
-          value={searchData?.totalRankingKeywords || 0}
-          change={searchData?.keywordChange || 0}
-          period="vs last period"
-          loading={loading}
-        />
-        <MetricCard
-          title="Top 10 Rankings"
-          value={searchData?.top10Rankings || 0}
-          change={searchData?.top10Change || 0}
-          period="vs last period"
+          title="Avg. Position"
+          value={avgPosition}
+          change={0}
+          period="last 30 days"
+          format="decimal"
           loading={loading}
         />
       </div>
@@ -75,18 +79,18 @@ export function CompetitiveInsights() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {competitiveKeywords.map((keyword: any, index: number) => (
+            {topQueries.map((keyword: any, index: number) => (
               <div key={index} className="p-4 border rounded-lg">
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <p className="font-medium">{keyword.query}</p>
+                    <p className="font-medium">{keyword.keys?.[0] || 'Unknown'}</p>
                     <p className="text-sm text-muted-foreground">
-                      Search Volume: {keyword.searchVolume?.toLocaleString() || 'N/A'} / month
+                      Impressions: {keyword.impressions?.toLocaleString() || 0}
                     </p>
                   </div>
-                  <Badge variant={keyword.difficulty === 'high' ? 'destructive' : 
-                               keyword.difficulty === 'medium' ? 'secondary' : 'default'}>
-                    {keyword.difficulty} difficulty
+                  <Badge variant={keyword.position <= 10 ? 'default' : 
+                               keyword.position <= 20 ? 'secondary' : 'destructive'}>
+                    Position {keyword.position?.toFixed(1) || 'N/A'}
                   </Badge>
                 </div>
 
@@ -95,34 +99,22 @@ export function CompetitiveInsights() {
                     <p className="text-sm font-medium mb-1">Your Position</p>
                     <div className="flex items-center gap-2">
                       <span className="text-2xl font-bold">
-                        {keyword.yourPosition.toFixed(1)}
+                        {keyword.position?.toFixed(1) || 'N/A'}
                       </span>
-                      {keyword.positionChange !== 0 && (
-                        <div className="flex items-center">
-                          {keyword.positionChange < 0 ? (
-                            <TrendingUp className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <TrendingDown className="h-4 w-4 text-red-500" />
-                          )}
-                          <span className="text-sm">
-                            {Math.abs(keyword.positionChange)}
-                          </span>
-                        </div>
-                      )}
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium mb-1">Top Competitor</p>
-                    <p className="text-sm">{keyword.topCompetitor || 'Unknown'}</p>
+                    <p className="text-sm font-medium mb-1">Clicks</p>
+                    <p className="text-2xl font-bold">{keyword.clicks || 0}</p>
                     <p className="text-xs text-muted-foreground">
-                      Position: {keyword.competitorPosition || 'N/A'}
+                      CTR: {keyword.ctr ? `${(keyword.ctr * 100).toFixed(2)}%` : '0%'}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium mb-1">Opportunity</p>
-                    <p className="text-sm">{keyword.opportunity}</p>
+                    <p className="text-sm font-medium mb-1">Performance</p>
+                    <p className="text-sm">{keyword.clicks > 0 ? 'Getting clicks' : 'Need optimization'}</p>
                   </div>
                 </div>
               </div>
@@ -143,8 +135,8 @@ export function CompetitiveInsights() {
           <CardContent>
             <TrendChart
               title=""
-              data={searchData?.visibilityTrend || []}
-              dataKey="visibility"
+              data={searchData?.performance || []}
+              dataKey="clicks"
               height={250}
               loading={loading}
             />
@@ -163,28 +155,28 @@ export function CompetitiveInsights() {
               <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg">
                 <p className="font-medium text-sm">Quick Wins</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {searchData?.quickWins || 0} keywords ranking 11-20 that could easily reach page 1
+                  {searchData?.queries?.filter(q => q.position > 10 && q.position <= 20).length || 0} keywords ranking 11-20 that could easily reach page 1
                 </p>
               </div>
 
               <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
                 <p className="font-medium text-sm">Content Gaps</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {searchData?.contentGaps || 0} high-value keywords competitors rank for but you don't
+                  {searchData?.queries?.filter(q => q.impressions > 1000 && q.clicks === 0).length || 0} high-impression keywords with no clicks
                 </p>
               </div>
 
               <div className="p-3 bg-purple-50 dark:bg-purple-950 rounded-lg">
                 <p className="font-medium text-sm">Featured Snippets</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {searchData?.snippetOpportunities || 0} queries where you could win featured snippets
+                  {searchData?.queries?.filter(q => q.position <= 5).length || 0} queries where you rank in top 5
                 </p>
               </div>
 
               <div className="p-3 bg-orange-50 dark:bg-orange-950 rounded-lg">
                 <p className="font-medium text-sm">Local Pack</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {searchData?.localPackOpportunities || 0} local searches where you're not in the 3-pack
+                  {searchData?.queries?.filter(q => q.keys?.[0]?.includes('near me')).length || 0} "near me" searches found
                 </p>
               </div>
             </div>

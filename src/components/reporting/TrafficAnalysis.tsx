@@ -6,7 +6,6 @@ import { MetricCard } from './MetricCard';
 import { TrendChart } from './TrendChart';
 import { useGA4Data } from '@/hooks/useGA4Data';
 import { ExportReport } from './ExportReport';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export function TrafficAnalysis() {
   const { data: trafficData, loading } = useGA4Data({
@@ -89,15 +88,22 @@ export function TrafficAnalysis() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={channelData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="channel" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="sessions" fill="hsl(var(--primary))" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="space-y-4">
+                {channelData.map((channel: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="font-medium">{channel.channel}</p>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                        <div 
+                          className="bg-primary h-2 rounded-full" 
+                          style={{ width: `${(channel.sessions / Math.max(...channelData.map((c: any) => c.sessions))) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="ml-4 font-medium">{channel.sessions.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -111,15 +117,22 @@ export function TrafficAnalysis() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={deviceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="device" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="sessions" fill="hsl(var(--primary))" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="space-y-4">
+                {deviceData.map((device: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="font-medium">{device.device}</p>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                        <div 
+                          className="bg-primary h-2 rounded-full" 
+                          style={{ width: `${(device.sessions / Math.max(...deviceData.map((d: any) => d.sessions))) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="ml-4 font-medium">{device.sessions.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

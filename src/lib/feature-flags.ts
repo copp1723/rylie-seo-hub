@@ -1,6 +1,9 @@
 // Feature flags for gradual rollout of features
+
+// Use a runtime check instead of build-time env var
 export const FEATURE_FLAGS = {
-  USE_REQUESTS_TERMINOLOGY: process.env.NEXT_PUBLIC_USE_REQUESTS_TERMINOLOGY === 'true'
+  // Always use requests terminology in production
+  USE_REQUESTS_TERMINOLOGY: true
 };
 
 // Helper function for terminology switching

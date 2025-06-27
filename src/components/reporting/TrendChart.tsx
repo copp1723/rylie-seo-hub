@@ -2,16 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
 
 interface TrendChartProps {
   title: string;
@@ -43,53 +33,38 @@ export function TrendChart({
     );
   }
 
+  // Simple text-based representation
+  const hasData = data && data.length > 0;
+  const latestValue = hasData ? data[data.length - 1]?.[dataKey] : 0;
+  const firstValue = hasData ? data[0]?.[dataKey] : 0;
+  const change = firstValue > 0 ? ((latestValue - firstValue) / firstValue) * 100 : 0;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={height}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis
-              dataKey="date"
-              className="text-xs"
-              tick={{ fill: 'currentColor' }}
-            />
-            <YAxis
-              className="text-xs"
-              tick={{ fill: 'currentColor' }}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: 'hsl(var(--background))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '6px',
-              }}
-            />
-            {secondaryDataKey && <Legend />}
-            <Line
-              type="monotone"
-              dataKey={dataKey}
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              dot={false}
-              name={dataKey.charAt(0).toUpperCase() + dataKey.slice(1)}
-            />
-            {secondaryDataKey && (
-              <Line
-                type="monotone"
-                dataKey={secondaryDataKey}
-                stroke="hsl(var(--muted-foreground))"
-                strokeWidth={2}
-                dot={false}
-                strokeDasharray="5 5"
-                name={secondaryDataKey.charAt(0).toUpperCase() + secondaryDataKey.slice(1)}
-              />
-            )}
-          </LineChart>
-        </ResponsiveContainer>
+        <div style={{ height }} className="flex flex-col justify-center items-center">
+          {hasData ? (
+            <div className="text-center">
+              <p className="text-3xl font-bold">{latestValue.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Latest {dataKey}
+              </p>
+              <p className={`text-sm mt-2 ${change > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {change > 0 ? '+' : ''}{change.toFixed(1)}% from start
+              </p>
+              {secondaryDataKey && data[data.length - 1]?.[secondaryDataKey] && (
+                <p className="text-sm text-muted-foreground mt-4">
+                  {secondaryDataKey}: {data[data.length - 1][secondaryDataKey].toLocaleString()}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">No data available</p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

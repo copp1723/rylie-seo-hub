@@ -9,10 +9,18 @@ import { ExportReport } from './ExportReport';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 export function SearchPerformance() {
-  const { data: searchData, loading, primarySite } = useSearchConsole('primary', 30);
+  const { data: searchData, loading } = useSearchConsole('primary', 30);
 
   const topQueries = searchData?.queries || [];
   const topPages = searchData?.pages || [];
+  
+  // Calculate aggregate metrics
+  const totalClicks = topQueries.reduce((sum, q) => sum + q.clicks, 0);
+  const totalImpressions = topQueries.reduce((sum, q) => sum + q.impressions, 0);
+  const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
+  const avgPosition = topQueries.length > 0 
+    ? topQueries.reduce((sum, q) => sum + q.position, 0) / topQueries.length 
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -22,11 +30,6 @@ export function SearchPerformance() {
           <p className="text-muted-foreground">
             How your site performs in Google Search
           </p>
-          {primarySite && (
-            <p className="text-sm text-muted-foreground mt-1">
-              Tracking: {primarySite}
-            </p>
-          )}
         </div>
         <ExportReport data={searchData} />
       </div>
@@ -35,31 +38,31 @@ export function SearchPerformance() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <MetricCard
           title="Total Clicks"
-          value={searchData?.totalClicks || 0}
-          change={searchData?.clickChange || 0}
-          period="vs last period"
+          value={totalClicks}
+          change={0}
+          period="last 30 days"
           loading={loading}
         />
         <MetricCard
           title="Total Impressions"
-          value={searchData?.totalImpressions || 0}
-          change={searchData?.impressionChange || 0}
-          period="vs last period"
+          value={totalImpressions}
+          change={0}
+          period="last 30 days"
           loading={loading}
         />
         <MetricCard
           title="Average CTR"
-          value={searchData?.avgCTR || 0}
-          change={searchData?.ctrChange || 0}
-          period="vs last period"
+          value={avgCTR}
+          change={0}
+          period="last 30 days"
           format="percentage"
           loading={loading}
         />
         <MetricCard
           title="Average Position"
-          value={searchData?.avgPosition || 0}
-          change={searchData?.positionChange || 0}
-          period="vs last period"
+          value={avgPosition}
+          change={0}
+          period="last 30 days"
           format="decimal"
           inverse={true}
           loading={loading}
@@ -69,7 +72,7 @@ export function SearchPerformance() {
       {/* Performance Chart */}
       <TrendChart
         title="Search Performance Over Time"
-        data={searchData?.performanceTrend || []}
+        data={searchData?.performance || []}
         dataKey="clicks"
         secondaryDataKey="impressions"
         loading={loading}
@@ -156,27 +159,27 @@ export function SearchPerformance() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {searchData?.opportunities?.map((opp: any, index: number) => (
+                {topQueries
+                  .filter(q => q.position > 10 && q.position <= 20)
+                  .slice(0, 5)
+                  .map((query: any, index: number) => (
                   <div key={index} className="p-4 border rounded-lg">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="font-medium">{opp.query}</p>
+                        <p className="font-medium">{query.keys?.[0] || 'Unknown'}</p>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Current position: {opp.position.toFixed(1)}
+                          Current position: {query.position.toFixed(1)}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        {opp.trend === 'up' ? (
-                          <ArrowUpRight className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <ArrowDownRight className="h-4 w-4 text-red-500" />
-                        )}
                         <span className="text-sm font-medium">
-                          {opp.potentialClicks}+ potential clicks
+                          {query.impressions} impressions
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm mt-2">{opp.recommendation}</p>
+                    <p className="text-sm mt-2">
+                      Move to page 1 to capture more clicks
+                    </p>
                   </div>
                 ))}
               </div>

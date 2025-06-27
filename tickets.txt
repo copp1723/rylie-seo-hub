@@ -1,0 +1,78 @@
+# Paste your tickets here, one per line
+# Format: TICKET-XXX: Description
+# You can also include dependencies and notes
+
+TICKET-001: Add Package Definitions and Progress Calculation Logic
+- Create package configuration system
+- Add progress tracking utilities
+- Dependencies: None
+
+TICKET-002: Enhance Order Model with New Fields  
+- Add new fields to Order model
+- Update database schema
+- Dependencies: None
+
+TICKET-003: Update Webhook to Capture Enhanced Data
+- Modify webhook endpoints
+- Capture title and URL data
+- Dependencies: TICKET-002
+
+TICKET-004: Create Progress Display Components
+- Build reusable progress components
+- Add visualization elements
+- Dependencies: TICKET-001
+
+TICKET-005: Add Pre-filled SEO Prompts to Chat
+- Create prompt templates
+- Integrate into chat interface
+- Dependencies: None
+
+TICKET-006: Terminology Refactor - Orders to Requests
+- Update all UI text
+- Change "orders" to "requests"
+- Dependencies: TICKET-001, TICKET-002, TICKET-003, TICKET-004, TICKET-005, TICKET-007
+
+TICKET-007: Enhance Task Display with Titles and URLs
+- Show clickable URLs in tasks
+- Update task components
+- Dependencies: TICKET-003
+
+TICKET-008: Implement "Send to SEO Team" Escalation
+- Add escalation button
+- Create escalation workflow
+- Dependencies: TICKET-006
+
+TICKET-009: Google Search Console Integration
+- Connect to Search Console API
+- Import search data
+- Dependencies: TICKET-CA-002
+
+TICKET-010: AI Context Enhancement with Completed Tasks
+- Enhance AI with task history
+- Improve context awareness
+- Dependencies: TICKET-007, TICKET-CA-007
+
+TICKET-CA-001: Analytics Query Templates & Basic Parser
+- Create query templates
+- Build basic parser
+- Dependencies: None
+
+TICKET-CA-002: Analytics Data Fetching Service
+- Build data service layer
+- Add caching
+- Dependencies: TICKET-CA-001
+
+TICKET-CA-003: Chat Integration for Analytics Commands
+- Add analytics to chat
+- Create command parser
+- Dependencies: TICKET-CA-002, TICKET-005
+
+TICKET-CA-004: Basic Data Visualization Components
+- Create chart components
+- Add to chat interface
+- Dependencies: TICKET-CA-003
+
+TICKET-CA-005: Natural Language Query Understanding
+- Build NLU for analytics
+- Parse free-form questions
+- Dependencies: TICKET-CA-003, TICKET-CA-004

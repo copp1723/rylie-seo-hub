@@ -224,7 +224,7 @@ function calculateContentMetrics(ga4Data: any, internalData: any) {
   return { topPages, avgTimeOnPage, bounceRate };
 }
 
-function calculateConversionMetrics(ga4Data: any) {
+function calculateConversionMetrics(ga4Data: any): { total: number; rate: number; bySource: Record<string, number> } {
   if (!ga4Data?.conversions) {
     return {
       total: 0,
@@ -233,14 +233,14 @@ function calculateConversionMetrics(ga4Data: any) {
     };
   }
 
-  const bySource = (ga4Data.conversions.rows || []).reduce((acc: any, row: any) => {
+  const bySource: Record<string, number> = (ga4Data.conversions.rows || []).reduce((acc: Record<string, number>, row: any) => {
     const source = row.dimensionValues[0].value;
     const conversions = parseInt(row.metricValues[0].value);
     acc[source] = conversions;
     return acc;
   }, {});
 
-  const total = Object.values(bySource).reduce((sum: number, val: any) => sum + val, 0);
+  const total: number = Object.values(bySource).reduce((sum: number, val: number) => sum + val, 0);
   const sessions = ga4Data.traffic?.rows?.reduce((sum: number, row: any) => 
     sum + parseInt(row.metricValues[0].value), 0) || 0;
   const rate = sessions > 0 ? (total / sessions) * 100 : 0;
@@ -252,7 +252,7 @@ function calculateConversionMetrics(ga4Data: any) {
 export async function exportReport(
   data: AggregatedMetrics,
   format: 'pdf' | 'csv' | 'json'
-) {
+): Promise<string> {
   switch (format) {
     case 'pdf':
       return generatePDFReport(data);
@@ -263,14 +263,14 @@ export async function exportReport(
   }
 }
 
-async function generatePDFReport(data: AggregatedMetrics) {
+async function generatePDFReport(data: AggregatedMetrics): Promise<string> {
   // PDF generation would require a library like jsPDF or puppeteer
   // This is a placeholder for the actual implementation
   throw new Error('PDF generation not implemented yet');
 }
 
 function generateCSVReport(data: AggregatedMetrics) {
-  const rows = [
+  const rows: (string[] | string)[] = [
     ['Metric', 'Value', 'Change'],
     ['Total Traffic', data.traffic.current.toString(), `${data.traffic.change.toFixed(1)}%`],
     ['Search Clicks', data.search.clicks.toString(), ''],
@@ -287,5 +287,5 @@ function generateCSVReport(data: AggregatedMetrics) {
     ...data.content.topPages.map(p => [p.page, p.views.toString()]),
   ];
 
-  return rows.map(row => row.join(',')).join('\n');
+  return rows.map(row => typeof row === 'string' ? row : row.join(',')).join('\n');
 }

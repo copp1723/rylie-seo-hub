@@ -21,6 +21,13 @@ export function OverviewDashboard() {
 
   const loading = ga4Loading || searchLoading;
 
+  // Calculate aggregated values from search data
+  const totalClicks = searchData?.queries?.reduce((sum, q) => sum + q.clicks, 0) || 0;
+  const totalImpressions = searchData?.queries?.reduce((sum, q) => sum + q.impressions, 0) || 0;
+  const avgPosition = searchData?.queries?.length > 0 
+    ? searchData.queries.reduce((sum, q) => sum + q.position, 0) / searchData.queries.length 
+    : 0;
+
   // Calculate definitive answers
   const answers = calculateDefinitiveAnswers(ga4Data, searchData);
 
@@ -81,18 +88,19 @@ export function OverviewDashboard() {
         
         <MetricCard
           title="Search Clicks"
-          value={searchData?.totalClicks || 0}
-          change={searchData?.clickChange || 0}
-          period="vs last month"
+          value={totalClicks}
+          change={0}
+          period="last 30 days"
           loading={loading}
         />
         
         <MetricCard
           title="Avg. Position"
-          value={searchData?.avgPosition || 0}
-          change={searchData?.positionChange || 0}
-          period="vs last month"
+          value={avgPosition}
+          change={0}
+          period="last 30 days"
           inverse={true} // Lower is better
+          format="decimal"
           loading={loading}
         />
         
@@ -116,7 +124,7 @@ export function OverviewDashboard() {
         
         <TrendChart
           title="Search Performance"
-          data={searchData?.performanceTrend || []}
+          data={searchData?.performance || []}
           dataKey="clicks"
           secondaryDataKey="impressions"
           loading={loading}
@@ -134,7 +142,7 @@ function calculateDefinitiveAnswers(ga4Data: any, searchData: any) {
               ga4Data?.sessionChange > 0 ? "Yes, modest growth" :
               ga4Data?.sessionChange > -5 ? "Stable" : "Declining",
       details: `${Math.abs(ga4Data?.sessionChange || 0)}% ${ga4Data?.sessionChange > 0 ? 'increase' : 'decrease'} in organic traffic`,
-      trend: ga4Data?.sessionChange > 0 ? 'up' : 'down' as const,
+      trend: (ga4Data?.sessionChange > 0 ? 'up' : 'down') as 'up' | 'down' | 'stable',
       confidence: 'high' as const,
     },
     rankingImprovement: {
@@ -142,7 +150,7 @@ function calculateDefinitiveAnswers(ga4Data: any, searchData: any) {
               searchData?.positionChange < 0 ? "Yes, gradually" :
               "Not yet",
       details: `Average position ${Math.abs(searchData?.positionChange || 0).toFixed(1)} ${searchData?.positionChange < 0 ? 'better' : 'worse'}`,
-      trend: searchData?.positionChange < 0 ? 'up' : 'down' as const,
+      trend: (searchData?.positionChange < 0 ? 'up' : 'down') as 'up' | 'down' | 'stable',
       confidence: 'high' as const,
     },
     topContent: {
