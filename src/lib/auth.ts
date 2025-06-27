@@ -9,6 +9,22 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: [
+            'openid',
+            'email',
+            'profile',
+            // GA4 scopes
+            'https://www.googleapis.com/auth/analytics.readonly',
+            // Search Console scopes
+            'https://www.googleapis.com/auth/webmasters.readonly',
+            'https://www.googleapis.com/auth/siteverification.verify_only'
+          ].join(' '),
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
     }),
   ],
   callbacks: {

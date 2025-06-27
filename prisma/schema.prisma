@@ -98,6 +98,7 @@ model User {
   auditLogs     AuditLog[]
   sentInvites   UserInvite[]
   ga4Token      UserGA4Token?
+  searchConsoleToken UserSearchConsoleToken?
   reportSchedules ReportSchedule[]
   escalations   Escalation[]
   
@@ -705,4 +706,25 @@ model Escalation {
   @@index([priority, status])
   @@index([assignedTo, status])
   @@map("escalations")
+}
+
+// Search Console OAuth token storage
+model UserSearchConsoleToken {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  encryptedAccessToken  String
+  encryptedRefreshToken String?
+  expiryDate           DateTime?
+  scope                String?
+  
+  // Search Console specific
+  verifiedSites        String[]  // Array of verified site URLs
+  primarySite          String?   // Main site to track
+  
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  
+  @@map("user_search_console_tokens")
 }
