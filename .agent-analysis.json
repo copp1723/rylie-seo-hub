@@ -1,0 +1,3044 @@
+{
+  "timestamp": "2025-06-27T02:08:20.085Z",
+  "projectPath": ".",
+  "dependencies": [
+    [
+      "src/app/admin/layout.tsx",
+      {
+        "imports": [
+          "next/link",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.911Z"
+      }
+    ],
+    [
+      "src/app/admin/page.tsx",
+      {
+        "imports": [
+          "@/components/admin/FeatureFlagDashboard",
+          "next-auth/react",
+          "next/navigation",
+          "react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.911Z"
+      }
+    ],
+    [
+      "src/app/admin/quick-add-user/page.tsx",
+      {
+        "imports": [
+          "react",
+          "next/navigation"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.911Z"
+      }
+    ],
+    [
+      "src/app/api/admin/agencies/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "zod"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.911Z"
+      }
+    ],
+    [
+      "src/app/api/admin/feature-flags/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/feature-flags",
+          "zod",
+          "@/lib/observability"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.912Z"
+      }
+    ],
+    [
+      "src/app/api/agencies/current/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.912Z"
+      }
+    ],
+    [
+      "src/app/api/auth/[...nextauth]/route.ts",
+      {
+        "imports": [
+          "@/lib/auth"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.912Z"
+      }
+    ],
+    [
+      "src/app/api/chat/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/api/route-handler",
+          "@/lib/db/tenant-filter",
+          "@/lib/prisma",
+          "@/lib/ai",
+          "@/lib/validation",
+          "@/lib/rate-limit",
+          "@/lib/observability",
+          "@/lib/tenant",
+          "@/lib/seo-knowledge"
+        ],
+        "exports": [
+          "POST"
+        ],
+        "modified": "2025-06-27T01:33:00.913Z"
+      }
+    ],
+    [
+      "src/app/api/chat/stream/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "@/lib/ai",
+          "@/lib/seo-knowledge"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.913Z"
+      }
+    ],
+    [
+      "src/app/api/conversations/[id]/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.914Z"
+      }
+    ],
+    [
+      "src/app/api/conversations/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/api/route-handler",
+          "@/lib/db/tenant-filter",
+          "@/lib/rate-limit",
+          "@prisma/client"
+        ],
+        "exports": [
+          "GET",
+          "POST"
+        ],
+        "modified": "2025-06-27T01:33:00.914Z"
+      }
+    ],
+    [
+      "src/app/api/debug-user/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.914Z"
+      }
+    ],
+    [
+      "src/app/api/ga4/auth/callback/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "googleapis",
+          "@/lib/prisma",
+          "crypto"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.914Z"
+      }
+    ],
+    [
+      "src/app/api/ga4/auth/route.test.ts",
+      {
+        "imports": [
+          "./route",
+          "next/server",
+          "next/server",
+          "googleapis",
+          "@/lib/services/audit-service",
+          "./route",
+          "./route",
+          "googleapis",
+          "@/lib/services/audit-service",
+          "./route",
+          "./route",
+          "googleapis",
+          "./route",
+          "googleapis",
+          "./route",
+          "./route",
+          "./route",
+          "./route"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.914Z"
+      }
+    ],
+    [
+      "src/app/api/ga4/auth/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.914Z"
+      }
+    ],
+    [
+      "src/app/api/ga4/connect/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.915Z"
+      }
+    ],
+    [
+      "src/app/api/ga4/disconnect/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.915Z"
+      }
+    ],
+    [
+      "src/app/api/ga4/properties/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/ga4",
+          "@/lib/audit"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.915Z"
+      }
+    ],
+    [
+      "src/app/api/invite/[token]/accept/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.916Z"
+      }
+    ],
+    [
+      "src/app/api/invite/[token]/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.916Z"
+      }
+    ],
+    [
+      "src/app/api/make-me-admin/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.916Z"
+      }
+    ],
+    [
+      "src/app/api/models/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/ai"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.916Z"
+      }
+    ],
+    [
+      "src/app/api/onboarding/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "@/lib/seoworks-onboarding"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.917Z"
+      }
+    ],
+    [
+      "src/app/api/onboarding/test/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/seoworks-onboarding"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.917Z"
+      }
+    ],
+    [
+      "src/app/api/orders/[id]/messages/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/prisma",
+          "@/lib/observability",
+          "zod"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.918Z"
+      }
+    ],
+    [
+      "src/app/api/orders/[id]/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/prisma",
+          "@/lib/observability",
+          "zod"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.919Z"
+      }
+    ],
+    [
+      "src/app/api/orders/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/prisma",
+          "@prisma/client",
+          "@/lib/seoworks/queue",
+          "@/lib/observability",
+          "zod"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.919Z"
+      }
+    ],
+    [
+      "src/app/api/reports/failed/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "zod"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.921Z"
+      }
+    ],
+    [
+      "src/app/api/reports/retry/[executionId]/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "@/lib/services/report-executor",
+          "@/lib/audit"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.922Z"
+      }
+    ],
+    [
+      "src/app/api/reports/schedule/route.test.ts",
+      {
+        "imports": [
+          "./route",
+          "@/lib/services/ga4-service",
+          "@/lib/services/report-generator",
+          "@/lib/services/audit-service",
+          "nodemailer",
+          "node-cron",
+          "./route",
+          "./route"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.922Z"
+      }
+    ],
+    [
+      "src/app/api/reports/schedule/route.ts",
+      {
+        "imports": [
+          "node-cron",
+          "next/server",
+          "@/lib/services/ga4-service",
+          "@/lib/types/ga4",
+          "@/lib/services/report-generator",
+          "@/lib/services/audit-service",
+          "nodemailer"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.923Z"
+      }
+    ],
+    [
+      "src/app/api/reports/schedules/[id]/pause/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "@/lib/audit",
+          "zod"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.924Z"
+      }
+    ],
+    [
+      "src/app/api/reports/schedules/[id]/retry/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/prisma",
+          "@/lib/api/route-handler",
+          "@/lib/services/scheduler-service",
+          "@/lib/audit"
+        ],
+        "exports": [
+          "POST"
+        ],
+        "modified": "2025-06-27T01:33:00.925Z"
+      }
+    ],
+    [
+      "src/app/api/reports/schedules/[id]/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.925Z"
+      }
+    ],
+    [
+      "src/app/api/reports/schedules/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "zod",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "@/lib/audit"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.925Z"
+      }
+    ],
+    [
+      "src/app/api/reports/test/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "@/lib/services/ga4-service",
+          "@/lib/google-auth"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.926Z"
+      }
+    ],
+    [
+      "src/app/api/reports/trigger-scheduled-jobs/route.test.ts",
+      {
+        "imports": [
+          "./route",
+          "next/server",
+          "@/lib/prisma",
+          "@/lib/services/scheduler-service"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.926Z"
+      }
+    ],
+    [
+      "src/app/api/reports/trigger-scheduled-jobs/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/security",
+          "@/lib/prisma",
+          "@/lib/services/scheduler-service"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.926Z"
+      }
+    ],
+    [
+      "src/app/api/seoworks/health/route.ts",
+      {
+        "imports": [
+          "next/server"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.926Z"
+      }
+    ],
+    [
+      "src/app/api/seoworks/queue/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/seoworks/queue",
+          "@/lib/observability"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.926Z"
+      }
+    ],
+    [
+      "src/app/api/seoworks/tasks/complete/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.927Z"
+      }
+    ],
+    [
+      "src/app/api/seoworks/tasks/status/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.927Z"
+      }
+    ],
+    [
+      "src/app/api/seoworks/tasks/types/route.ts",
+      {
+        "imports": [
+          "next/server"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.927Z"
+      }
+    ],
+    [
+      "src/app/api/seoworks/test/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/prisma",
+          "@/lib/observability",
+          "crypto"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.928Z"
+      }
+    ],
+    [
+      "src/app/api/seoworks/test-webhook/route.ts",
+      {
+        "imports": [
+          "next/server"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.927Z"
+      }
+    ],
+    [
+      "src/app/api/seoworks/webhook/route.test.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/app/api/seoworks/webhook/route",
+          "@/lib/prisma",
+          "crypto"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.928Z"
+      }
+    ],
+    [
+      "src/app/api/seoworks/webhook/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/prisma",
+          "zod",
+          "crypto",
+          "@prisma/client"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.928Z"
+      }
+    ],
+    [
+      "src/app/api/simple-invite/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.928Z"
+      }
+    ],
+    [
+      "src/app/api/upload/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "cloudinary",
+          "@/lib/rate-limit"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.928Z"
+      }
+    ],
+    [
+      "src/app/api/user/details/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.929Z"
+      }
+    ],
+    [
+      "src/app/api/user/theme/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "@/lib/validation",
+          "@/lib/rate-limit"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.929Z"
+      }
+    ],
+    [
+      "src/app/api/users/invite/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "zod",
+          "@/lib/email"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.929Z"
+      }
+    ],
+    [
+      "src/app/api/users/route.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.929Z"
+      }
+    ],
+    [
+      "src/app/auth/error/page.tsx",
+      {
+        "imports": [
+          "react",
+          "next/link"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.929Z"
+      }
+    ],
+    [
+      "src/app/auth/signin/page.tsx",
+      {
+        "imports": [
+          "@/lib/auth",
+          "next/navigation",
+          "next/image",
+          "react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.930Z"
+      }
+    ],
+    [
+      "src/app/auth/verify-request/page.tsx",
+      {
+        "imports": [],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.930Z"
+      }
+    ],
+    [
+      "src/app/chat/page.tsx",
+      {
+        "imports": [
+          "react",
+          "next-auth/react",
+          "next/navigation",
+          "@/components/chat/Sidebar",
+          "@/components/chat/ChatInterfaceWithRequests"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.930Z"
+      }
+    ],
+    [
+      "src/app/dashboard/page.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/badge",
+          "@/components/requests/RequestForm",
+          "@/components/chat/Sidebar",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.930Z"
+      }
+    ],
+    [
+      "src/app/invite/[token]/page.tsx",
+      {
+        "imports": [
+          "react",
+          "next/navigation",
+          "next-auth/react",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/badge",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.931Z"
+      }
+    ],
+    [
+      "src/app/layout.tsx",
+      {
+        "imports": [
+          "next/font/google",
+          "next-auth/react",
+          "@/lib/auth",
+          "@/components/ObservabilityProvider",
+          "@/components/FeatureFlagProvider"
+        ],
+        "exports": [
+          "metadata",
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.931Z"
+      }
+    ],
+    [
+      "src/app/onboarding/page.tsx",
+      {
+        "imports": [
+          "@/components/onboarding/DealershipOnboardingForm"
+        ],
+        "exports": [
+          "metadata",
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.931Z"
+      }
+    ],
+    [
+      "src/app/onboarding/status/page.tsx",
+      {
+        "imports": [
+          "@/components/onboarding/OnboardingStatus",
+          "@/components/ui/button",
+          "next/link"
+        ],
+        "exports": [
+          "metadata",
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.931Z"
+      }
+    ],
+    [
+      "src/app/orders/layout.tsx",
+      {
+        "imports": [
+          "next/link",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.931Z"
+      }
+    ],
+    [
+      "src/app/orders/page.tsx",
+      {
+        "imports": [
+          "react",
+          "next-auth/react",
+          "next/navigation",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/badge",
+          "@/components/chat/Sidebar",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.931Z"
+      }
+    ],
+    [
+      "src/app/page.tsx",
+      {
+        "imports": [
+          "@/lib/auth",
+          "next/navigation",
+          "next/link",
+          "@/components/ui/button"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.931Z"
+      }
+    ],
+    [
+      "src/app/settings/ga4/page.tsx",
+      {
+        "imports": [
+          "react",
+          "next-auth/react",
+          "next/navigation",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/alert",
+          "@/components/ui/select",
+          "@/components/ui/badge",
+          "@/components/ui/toast",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.932Z"
+      }
+    ],
+    [
+      "src/app/settings/ga4/schedules/page.tsx",
+      {
+        "imports": [
+          "react",
+          "next-auth/react",
+          "next/navigation",
+          "next/link",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/alert",
+          "@/components/ui/badge",
+          "@/components/ui/dialog",
+          "@/components/ui/toast",
+          "lucide-react",
+          "./schedule-form"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.932Z"
+      }
+    ],
+    [
+      "src/app/settings/ga4/schedules/schedule-form.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/button",
+          "@/components/ui/input",
+          "@/components/ui/label",
+          "@/components/ui/select",
+          "@/components/ui/dialog",
+          "@/components/ui/badge",
+          "@/components/ui/switch",
+          "lucide-react"
+        ],
+        "exports": [
+          "ScheduleForm"
+        ],
+        "modified": "2025-06-27T01:33:00.932Z"
+      }
+    ],
+    [
+      "src/app/settings/layout.tsx",
+      {
+        "imports": [
+          "next/link",
+          "next/navigation",
+          "@/lib/utils",
+          "lucide-react",
+          "@/components/ui/button"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.932Z"
+      }
+    ],
+    [
+      "src/app/settings/page.tsx",
+      {
+        "imports": [
+          "next-auth/react",
+          "next/navigation",
+          "react",
+          "@/components/ui/card",
+          "@/components/ui/badge"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.932Z"
+      }
+    ],
+    [
+      "src/app/settings/users/page.tsx",
+      {
+        "imports": [
+          "react",
+          "next-auth/react",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/input",
+          "@/components/ui/label",
+          "@/components/ui/badge",
+          "@/components/ui/switch",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.932Z"
+      }
+    ],
+    [
+      "src/app/super-admin/page.tsx",
+      {
+        "imports": [
+          "@/lib/auth",
+          "@/lib/prisma",
+          "next/navigation",
+          "@/components/super-admin/SuperAdminDashboard"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.932Z"
+      }
+    ],
+    [
+      "src/app/test-route/page.tsx",
+      {
+        "imports": [],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.933Z"
+      }
+    ],
+    [
+      "src/app/theme/layout.tsx",
+      {
+        "imports": [
+          "next/link",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.933Z"
+      }
+    ],
+    [
+      "src/app/theme/page.tsx",
+      {
+        "imports": [
+          "@/components/theme/ThemeCustomizer"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.933Z"
+      }
+    ],
+    [
+      "src/components/FeatureFlagProvider.tsx",
+      {
+        "imports": [
+          "next-auth/react",
+          "@/lib/feature-flags"
+        ],
+        "exports": [
+          "FeatureFlagProvider",
+          "useFeatureFlags",
+          "useFeatureFlag"
+        ],
+        "modified": "2025-06-27T01:33:00.933Z"
+      }
+    ],
+    [
+      "src/components/ObservabilityProvider.tsx",
+      {
+        "imports": [
+          "react",
+          "next/navigation",
+          "posthog-js",
+          "@/lib/observability",
+          "next-auth/react"
+        ],
+        "exports": [
+          "ObservabilityProvider"
+        ],
+        "modified": "2025-06-27T01:33:00.933Z"
+      }
+    ],
+    [
+      "src/components/admin/FeatureFlagDashboard.tsx",
+      {
+        "imports": [
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/switch",
+          "@/components/ui/slider",
+          "@/components/ui/badge",
+          "@/components/ui/tabs",
+          "@/components/ui/alert",
+          "@/lib/feature-flags",
+          "@/components/FeatureFlagProvider",
+          "@/lib/observability"
+        ],
+        "exports": [
+          "FeatureFlagDashboard"
+        ],
+        "modified": "2025-06-27T01:33:00.933Z"
+      }
+    ],
+    [
+      "src/components/auth/SignInPage.tsx",
+      {
+        "imports": [
+          "next-auth/react",
+          "react"
+        ],
+        "exports": [
+          "SignInPage"
+        ],
+        "modified": "2025-06-27T01:33:00.933Z"
+      }
+    ],
+    [
+      "src/components/chat/ChatInterface.tsx",
+      {
+        "imports": [
+          "react",
+          "next-auth",
+          "@/components/ui/button",
+          "@/components/ui/textarea",
+          "@/components/ui/card",
+          "lucide-react"
+        ],
+        "exports": [
+          "ChatInterface"
+        ],
+        "modified": "2025-06-27T01:33:00.934Z"
+      }
+    ],
+    [
+      "src/components/chat/ChatInterfaceWithRequests.tsx",
+      {
+        "imports": [
+          "react",
+          "next-auth",
+          "@/components/ui/button",
+          "@/components/ui/textarea",
+          "@/components/ui/card",
+          "@/components/requests/RequestForm",
+          "lucide-react"
+        ],
+        "exports": [
+          "ChatInterface"
+        ],
+        "modified": "2025-06-27T01:33:00.934Z"
+      }
+    ],
+    [
+      "src/components/chat/MessageBubble.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/button",
+          "@/components/ui/card",
+          "lucide-react",
+          "@/lib/utils"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:27:39.886Z"
+      }
+    ],
+    [
+      "src/components/chat/ModelSelector.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/button",
+          "@/components/ui/card",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:27:39.886Z"
+      }
+    ],
+    [
+      "src/components/chat/Sidebar.tsx",
+      {
+        "imports": [
+          "react",
+          "next-auth/react",
+          "next/link",
+          "next/navigation"
+        ],
+        "exports": [
+          "Sidebar"
+        ],
+        "modified": "2025-06-27T01:27:39.887Z"
+      }
+    ],
+    [
+      "src/components/chat/TypingIndicator.tsx",
+      {
+        "imports": [
+          "@/components/ui/card",
+          "lucide-react"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:27:39.887Z"
+      }
+    ],
+    [
+      "src/components/onboarding/DealershipOnboardingForm.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/button",
+          "@/components/ui/input",
+          "@/components/ui/label",
+          "@/components/ui/textarea",
+          "@/components/ui/card",
+          "@/components/ui/alert"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.934Z"
+      }
+    ],
+    [
+      "src/components/onboarding/OnboardingStatus.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/card",
+          "@/components/ui/badge",
+          "@/components/ui/button"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.934Z"
+      }
+    ],
+    [
+      "src/components/reports/FailedReportsTable.tsx",
+      {
+        "imports": [
+          "react",
+          "date-fns",
+          "lucide-react",
+          "@/components/ui/button",
+          "@/components/ui/badge"
+        ],
+        "exports": [
+          "FailedReportsTable"
+        ],
+        "modified": "2025-06-27T01:33:00.935Z"
+      }
+    ],
+    [
+      "src/components/requests/RequestForm.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/textarea",
+          "@/components/ui/label",
+          "@/components/ui/input",
+          "lucide-react"
+        ],
+        "exports": [
+          "RequestData",
+          "RequestForm"
+        ],
+        "modified": "2025-06-27T01:33:00.935Z"
+      }
+    ],
+    [
+      "src/components/super-admin/InviteUserSection.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/badge"
+        ],
+        "exports": [
+          "InviteUserSection"
+        ],
+        "modified": "2025-06-27T01:33:00.935Z"
+      }
+    ],
+    [
+      "src/components/super-admin/SuperAdminDashboard.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/card",
+          "@/components/ui/button",
+          "@/components/ui/badge",
+          "@/components/ui/tabs",
+          "./InviteUserSection"
+        ],
+        "exports": [
+          "SuperAdminDashboard"
+        ],
+        "modified": "2025-06-27T01:33:00.936Z"
+      }
+    ],
+    [
+      "src/components/theme/ThemeCustomizer.tsx",
+      {
+        "imports": [
+          "react",
+          "@/components/ui/button",
+          "@/components/ui/input",
+          "@/components/ui/card",
+          "lucide-react",
+          "@/components/FeatureFlagProvider"
+        ],
+        "exports": [
+          "default"
+        ],
+        "modified": "2025-06-27T01:33:00.936Z"
+      }
+    ],
+    [
+      "src/components/ui/alert.tsx",
+      {
+        "imports": [
+          "class-variance-authority",
+          "@/lib/utils"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.936Z"
+      }
+    ],
+    [
+      "src/components/ui/badge.tsx",
+      {
+        "imports": [
+          "class-variance-authority",
+          "@/lib/utils"
+        ],
+        "exports": [
+          "BadgeProps"
+        ],
+        "modified": "2025-06-27T01:33:00.936Z"
+      }
+    ],
+    [
+      "src/components/ui/button.tsx",
+      {
+        "imports": [
+          "@radix-ui/react-slot",
+          "class-variance-authority",
+          "@/lib/utils"
+        ],
+        "exports": [
+          "ButtonProps"
+        ],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/card.tsx",
+      {
+        "imports": [
+          "@/lib/utils"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/dialog.tsx",
+      {
+        "imports": [
+          "lucide-react",
+          "@/lib/utils"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/input.tsx",
+      {
+        "imports": [
+          "@/lib/utils"
+        ],
+        "exports": [
+          "InputProps"
+        ],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/label.tsx",
+      {
+        "imports": [
+          "class-variance-authority",
+          "@/lib/utils"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/select.tsx",
+      {
+        "imports": [
+          "lucide-react",
+          "@/lib/utils"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/slider.tsx",
+      {
+        "imports": [
+          "@/lib/utils"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/switch.tsx",
+      {
+        "imports": [
+          "@/lib/utils"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/tabs.tsx",
+      {
+        "imports": [
+          "@/lib/utils"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/textarea.tsx",
+      {
+        "imports": [
+          "@/lib/utils"
+        ],
+        "exports": [
+          "TextareaProps"
+        ],
+        "modified": "2025-06-27T01:33:00.937Z"
+      }
+    ],
+    [
+      "src/components/ui/toast.tsx",
+      {
+        "imports": [
+          "@/lib/utils",
+          "lucide-react"
+        ],
+        "exports": [
+          "Toast",
+          "useToast"
+        ],
+        "modified": "2025-06-27T01:33:00.938Z"
+      }
+    ],
+    [
+      "src/instrumentation.ts",
+      {
+        "imports": [],
+        "exports": [
+          "register",
+          "onRequestError"
+        ],
+        "modified": "2025-06-27T01:33:00.938Z"
+      }
+    ],
+    [
+      "src/lib/ai.ts",
+      {
+        "imports": [
+          "openai"
+        ],
+        "exports": [
+          "AIModel",
+          "availableModels",
+          "ChatMessage",
+          "StreamResponse",
+          "AIService",
+          "aiService"
+        ],
+        "modified": "2025-06-27T01:33:00.938Z"
+      }
+    ],
+    [
+      "src/lib/api/route-handler.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth/user-resolver"
+        ],
+        "exports": [
+          "AppRouteParams",
+          "AuthenticatedContext",
+          "withAuth",
+          "withOptionalAuth",
+          "withAdminAuth",
+          "withSuperAdminAuth",
+          "getRouteParams",
+          "errorResponse",
+          "successResponse"
+        ],
+        "modified": "2025-06-27T01:33:00.938Z"
+      }
+    ],
+    [
+      "src/lib/api-utils.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/errors"
+        ],
+        "exports": [
+          "apiSuccess",
+          "apiError",
+          "apiValidationError",
+          "apiAuthError",
+          "apiAuthzError",
+          "apiNotFound",
+          "apiRateLimit",
+          "apiServerError",
+          "getQueryParams",
+          "validateMethod",
+          "corsHeaders",
+          "withCors",
+          "handleOptions",
+          "PaginationParams",
+          "PaginatedResponse",
+          "parsePaginationParams",
+          "createPaginatedResponse"
+        ],
+        "modified": "2025-06-27T01:33:00.938Z"
+      }
+    ],
+    [
+      "src/lib/audit.ts",
+      {
+        "imports": [
+          "./prisma"
+        ],
+        "exports": [
+          "AuditAction"
+        ],
+        "modified": "2025-06-27T01:33:00.939Z"
+      }
+    ],
+    [
+      "src/lib/auth/user-resolver.ts",
+      {
+        "imports": [
+          "next/server"
+        ],
+        "exports": [
+          "ResolvedUser",
+          "TenantContext",
+          "getRequestUser",
+          "getTenantContext"
+        ],
+        "modified": "2025-06-27T01:33:00.939Z"
+      }
+    ],
+    [
+      "src/lib/auth.ts",
+      {
+        "imports": [
+          "next-auth",
+          "next-auth/providers/google",
+          "@auth/prisma-adapter",
+          "./prisma"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.939Z"
+      }
+    ],
+    [
+      "src/lib/db/tenant-filter.ts",
+      {
+        "imports": [
+          "@/lib/tenant",
+          "@/lib/prisma"
+        ],
+        "exports": [
+          "getTenantDB"
+        ],
+        "modified": "2025-06-27T01:33:00.940Z"
+      }
+    ],
+    [
+      "src/lib/email.ts",
+      {
+        "imports": [
+          "nodemailer"
+        ],
+        "exports": [
+          "emailService",
+          "sendEmail"
+        ],
+        "modified": "2025-06-27T01:33:00.940Z"
+      }
+    ],
+    [
+      "src/lib/encryption.ts",
+      {
+        "imports": [
+          "crypto"
+        ],
+        "exports": [
+          "encryptToken",
+          "decryptToken",
+          "hashString",
+          "generateEncryptionKey"
+        ],
+        "modified": "2025-06-27T01:33:00.940Z"
+      }
+    ],
+    [
+      "src/lib/errors.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/observability"
+        ],
+        "exports": [
+          "ErrorResponse",
+          "SuccessResponse",
+          "ApiResponse",
+          "AppError",
+          "ValidationError",
+          "AuthenticationError",
+          "AuthorizationError",
+          "NotFoundError",
+          "RateLimitError",
+          "ExternalServiceError",
+          "createErrorResponse",
+          "createSuccessResponse",
+          "handleApiError",
+          "withErrorHandling",
+          "validateRequiredFields",
+          "isOperationalError"
+        ],
+        "modified": "2025-06-27T01:33:00.940Z"
+      }
+    ],
+    [
+      "src/lib/feature-flags.ts",
+      {
+        "imports": [],
+        "exports": [
+          "FeatureFlag",
+          "FeatureFlagContext",
+          "featureFlags",
+          "useFeatureFlag",
+          "checkFeatureFlag"
+        ],
+        "modified": "2025-06-27T01:33:00.940Z"
+      }
+    ],
+    [
+      "src/lib/ga4/index.ts",
+      {
+        "imports": [],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.941Z"
+      }
+    ],
+    [
+      "src/lib/ga4/service.ts",
+      {
+        "imports": [
+          "googleapis",
+          "google-auth-library",
+          "./tokens"
+        ],
+        "exports": [
+          "GA4Property",
+          "GA4Account",
+          "FormattedProperty",
+          "GA4Service"
+        ],
+        "modified": "2025-06-27T01:33:00.941Z"
+      }
+    ],
+    [
+      "src/lib/ga4/tokens.ts",
+      {
+        "imports": [
+          "@/lib/prisma",
+          "@/lib/encryption",
+          "googleapis",
+          "@/lib/audit"
+        ],
+        "exports": [
+          "GA4Tokens"
+        ],
+        "modified": "2025-06-27T01:33:00.941Z"
+      }
+    ],
+    [
+      "src/lib/ga4-admin-helpers.ts",
+      {
+        "imports": [
+          "googleapis",
+          "@/lib/services/audit-service"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.940Z"
+      }
+    ],
+    [
+      "src/lib/ga4.ts",
+      {
+        "imports": [
+          "googleapis",
+          "google-auth-library",
+          "google-auth-library",
+          "./prisma"
+        ],
+        "exports": [
+          "GA4Service"
+        ],
+        "modified": "2025-06-27T01:33:00.940Z"
+      }
+    ],
+    [
+      "src/lib/google-auth.ts",
+      {
+        "imports": [
+          "googleapis",
+          "./prisma",
+          "crypto"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.941Z"
+      }
+    ],
+    [
+      "src/lib/observability.ts",
+      {
+        "imports": [
+          "react"
+        ],
+        "exports": [
+          "logger",
+          "trackEvent",
+          "performanceTracker",
+          "withErrorBoundary",
+          "initSentry",
+          "setUserContext",
+          "clearUserContext",
+          "observability"
+        ],
+        "modified": "2025-06-27T01:33:00.942Z"
+      }
+    ],
+    [
+      "src/lib/prisma.ts",
+      {
+        "imports": [
+          "@prisma/client"
+        ],
+        "exports": [
+          "prisma"
+        ],
+        "modified": "2025-06-27T01:33:00.942Z"
+      }
+    ],
+    [
+      "src/lib/rate-limit.ts",
+      {
+        "imports": [
+          "next/server"
+        ],
+        "exports": [
+          "RateLimitConfig",
+          "createRateLimit",
+          "rateLimits"
+        ],
+        "modified": "2025-06-27T01:33:00.942Z"
+      }
+    ],
+    [
+      "src/lib/security.ts",
+      {
+        "imports": [
+          "next/server"
+        ],
+        "exports": [
+          "securityHeaders",
+          "corsHeaders",
+          "sessionSecurity",
+          "validateApiKey",
+          "getClientInfo"
+        ],
+        "modified": "2025-06-27T01:33:00.942Z"
+      }
+    ],
+    [
+      "src/lib/seo-knowledge.ts",
+      {
+        "imports": [],
+        "exports": [
+          "SEO_KNOWLEDGE_BASE",
+          "generateSystemPrompt",
+          "findRelevantFAQ"
+        ],
+        "modified": "2025-06-27T01:33:00.942Z"
+      }
+    ],
+    [
+      "src/lib/seoworks/queue.ts",
+      {
+        "imports": [],
+        "exports": [
+          "queueOrderForSEOWorks",
+          "getQueueStatus",
+          "processOrderQueue"
+        ],
+        "modified": "2025-06-27T01:33:00.943Z"
+      }
+    ],
+    [
+      "src/lib/seoworks-integration.test.ts",
+      {
+        "imports": [
+          "@/lib/seoworks-integration",
+          "@/lib/prisma",
+          "@/lib/seoworks"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.942Z"
+      }
+    ],
+    [
+      "src/lib/seoworks-integration.ts",
+      {
+        "imports": [
+          "@/lib/prisma",
+          "@/lib/seoworks"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.942Z"
+      }
+    ],
+    [
+      "src/lib/seoworks-onboarding.ts",
+      {
+        "imports": [],
+        "exports": [
+          "SEOWerksSubmissionData",
+          "OnboardingFormData",
+          "transformToSEOWerksFormat",
+          "validateSEOWerksData",
+          "transformToWebhookFormat",
+          "getPackageDetails"
+        ],
+        "modified": "2025-06-27T01:33:00.942Z"
+      }
+    ],
+    [
+      "src/lib/seoworks.ts",
+      {
+        "imports": [
+          "@/lib/observability",
+          "crypto"
+        ],
+        "exports": [
+          "SEOWorksConfig",
+          "SEOWorksTask",
+          "SEOWorksTaskResponse",
+          "SEOWorksTaskStatus",
+          "SEOWorksClient",
+          "seoWorksClient"
+        ],
+        "modified": "2025-06-27T01:33:00.942Z"
+      }
+    ],
+    [
+      "src/lib/services/ga4-report-processor.ts",
+      {
+        "imports": [
+          "googleapis",
+          "@/lib/types/ga4"
+        ],
+        "exports": [
+          "processReportResponse",
+          "mapMetricToResult",
+          "processTopPagesResponse",
+          "processTopKeywordsResponse"
+        ],
+        "modified": "2025-06-27T01:33:00.943Z"
+      }
+    ],
+    [
+      "src/lib/services/ga4-service.test.ts",
+      {
+        "imports": [
+          "./ga4-service",
+          "googleapis",
+          "@/lib/services/audit-service",
+          "@/app/api/ga4/auth/route",
+          "googleapis",
+          "@/app/api/ga4/auth/route"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.943Z"
+      }
+    ],
+    [
+      "src/lib/services/ga4-service.ts",
+      {
+        "imports": [
+          "googleapis",
+          "google-auth-library",
+          "@/lib/services/audit-service",
+          "@/app/api/ga4/auth/route",
+          "@/lib/google-auth",
+          "@/lib/types/ga4",
+          "./ga4-report-processor"
+        ],
+        "exports": [
+          "GA4Service"
+        ],
+        "modified": "2025-06-27T01:33:00.943Z"
+      }
+    ],
+    [
+      "src/lib/services/report-executor.ts",
+      {
+        "imports": [
+          "@/lib/prisma",
+          "./report-generator",
+          "@/lib/ga4/service",
+          "@/lib/ga4/tokens",
+          "@/lib/email",
+          "@/lib/audit",
+          "date-fns"
+        ],
+        "exports": [
+          "ExecutionErrorCode",
+          "ReportExecutionResult",
+          "ReportExecutor"
+        ],
+        "modified": "2025-06-27T01:33:00.943Z"
+      }
+    ],
+    [
+      "src/lib/services/report-generator.test.ts",
+      {
+        "imports": [
+          "./report-generator",
+          "./ga4-service",
+          "@/lib/services/audit-service",
+          "handlebars",
+          "puppeteer",
+          "handlebars"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.943Z"
+      }
+    ],
+    [
+      "src/lib/services/report-generator.ts",
+      {
+        "imports": [
+          "@/lib/types/ga4",
+          "@/lib/services/audit-service",
+          "handlebars"
+        ],
+        "exports": [
+          "ReportBrandingOptions",
+          "ReportTemplateType",
+          "ReportGenerator"
+        ],
+        "modified": "2025-06-27T01:33:00.944Z"
+      }
+    ],
+    [
+      "src/lib/services/report-scheduler-service.test.ts",
+      {
+        "imports": [
+          "@prisma/client"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.944Z"
+      }
+    ],
+    [
+      "src/lib/services/report-scheduler-service.ts",
+      {
+        "imports": [
+          "@/lib/prisma",
+          "@/lib/services/ga4-service",
+          "@/lib/email",
+          "@/lib/google-auth",
+          "cron-parser",
+          "@prisma/client",
+          "googleapis",
+          "puppeteer"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.944Z"
+      }
+    ],
+    [
+      "src/lib/services/report-scheduler.test.ts",
+      {
+        "imports": [
+          "./report-scheduler",
+          "@/lib/prisma",
+          "./ga4-service",
+          "./report-generator",
+          "@/lib/email",
+          "@/lib/google-auth",
+          "cron-parser",
+          "@prisma/client"
+        ],
+        "exports": [],
+        "modified": "2025-06-27T01:33:00.944Z"
+      }
+    ],
+    [
+      "src/lib/services/report-scheduler.ts",
+      {
+        "imports": [
+          "@/lib/prisma",
+          "./report-executor",
+          "date-fns"
+        ],
+        "exports": [
+          "ReportScheduler"
+        ],
+        "modified": "2025-06-27T01:33:00.944Z"
+      }
+    ],
+    [
+      "src/lib/services/scheduler-service.ts",
+      {
+        "imports": [
+          "@/lib/services/ga4-service",
+          "@/lib/types/ga4",
+          "@/lib/services/report-generator",
+          "nodemailer",
+          "@/lib/prisma",
+          "@prisma/client",
+          "cron-parser"
+        ],
+        "exports": [
+          "calculateNextRun"
+        ],
+        "modified": "2025-06-27T01:33:00.944Z"
+      }
+    ],
+    [
+      "src/lib/tenant.ts",
+      {
+        "imports": [
+          "next/server",
+          "@/lib/auth",
+          "@/lib/prisma",
+          "@/lib/observability"
+        ],
+        "exports": [
+          "TenantContext",
+          "validateTenantAccess",
+          "hasRole",
+          "createTenantPrisma"
+        ],
+        "modified": "2025-06-27T01:33:00.945Z"
+      }
+    ],
+    [
+      "src/lib/types/ga4.ts",
+      {
+        "imports": [],
+        "exports": [
+          "DateRange",
+          "GA4ReportData"
+        ],
+        "modified": "2025-06-27T01:33:00.945Z"
+      }
+    ],
+    [
+      "src/lib/utils.ts",
+      {
+        "imports": [
+          "clsx",
+          "tailwind-merge"
+        ],
+        "exports": [
+          "cn",
+          "formatDate",
+          "formatDateTime",
+          "formatRelativeTime",
+          "truncateText",
+          "generateId",
+          "debounce",
+          "sleep",
+          "safeJsonParse",
+          "isValidEmail",
+          "formatFileSize",
+          "getInitials",
+          "capitalizeWords",
+          "slugify",
+          "formatTime"
+        ],
+        "modified": "2025-06-27T01:33:00.945Z"
+      }
+    ],
+    [
+      "src/lib/validation.ts",
+      {
+        "imports": [
+          "zod"
+        ],
+        "exports": [
+          "chatRequestSchema",
+          "streamChatRequestSchema",
+          "createConversationSchema",
+          "updateConversationSchema",
+          "themeUpdateSchema",
+          "userUpdateSchema",
+          "idParamSchema",
+          "ValidationError",
+          "SuccessResponse",
+          "validateRequest",
+          "rateLimitSchema",
+          "ChatRequest",
+          "StreamChatRequest",
+          "CreateConversationRequest",
+          "UpdateConversationRequest",
+          "ThemeUpdateRequest",
+          "UserUpdateRequest",
+          "IdParam",
+          "reportBrandingOptionsSchema",
+          "reportScheduleSchema",
+          "updateReportScheduleSchema",
+          "ReportScheduleRequest",
+          "UpdateReportScheduleRequest",
+          "ReportBrandingOptions"
+        ],
+        "modified": "2025-06-27T01:33:00.946Z"
+      }
+    ]
+  ],
+  "ownership": [
+    [
+      "src/app/admin/layout.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/admin/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/admin/quick-add-user/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/auth/error/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/auth/signin/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/auth/verify-request/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/chat/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/dashboard/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/invite/[token]/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/layout.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/onboarding/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/onboarding/status/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/orders/layout.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/orders/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/settings/ga4/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/settings/ga4/schedules/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/settings/ga4/schedules/schedule-form.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/settings/layout.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/settings/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/settings/users/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/super-admin/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/test-route/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/theme/layout.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/theme/page.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/FeatureFlagProvider.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ObservabilityProvider.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/admin/FeatureFlagDashboard.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/auth/SignInPage.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/chat/ChatInterface.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/chat/ChatInterfaceWithRequests.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/chat/MessageBubble.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/chat/ModelSelector.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/chat/Sidebar.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/chat/TypingIndicator.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/onboarding/DealershipOnboardingForm.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/onboarding/OnboardingStatus.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/reports/FailedReportsTable.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/requests/RequestForm.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/super-admin/InviteUserSection.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/super-admin/SuperAdminDashboard.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/theme/ThemeCustomizer.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/alert.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/badge.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/button.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/card.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/dialog.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/input.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/label.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/select.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/slider.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/switch.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/tabs.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/textarea.tsx",
+      "frontend"
+    ],
+    [
+      "src/components/ui/toast.tsx",
+      "frontend"
+    ],
+    [
+      "src/app/api/admin/agencies/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/admin/feature-flags/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/agencies/current/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/auth/[...nextauth]/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/chat/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/chat/stream/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/conversations/[id]/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/conversations/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/debug-user/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/ga4/auth/callback/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/ga4/auth/route.test.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/ga4/auth/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/ga4/connect/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/ga4/disconnect/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/ga4/properties/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/invite/[token]/accept/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/invite/[token]/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/make-me-admin/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/models/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/onboarding/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/onboarding/test/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/orders/[id]/messages/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/orders/[id]/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/orders/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/failed/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/retry/[executionId]/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/schedule/route.test.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/schedule/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/schedules/[id]/pause/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/schedules/[id]/retry/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/schedules/[id]/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/schedules/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/test/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/trigger-scheduled-jobs/route.test.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/reports/trigger-scheduled-jobs/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/seoworks/health/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/seoworks/queue/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/seoworks/tasks/complete/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/seoworks/tasks/status/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/seoworks/tasks/types/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/seoworks/test/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/seoworks/test-webhook/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/seoworks/webhook/route.test.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/seoworks/webhook/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/simple-invite/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/upload/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/user/details/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/user/theme/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/users/invite/route.ts",
+      "shared"
+    ],
+    [
+      "src/app/api/users/route.ts",
+      "shared"
+    ],
+    [
+      "src/instrumentation.ts",
+      "shared"
+    ],
+    [
+      "src/lib/ai.ts",
+      "shared"
+    ],
+    [
+      "src/lib/api/route-handler.ts",
+      "shared"
+    ],
+    [
+      "src/lib/api-utils.ts",
+      "shared"
+    ],
+    [
+      "src/lib/audit.ts",
+      "shared"
+    ],
+    [
+      "src/lib/auth/user-resolver.ts",
+      "shared"
+    ],
+    [
+      "src/lib/auth.ts",
+      "shared"
+    ],
+    [
+      "src/lib/db/tenant-filter.ts",
+      "shared"
+    ],
+    [
+      "src/lib/email.ts",
+      "shared"
+    ],
+    [
+      "src/lib/encryption.ts",
+      "shared"
+    ],
+    [
+      "src/lib/errors.ts",
+      "shared"
+    ],
+    [
+      "src/lib/feature-flags.ts",
+      "shared"
+    ],
+    [
+      "src/lib/ga4/index.ts",
+      "shared"
+    ],
+    [
+      "src/lib/ga4/service.ts",
+      "shared"
+    ],
+    [
+      "src/lib/ga4/tokens.ts",
+      "shared"
+    ],
+    [
+      "src/lib/ga4-admin-helpers.ts",
+      "shared"
+    ],
+    [
+      "src/lib/ga4.ts",
+      "shared"
+    ],
+    [
+      "src/lib/google-auth.ts",
+      "shared"
+    ],
+    [
+      "src/lib/observability.ts",
+      "shared"
+    ],
+    [
+      "src/lib/prisma.ts",
+      "shared"
+    ],
+    [
+      "src/lib/rate-limit.ts",
+      "shared"
+    ],
+    [
+      "src/lib/security.ts",
+      "shared"
+    ],
+    [
+      "src/lib/seo-knowledge.ts",
+      "shared"
+    ],
+    [
+      "src/lib/seoworks/queue.ts",
+      "shared"
+    ],
+    [
+      "src/lib/seoworks-integration.test.ts",
+      "shared"
+    ],
+    [
+      "src/lib/seoworks-integration.ts",
+      "shared"
+    ],
+    [
+      "src/lib/seoworks-onboarding.ts",
+      "shared"
+    ],
+    [
+      "src/lib/seoworks.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/ga4-report-processor.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/ga4-service.test.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/ga4-service.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/report-executor.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/report-generator.test.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/report-generator.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/report-scheduler-service.test.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/report-scheduler-service.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/report-scheduler.test.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/report-scheduler.ts",
+      "shared"
+    ],
+    [
+      "src/lib/services/scheduler-service.ts",
+      "shared"
+    ],
+    [
+      "src/lib/tenant.ts",
+      "shared"
+    ],
+    [
+      "src/lib/types/ga4.ts",
+      "shared"
+    ],
+    [
+      "src/lib/utils.ts",
+      "shared"
+    ],
+    [
+      "src/lib/validation.ts",
+      "shared"
+    ]
+  ],
+  "interfaces": [
+    [
+      "api-contracts",
+      {
+        "location": "src/types/api.ts",
+        "owner": "shared",
+        "consumers": [
+          "frontend",
+          "backend"
+        ],
+        "rules": [
+          "Changes must be backward compatible",
+          "New fields should be optional",
+          "Deprecate before removing"
+        ]
+      }
+    ],
+    [
+      "database-schema",
+      {
+        "location": "prisma/schema.prisma",
+        "owner": "database",
+        "consumers": [
+          "backend"
+        ],
+        "rules": [
+          "Migrations must be additive",
+          "Column removals require migration plan",
+          "Index changes need performance review"
+        ]
+      }
+    ],
+    [
+      "component-props",
+      {
+        "location": "src/types/components.ts",
+        "owner": "frontend",
+        "consumers": [
+          "frontend"
+        ],
+        "rules": [
+          "Props interfaces should be stable",
+          "Use optional props for new features",
+          "Maintain prop type compatibility"
+        ]
+      }
+    ]
+  ],
+  "guidelines": {
+    "version": "1.0",
+    "generated": "2025-06-27T02:08:20.086Z",
+    "modules": {
+      "frontend": {
+        "files": [
+          "src/app/admin/layout.tsx",
+          "src/app/admin/page.tsx",
+          "src/app/admin/quick-add-user/page.tsx",
+          "src/app/auth/error/page.tsx",
+          "src/app/auth/signin/page.tsx",
+          "src/app/auth/verify-request/page.tsx",
+          "src/app/chat/page.tsx",
+          "src/app/dashboard/page.tsx",
+          "src/app/invite/[token]/page.tsx",
+          "src/app/layout.tsx",
+          "src/app/onboarding/page.tsx",
+          "src/app/onboarding/status/page.tsx",
+          "src/app/orders/layout.tsx",
+          "src/app/orders/page.tsx",
+          "src/app/page.tsx",
+          "src/app/settings/ga4/page.tsx",
+          "src/app/settings/ga4/schedules/page.tsx",
+          "src/app/settings/ga4/schedules/schedule-form.tsx",
+          "src/app/settings/layout.tsx",
+          "src/app/settings/page.tsx",
+          "src/app/settings/users/page.tsx",
+          "src/app/super-admin/page.tsx",
+          "src/app/test-route/page.tsx",
+          "src/app/theme/layout.tsx",
+          "src/app/theme/page.tsx",
+          "src/components/FeatureFlagProvider.tsx",
+          "src/components/ObservabilityProvider.tsx",
+          "src/components/admin/FeatureFlagDashboard.tsx",
+          "src/components/auth/SignInPage.tsx",
+          "src/components/chat/ChatInterface.tsx",
+          "src/components/chat/ChatInterfaceWithRequests.tsx",
+          "src/components/chat/MessageBubble.tsx",
+          "src/components/chat/ModelSelector.tsx",
+          "src/components/chat/Sidebar.tsx",
+          "src/components/chat/TypingIndicator.tsx",
+          "src/components/onboarding/DealershipOnboardingForm.tsx",
+          "src/components/onboarding/OnboardingStatus.tsx",
+          "src/components/reports/FailedReportsTable.tsx",
+          "src/components/requests/RequestForm.tsx",
+          "src/components/super-admin/InviteUserSection.tsx",
+          "src/components/super-admin/SuperAdminDashboard.tsx",
+          "src/components/theme/ThemeCustomizer.tsx",
+          "src/components/ui/alert.tsx",
+          "src/components/ui/badge.tsx",
+          "src/components/ui/button.tsx",
+          "src/components/ui/card.tsx",
+          "src/components/ui/dialog.tsx",
+          "src/components/ui/input.tsx",
+          "src/components/ui/label.tsx",
+          "src/components/ui/select.tsx",
+          "src/components/ui/slider.tsx",
+          "src/components/ui/switch.tsx",
+          "src/components/ui/tabs.tsx",
+          "src/components/ui/textarea.tsx",
+          "src/components/ui/toast.tsx"
+        ],
+        "canModify": [],
+        "cannotModify": [],
+        "mustCoordinate": []
+      },
+      "shared": {
+        "files": [
+          "src/app/api/admin/agencies/route.ts",
+          "src/app/api/admin/feature-flags/route.ts",
+          "src/app/api/agencies/current/route.ts",
+          "src/app/api/auth/[...nextauth]/route.ts",
+          "src/app/api/chat/route.ts",
+          "src/app/api/chat/stream/route.ts",
+          "src/app/api/conversations/[id]/route.ts",
+          "src/app/api/conversations/route.ts",
+          "src/app/api/debug-user/route.ts",
+          "src/app/api/ga4/auth/callback/route.ts",
+          "src/app/api/ga4/auth/route.test.ts",
+          "src/app/api/ga4/auth/route.ts",
+          "src/app/api/ga4/connect/route.ts",
+          "src/app/api/ga4/disconnect/route.ts",
+          "src/app/api/ga4/properties/route.ts",
+          "src/app/api/invite/[token]/accept/route.ts",
+          "src/app/api/invite/[token]/route.ts",
+          "src/app/api/make-me-admin/route.ts",
+          "src/app/api/models/route.ts",
+          "src/app/api/onboarding/route.ts",
+          "src/app/api/onboarding/test/route.ts",
+          "src/app/api/orders/[id]/messages/route.ts",
+          "src/app/api/orders/[id]/route.ts",
+          "src/app/api/orders/route.ts",
+          "src/app/api/reports/failed/route.ts",
+          "src/app/api/reports/retry/[executionId]/route.ts",
+          "src/app/api/reports/schedule/route.test.ts",
+          "src/app/api/reports/schedule/route.ts",
+          "src/app/api/reports/schedules/[id]/pause/route.ts",
+          "src/app/api/reports/schedules/[id]/retry/route.ts",
+          "src/app/api/reports/schedules/[id]/route.ts",
+          "src/app/api/reports/schedules/route.ts",
+          "src/app/api/reports/test/route.ts",
+          "src/app/api/reports/trigger-scheduled-jobs/route.test.ts",
+          "src/app/api/reports/trigger-scheduled-jobs/route.ts",
+          "src/app/api/seoworks/health/route.ts",
+          "src/app/api/seoworks/queue/route.ts",
+          "src/app/api/seoworks/tasks/complete/route.ts",
+          "src/app/api/seoworks/tasks/status/route.ts",
+          "src/app/api/seoworks/tasks/types/route.ts",
+          "src/app/api/seoworks/test/route.ts",
+          "src/app/api/seoworks/test-webhook/route.ts",
+          "src/app/api/seoworks/webhook/route.test.ts",
+          "src/app/api/seoworks/webhook/route.ts",
+          "src/app/api/simple-invite/route.ts",
+          "src/app/api/upload/route.ts",
+          "src/app/api/user/details/route.ts",
+          "src/app/api/user/theme/route.ts",
+          "src/app/api/users/invite/route.ts",
+          "src/app/api/users/route.ts",
+          "src/instrumentation.ts",
+          "src/lib/ai.ts",
+          "src/lib/api/route-handler.ts",
+          "src/lib/api-utils.ts",
+          "src/lib/audit.ts",
+          "src/lib/auth/user-resolver.ts",
+          "src/lib/auth.ts",
+          "src/lib/db/tenant-filter.ts",
+          "src/lib/email.ts",
+          "src/lib/encryption.ts",
+          "src/lib/errors.ts",
+          "src/lib/feature-flags.ts",
+          "src/lib/ga4/index.ts",
+          "src/lib/ga4/service.ts",
+          "src/lib/ga4/tokens.ts",
+          "src/lib/ga4-admin-helpers.ts",
+          "src/lib/ga4.ts",
+          "src/lib/google-auth.ts",
+          "src/lib/observability.ts",
+          "src/lib/prisma.ts",
+          "src/lib/rate-limit.ts",
+          "src/lib/security.ts",
+          "src/lib/seo-knowledge.ts",
+          "src/lib/seoworks/queue.ts",
+          "src/lib/seoworks-integration.test.ts",
+          "src/lib/seoworks-integration.ts",
+          "src/lib/seoworks-onboarding.ts",
+          "src/lib/seoworks.ts",
+          "src/lib/services/ga4-report-processor.ts",
+          "src/lib/services/ga4-service.test.ts",
+          "src/lib/services/ga4-service.ts",
+          "src/lib/services/report-executor.ts",
+          "src/lib/services/report-generator.test.ts",
+          "src/lib/services/report-generator.ts",
+          "src/lib/services/report-scheduler-service.test.ts",
+          "src/lib/services/report-scheduler-service.ts",
+          "src/lib/services/report-scheduler.test.ts",
+          "src/lib/services/report-scheduler.ts",
+          "src/lib/services/scheduler-service.ts",
+          "src/lib/tenant.ts",
+          "src/lib/types/ga4.ts",
+          "src/lib/utils.ts",
+          "src/lib/validation.ts"
+        ],
+        "canModify": [],
+        "cannotModify": [],
+        "mustCoordinate": []
+      }
+    },
+    "interfaces": {
+      "api-contracts": {
+        "location": "src/types/api.ts",
+        "owner": "shared",
+        "consumers": [
+          "frontend",
+          "backend"
+        ],
+        "rules": [
+          "Changes must be backward compatible",
+          "New fields should be optional",
+          "Deprecate before removing"
+        ]
+      },
+      "database-schema": {
+        "location": "prisma/schema.prisma",
+        "owner": "database",
+        "consumers": [
+          "backend"
+        ],
+        "rules": [
+          "Migrations must be additive",
+          "Column removals require migration plan",
+          "Index changes need performance review"
+        ]
+      },
+      "component-props": {
+        "location": "src/types/components.ts",
+        "owner": "frontend",
+        "consumers": [
+          "frontend"
+        ],
+        "rules": [
+          "Props interfaces should be stable",
+          "Use optional props for new features",
+          "Maintain prop type compatibility"
+        ]
+      }
+    },
+    "rules": [
+      {
+        "rule": "File Ownership",
+        "description": "Agents should only modify files in their designated areas",
+        "enforcement": "Pre-commit hooks will check file ownership"
+      },
+      {
+        "rule": "Interface Stability",
+        "description": "Changes to shared interfaces require coordination",
+        "enforcement": "PR reviews required for interface changes"
+      },
+      {
+        "rule": "Dependency Direction",
+        "description": "Dependencies should flow in one direction: UI -> API -> Database",
+        "enforcement": "Circular dependencies will be rejected"
+      },
+      {
+        "rule": "Atomic Changes",
+        "description": "Each commit should be self-contained and not break builds",
+        "enforcement": "CI/CD will validate each commit"
+      }
+    ]
+  },
+  "conflictReport": {
+    "timestamp": "2025-06-27T02:08:20.086Z",
+    "potentialConflicts": [],
+    "suggestions": []
+  }
+}

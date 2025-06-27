@@ -1,0 +1,60 @@
+{
+  "ticketDependencies": {
+    "TICKET-001": [],
+    "TICKET-002": [],
+    "TICKET-003": ["TICKET-002"],
+    "TICKET-004": ["TICKET-001"],
+    "TICKET-005": [],
+    "TICKET-006": ["TICKET-001", "TICKET-002", "TICKET-003", "TICKET-004", "TICKET-005", "TICKET-007"],
+    "TICKET-007": ["TICKET-003"],
+    "TICKET-008": ["TICKET-006"],
+    "TICKET-009": ["TICKET-CA-002"],
+    "TICKET-010": ["TICKET-007", "TICKET-CA-007"],
+    "TICKET-011": ["TICKET-009", "TICKET-CA-008"],
+    "TICKET-CA-001": [],
+    "TICKET-CA-002": ["TICKET-CA-001"],
+    "TICKET-CA-003": ["TICKET-CA-002", "TICKET-005"],
+    "TICKET-CA-004": ["TICKET-CA-003"],
+    "TICKET-CA-005": ["TICKET-CA-003", "TICKET-CA-004"],
+    "TICKET-CA-006": ["TICKET-CA-005"],
+    "TICKET-CA-007": ["TICKET-CA-006"],
+    "TICKET-CA-008": ["TICKET-CA-007"],
+    "TICKET-CA-009": ["TICKET-CA-008", "TICKET-011"],
+    "TICKET-CA-010": ["TICKET-CA-009"]
+  },
+  "parallelTracks": {
+    "trackA": {
+      "name": "Core Features",
+      "tickets": ["TICKET-001", "TICKET-002", "TICKET-003", "TICKET-004", "TICKET-007", "TICKET-006", "TICKET-008"],
+      "team": ["Dev1", "Dev2"]
+    },
+    "trackB": {
+      "name": "Analytics Features",
+      "tickets": ["TICKET-CA-001", "TICKET-CA-002", "TICKET-CA-003", "TICKET-CA-004", "TICKET-CA-005", "TICKET-CA-006", "TICKET-CA-007", "TICKET-CA-008"],
+      "team": ["Dev3", "Dev4"]
+    },
+    "trackC": {
+      "name": "Quick Wins",
+      "tickets": ["TICKET-005"],
+      "team": ["Junior Dev"]
+    }
+  },
+  "sprintSchedule": {
+    "week1": {
+      "monday": {
+        "Dev1": "TICKET-001",
+        "Dev2": "TICKET-002",
+        "Dev3": "TICKET-CA-001",
+        "Dev4": "TICKET-005"
+      }
+    },
+    "week2": {
+      "monday": {
+        "Dev1": "TICKET-003",
+        "Dev2": "TICKET-004",
+        "Dev3": "TICKET-CA-002",
+        "Dev4": "Continue TICKET-005"
+      }
+    }
+  }
+}
