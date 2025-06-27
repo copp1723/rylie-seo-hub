@@ -78,7 +78,8 @@ export async function GET(request: NextRequest) {
     }))
 
     return NextResponse.json({ 
-      orders: transformedOrders,
+      orders: transformedOrders, // Keep 'orders' for backward compatibility
+      requests: transformedOrders, // New field name
       total: orders.length 
     })
 

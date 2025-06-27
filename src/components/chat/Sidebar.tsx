@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { UI_TEXT } from '@/constants/terminology'
 
 interface Conversation {
   id: string
@@ -69,8 +70,8 @@ export function Sidebar({
       ),
     },
     {
-      name: 'Orders',
-      href: '/orders',
+      name: UI_TEXT.NAV_ITEM,
+      href: '/requests',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
