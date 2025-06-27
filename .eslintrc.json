@@ -1,0 +1,15 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "warn", // Changed from off to warn
+    "@typescript-eslint/no-explicit-any": "warn", // Changed from off to warn - KEY CHANGE
+    "@typescript-eslint/no-empty-object-type": "warn", // Changed from off to warn
+    "react/no-unescaped-entities": "off", // Kept as is for now, can be reviewed later
+    "react-hooks/exhaustive-deps": "warn", // Changed from off to warn - IMPORTANT
+    "@next/next/no-img-element": "warn", // Changed from off to warn (encourage next/image)
+    "jsx-a11y/alt-text": "warn", // Changed from off to warn (important for accessibility)
+    "prefer-const": "warn", // Added from package.json
+    "no-console": ["warn", { "allow": ["warn", "error", "info"] }] // Added from package.json, allowing specific console methods
+  }
+}
+
