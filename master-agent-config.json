@@ -1,0 +1,159 @@
+{
+  "masterAgent": {
+    "authority": "supreme",
+    "branch": "master-integration",
+    "responsibilities": {
+      "codeReview": {
+        "enabled": true,
+        "autoReview": true,
+        "standards": {
+          "formatting": ["prettier", "eslint"],
+          "testing": {
+            "required": true,
+            "minimumCoverage": 80,
+            "types": ["unit", "integration"]
+          },
+          "documentation": {
+            "required": true,
+            "standards": ["jsdoc", "readme-updates"]
+          },
+          "security": {
+            "scanEnabled": true,
+            "blockOnVulnerabilities": true
+          }
+        }
+      },
+      "conflictResolution": {
+        "strategy": "master-decides",
+        "preserveAgentWork": true,
+        "intelligentMerge": true,
+        "fallbackToManual": false
+      },
+      "integration": {
+        "validateBeforeMerge": true,
+        "runFullTestSuite": true,
+        "deploymentCheck": true,
+        "rollbackOnFailure": true
+      },
+      "agentManagement": {
+        "enforcesBoundaries": false,
+        "canOverrideAnyAgent": true,
+        "monitorsAgentHealth": true,
+        "autoTerminatesStaleAgents": true
+      }
+    },
+    "workflows": {
+      "standardIntegration": {
+        "steps": [
+          "fetch-all-branches",
+          "review-changes",
+          "validate-boundaries",
+          "run-tests",
+          "check-conflicts",
+          "merge-to-master",
+          "validate-integration",
+          "push-to-main"
+        ]
+      },
+      "emergencyFix": {
+        "steps": [
+          "create-override-branch",
+          "disable-boundaries",
+          "apply-fixes",
+          "fast-track-validation",
+          "direct-push"
+        ]
+      },
+      "batchIntegration": {
+        "steps": [
+          "collect-all-ready-branches",
+          "order-by-dependency",
+          "sequential-integration",
+          "full-regression-test",
+          "atomic-push"
+        ]
+      }
+    },
+    "automationRules": {
+      "autoApprove": {
+        "enabled": false,
+        "conditions": [
+          "all-tests-pass",
+          "no-security-issues",
+          "within-boundaries",
+          "no-conflicts",
+          "documentation-updated"
+        ]
+      },
+      "autoReject": {
+        "enabled": true,
+        "conditions": [
+          "build-failure",
+          "security-vulnerability",
+          "major-boundary-violation",
+          "breaks-other-agents"
+        ]
+      },
+      "requireManualReview": [
+        "database-migrations",
+        "api-breaking-changes",
+        "security-sensitive-code",
+        "configuration-changes",
+        "dependency-updates"
+      ]
+    },
+    "communication": {
+      "notifyOnReview": true,
+      "notifyOnIntegration": true,
+      "notifyOnConflicts": true,
+      "reportingInterval": "hourly",
+      "dashboardEnabled": true
+    }
+  },
+  "agentHierarchy": {
+    "master": {
+      "level": 0,
+      "permissions": ["all"],
+      "canOverride": ["all"]
+    },
+    "senior": {
+      "level": 1,
+      "permissions": ["review", "suggest"],
+      "canOverride": ["junior"]
+    },
+    "standard": {
+      "level": 2,
+      "permissions": ["develop", "test"],
+      "canOverride": []
+    }
+  },
+  "integrationPipeline": {
+    "stages": [
+      {
+        "name": "collection",
+        "description": "Collect all pending agent work",
+        "timeout": "5m"
+      },
+      {
+        "name": "validation",
+        "description": "Validate each agent's changes",
+        "timeout": "10m"
+      },
+      {
+        "name": "integration",
+        "description": "Merge validated changes",
+        "timeout": "15m"
+      },
+      {
+        "name": "testing",
+        "description": "Run comprehensive test suite",
+        "timeout": "30m"
+      },
+      {
+        "name": "deployment",
+        "description": "Deploy to staging/production",
+        "timeout": "10m"
+      }
+    ]
+  }
+}
