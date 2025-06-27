@@ -59,6 +59,7 @@ model Agency {
   userInvites   UserInvite[]
   reportSchedules ReportSchedule[]
   reportExecutionHistory ReportExecutionHistory[]
+  escalations   Escalation[]
   
   @@map("agencies")
 }
@@ -98,6 +99,7 @@ model User {
   sentInvites   UserInvite[]
   ga4Token      UserGA4Token?
   reportSchedules ReportSchedule[]
+  escalations   Escalation[]
   
   @@map("users")
 }
@@ -659,4 +661,48 @@ model ReportExecutionHistory {
   @@index([failedAt])
   @@index([retryAfter])
   @@map("report_execution_history")
+}
+
+// Escalation model for SEO team support requests
+model Escalation {
+  id              String   @id @default(cuid())
+  
+  // User and Agency
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  agencyId        String
+  agency          Agency   @relation(fields: [agencyId], references: [id])
+  
+  // Escalation Details
+  originalQuestion String  @db.Text
+  aiResponse      String?  @db.Text
+  userContext     String?  @db.Text // Additional context from user
+  conversationId  String?
+  contactPreference String? // email, phone, chat
+  
+  // Status Tracking
+  status          String   @default("pending") // pending, assigned, in_progress, resolved
+  priority        String   @default("normal") // low, normal, high, urgent
+  assignedTo      String?  // SEO team member email
+  assignedAt      DateTime?
+  
+  // Resolution
+  resolution      String?  @db.Text
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  
+  // Metadata
+  tags            String[] // Array of tags for categorization
+  responseTime    Int?     // Time to first response in minutes
+  resolutionTime  Int?     // Total time to resolution in minutes
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId, status])
+  @@index([agencyId, status])
+  @@index([priority, status])
+  @@index([assignedTo, status])
+  @@map("escalations")
 }
