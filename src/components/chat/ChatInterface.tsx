@@ -19,6 +19,7 @@ import {
   ThumbsDown,
 } from 'lucide-react'
 import { EscalationModal } from './EscalationModal'
+import { AIContextPreview } from './AIContextPreview'
 
 interface ChatInterfaceProps {
   user: User
@@ -115,6 +116,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
         body: JSON.stringify({
           message: userMessage.content,
           model: 'openai/gpt-4o',
+          useContext: true, // Enable context-aware responses
         }),
       })
 
@@ -231,6 +233,9 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
               <p className="text-muted-foreground">
                 How can I help you improve your website's search engine optimization today?
               </p>
+              <div className="mt-2">
+                <AIContextPreview />
+              </div>
             </div>
 
             {/* Suggestion Cards */}
