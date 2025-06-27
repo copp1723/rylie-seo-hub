@@ -14,7 +14,11 @@ import {
   Wrench,
   ShoppingCart,
   Sparkles,
+  Users,
+  ThumbsUp,
+  ThumbsDown,
 } from 'lucide-react'
+import { EscalationModal } from './EscalationModal'
 
 interface ChatInterfaceProps {
   user: User
@@ -65,6 +69,8 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showEscalationModal, setShowEscalationModal] = useState(false)
+  const [escalationMessage, setEscalationMessage] = useState<Message | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -154,6 +160,65 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
     }
   }
 
+  const openEscalationModal = (message: Message) => {
+    // Find the previous user message
+    const messageIndex = messages.findIndex(m => m.id === message.id)
+    const previousUserMessage = messages
+      .slice(0, messageIndex)
+      .reverse()
+      .find(m => m.role === 'user')
+    
+    if (previousUserMessage) {
+      setEscalationMessage({
+        ...previousUserMessage,
+        content: previousUserMessage.content,
+      })
+      setShowEscalationModal(true)
+    }
+  }
+
+  const handleEscalation = async (data: any) => {
+    try {
+      const response = await fetch('/api/escalations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: escalationMessage?.content,
+          aiResponse: messages.find(m => m.role === 'assistant')?.content,
+          priority: data.priority,
+          additionalContext: data.additionalContext,
+          contactPreference: data.contactPreference,
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to create escalation')
+
+      const result = await response.json()
+      
+      // Add a system message to chat
+      const systemMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `✅ ${result.message}. Our team will respond within 2-4 hours during business hours.`,
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, systemMessage])
+    } catch (error) {
+      console.error('Escalation error:', error)
+    }
+  }
+
+  const handleThumbsUp = (message: Message) => {
+    console.log('Thumbs up for message:', message.id)
+    // TODO: Implement feedback tracking
+  }
+
+  const handleThumbsDown = (message: Message) => {
+    console.log('Thumbs down for message:', message.id)
+    // Could automatically suggest escalation
+    openEscalationModal(message)
+  }
+
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Messages Area */}
@@ -208,6 +273,31 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                   <p className="text-xs opacity-70 mt-2">
                     {message.timestamp.toLocaleTimeString()}
                   </p>
+                  {message.role === 'assistant' && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <button
+                        onClick={() => handleThumbsUp(message)}
+                        className="text-xs px-2 py-1 rounded hover:bg-black/5 transition-colors flex items-center gap-1"
+                      >
+                        <ThumbsUp className="h-3 w-3" />
+                        Helpful
+                      </button>
+                      <button
+                        onClick={() => handleThumbsDown(message)}
+                        className="text-xs px-2 py-1 rounded hover:bg-black/5 transition-colors flex items-center gap-1"
+                      >
+                        <ThumbsDown className="h-3 w-3" />
+                        Not helpful
+                      </button>
+                      <button
+                        onClick={() => openEscalationModal(message)}
+                        className="text-xs px-2 py-1 rounded hover:bg-black/5 transition-colors flex items-center gap-1 text-blue-600"
+                      >
+                        <Users className="h-3 w-3" />
+                        Ask SEO Team
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -257,6 +347,17 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
           </p>
         </div>
       </div>
+
+      {/* Escalation Modal */}
+      {showEscalationModal && escalationMessage && (
+        <EscalationModal
+          isOpen={showEscalationModal}
+          onClose={() => setShowEscalationModal(false)}
+          question={escalationMessage.content}
+          aiResponse={messages.find(m => m.role === 'assistant')?.content}
+          onSubmit={handleEscalation}
+        />
+      )}
     </div>
   )
 }
