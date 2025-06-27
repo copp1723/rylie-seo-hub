@@ -1,0 +1,1256 @@
+[
+  {
+    "valid": false,
+    "errors": [
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(229,12): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(229,21): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(229,26): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(229,68): error TS1138: Parameter declaration expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(229,82): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(229,96): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(229,106): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(230,14): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(230,23): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(231,16): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(231,25): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(231,69): error TS1109: Expression expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(232,16): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(232,25): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(232,64): error TS1109: Expression expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(233,16): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(233,25): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(233,59): error TS1109: Expression expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(234,10): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(235,8): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(236,5): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(237,3): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(241,12): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(241,21): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(241,26): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(241,74): error TS1138: Parameter declaration expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(241,88): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(242,12): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(242,21): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(242,43): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(242,68): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(243,8): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(244,5): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(249,12): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(249,21): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(249,26): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(249,68): error TS1138: Parameter declaration expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(250,12): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(250,21): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(250,43): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(250,53): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(251,8): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(252,5): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(256,10): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(256,19): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(256,24): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(256,66): error TS1138: Parameter declaration expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(257,12): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(257,21): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(258,14): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(258,23): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(259,16): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(259,25): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(260,18): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(262,17): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(262,20): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(262,26): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(263,17): error TS1005: ':' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(263,22): error TS1136: Property assignment expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(265,16): error TS1109: Expression expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(266,13): error TS1109: Expression expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(266,15): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(267,21): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(267,30): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(268,22): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(268,43): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(269,16): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(270,13): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(270,14): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(271,12): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(272,10): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(276,13): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(276,20): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(278,23): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(280,18): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(281,12): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(282,9): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(283,8): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(286,15): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(286,23): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(286,39): error TS1005: ':' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(288,20): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(288,27): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(288,40): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(289,21): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(290,14): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(294,30): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(295,43): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(297,17): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(297,137): error TS1138: Parameter declaration expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(298,33): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(299,15): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(300,27): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(301,31): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(302,13): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(304,21): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(304,23): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(304,42): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(304,86): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(305,34): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(306,16): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(307,13): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(308,12): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(311,20): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(311,27): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(311,39): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(312,20): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(313,14): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(317,30): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(318,43): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(320,17): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(320,137): error TS1138: Parameter declaration expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(321,33): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(322,15): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(323,27): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(324,31): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(325,13): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(327,21): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(327,23): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(327,41): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(327,85): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(328,34): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(329,16): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(330,13): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(331,12): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(334,20): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(334,27): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(334,34): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(336,14): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(339,30): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(340,43): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(341,22): error TS1005: ':' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(343,17): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(343,137): error TS1138: Parameter declaration expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(344,33): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(345,15): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(346,27): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(347,31): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(348,13): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(350,21): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(350,23): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(350,36): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(350,80): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(351,34): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(352,16): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(353,13): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(354,12): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(356,16): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(358,15): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(358,19): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(362,31): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(363,14): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(371,14): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(372,12): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(373,10): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(374,7): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(374,9): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(375,14): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(375,23): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(376,15): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(376,24): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(377,18): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(377,30): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(378,12): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(379,14): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(379,45): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(379,53): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(381,16): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(381,25): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(381,63): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(381,69): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(382,11): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(383,16): error TS1005: '>' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(383,25): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(384,20): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(385,12): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(386,10): error TS1161: Unterminated regular expression literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(387,7): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(388,6): error TS1110: Type expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(389,3): error TS1128: Declaration or statement expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994098211.ts(390,1): error TS1128: Declaration or statement expected."
+      }
+    ],
+    "warnings": [
+      {
+        "type": "security",
+        "pattern": "/\\$\\{.*\\}/",
+        "message": "Template literal injection risk",
+        "occurrences": 3
+      },
+      {
+        "type": "complexity",
+        "message": "High cyclomatic complexity: 18 (max: 10)"
+      }
+    ],
+    "suggestions": [],
+    "timestamp": "2025-06-27T03:14:58.208Z",
+    "filePath": "src/frontend/ticket-005.ts",
+    "context": {
+      "ticket": "TICKET-005",
+      "agent": "frontend"
+    }
+  },
+  {
+    "valid": false,
+    "errors": [
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,1): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,5): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,14): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,23): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,29): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,32): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,35): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,39): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,43): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,47): error TS1228: A type predicate is only allowed in return type position for functions and methods."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,50): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,76): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,79): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,83): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,103): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,107): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,112): error TS1435: Unknown keyword or identifier. Did you mean 'implements'?"
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,125): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,130): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(1,134): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,4): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,21): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,31): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,34): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,38): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,48): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,51): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,55): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,60): error TS1228: A type predicate is only allowed in return type position for functions and methods."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,63): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,87): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,105): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(3,112): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,1): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,4): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,13): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,25): error TS1005: '=' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,38): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,41): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,45): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,66): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,75): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(4,82): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,1): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,4): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,8): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,30): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,42): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,62): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,72): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,76): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,79): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,88): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,91): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,101): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,106): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(5,115): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,1): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,4): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,30): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,43): error TS1005: '(' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,46): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,57): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,68): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,73): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,76): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,82): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,86): error TS1005: ',' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,98): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(6,113): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,1): error TS1003: Identifier expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,4): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,19): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,31): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,45): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,55): error TS1228: A type predicate is only allowed in return type position for functions and methods."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,58): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,71): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,78): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,81): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,92): error TS1005: '(' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,94): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(7,108): error TS1002: Unterminated string literal."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(9,1): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(9,6): error TS1228: A type predicate is only allowed in return type position for functions and methods."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(9,9): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(9,13): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(11,3): error TS1443: Module declaration names may only use ' or \" quoted strings."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(66,24): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(66,33): error TS1228: A type predicate is only allowed in return type position for functions and methods."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(66,44): error TS1443: Module declaration names may only use ' or \" quoted strings."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(68,24): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(68,33): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(68,38): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(68,41): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(68,44): error TS1435: Unknown keyword or identifier. Did you mean 'let'?"
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(68,52): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(90,49): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(92,26): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(92,33): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(92,36): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(92,42): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(92,47): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(92,59): error TS1005: '(' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(92,64): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(92,65): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(109,49): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(118,26): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(118,33): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(118,36): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(118,43): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(118,55): error TS1005: '(' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(118,60): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(118,61): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(124,54): error TS1005: ')' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(124,61): error TS1434: Unexpected keyword or identifier."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(124,72): error TS1005: '(' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(124,77): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(124,78): error TS1005: ';' expected."
+      },
+      {
+        "type": "typescript",
+        "message": "../../../../tmp/ai-validate-1750994143741.ts(167,4): error TS1005: ')' expected."
+      }
+    ],
+    "warnings": [
+      {
+        "type": "security",
+        "pattern": "/\\$\\{.*\\}/",
+        "message": "Template literal injection risk",
+        "occurrences": 7
+      }
+    ],
+    "suggestions": [
+      {
+        "type": "quality",
+        "message": "Missing JSDoc comment"
+      }
+    ],
+    "timestamp": "2025-06-27T03:15:43.741Z",
+    "filePath": "src/frontend/ticket-005.ts",
+    "context": {
+      "ticket": "TICKET-005",
+      "agent": "frontend",
+      "attempt": 2
+    }
+  }
+]
