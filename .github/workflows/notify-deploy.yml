@@ -1,0 +1,24 @@
+name: Notify Deployment
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Log Deployment Info
+      run: |
+        echo "🚀 New deployment pushed to main branch"
+        echo "📍 Commit: $(git rev-parse --short HEAD)"
+        echo "💬 Message: $(git log -1 --pretty=%B | head -1)"
+        echo "👤 Author: $(git log -1 --pretty=%an)"
+        echo "📅 Time: $(date)"
+        echo ""
+        echo "Render should auto-deploy if GitHub integration is enabled"
+        echo "Otherwise, use the deploy hook workflow instead"
