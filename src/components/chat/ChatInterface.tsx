@@ -14,7 +14,9 @@ import {
   Wrench,
   ShoppingCart,
   Sparkles,
+  HeadphonesIcon,
 } from 'lucide-react'
+import { EscalationModal, EscalationFormData } from './EscalationModal'
 
 interface ChatInterfaceProps {
   user: User
@@ -101,14 +103,14 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
     try {
       console.log('Sending chat request:', {
         message: userMessage.content,
-        model: 'gpt-4-turbo-preview',
+        model: 'openai/gpt-4o',
       })
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage.content,
-          model: 'gpt-4-turbo-preview',
+          model: 'openai/gpt-4o',
         }),
       })
 
