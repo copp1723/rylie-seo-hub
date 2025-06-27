@@ -14,7 +14,9 @@ import {
   Wrench,
   ShoppingCart,
   Sparkles,
+  HeadphonesIcon,
 } from 'lucide-react'
+import { EscalationModal, EscalationFormData } from './EscalationModal'
 
 interface ChatInterfaceProps {
   user: User
