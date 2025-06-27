@@ -224,6 +224,12 @@ model Order {
   targetUrl      String?
   wordCount      Int?
   
+  // New fields for enhanced tracking
+  pageTitle      String?   // SEO-optimized title of the content
+  contentUrl     String?   // Direct URL to the published content
+  taskCategory   String?   // Normalized category (pages, blogs, gbpPosts)
+  packageType    String?   // SILVER, GOLD, PLATINUM
+  
   // Status tracking
   status         String   @default("pending") // pending, assigned, in_progress, review, completed, cancelled
   assignedTo     String?  // Internal team member email
