@@ -2,7 +2,11 @@
 
 import React, { useState, useMemo } from 'react'
 import { EnhancedOrderCard } from './EnhancedOrderCard'
-import { Search, Filter, ChevronDown, X } from 'lucide-react'
+import { MobileOrderCard } from './MobileOrderCard'
+import { Search, Filter, ChevronDown, X, Grid, List, ExternalLink } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 interface Order {
   id: string
@@ -31,17 +35,20 @@ interface EnhancedOrderListProps {
   orders: Order[]
   onOrderClick?: (order: Order) => void
   className?: string
+  viewMode?: 'grid' | 'list'
 }
 
 type SortOption = 'newest' | 'oldest' | 'priority' | 'status'
 
-export function EnhancedOrderList({ orders, onOrderClick, className = '' }: EnhancedOrderListProps) {
+export function EnhancedOrderList({ orders, onOrderClick, className = '', viewMode: initialViewMode = 'grid' }: EnhancedOrderListProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [selectedPriority, setSelectedPriority] = useState<string>('all')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [showFilters, setShowFilters] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(initialViewMode)
+  const [filterMode, setFilterMode] = useState<'all' | 'completed' | 'active'>('all')
 
   // Extract unique categories from orders
   const categories = useMemo(() => {
@@ -55,6 +62,14 @@ export function EnhancedOrderList({ orders, onOrderClick, className = '' }: Enha
   // Filter and sort orders
   const filteredOrders = useMemo(() => {
     let filtered = orders.filter(order => {
+      // Quick filter mode (all/completed/active)
+      if (filterMode === 'completed' && order.status !== 'completed') {
+        return false
+      }
+      if (filterMode === 'active' && order.status === 'completed') {
+        return false
+      }
+
       // Search filter
       if (searchQuery) {
         const query = searchQuery.toLowerCase()
@@ -111,7 +126,7 @@ export function EnhancedOrderList({ orders, onOrderClick, className = '' }: Enha
     })
 
     return filtered
-  }, [orders, searchQuery, selectedCategory, selectedStatus, selectedPriority, sortBy])
+  }, [orders, searchQuery, selectedCategory, selectedStatus, selectedPriority, sortBy, filterMode])
 
   const activeFiltersCount = [
     selectedCategory !== 'all',
@@ -128,6 +143,31 @@ export function EnhancedOrderList({ orders, onOrderClick, className = '' }: Enha
 
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* Quick Filters */}
+      <div className="flex gap-2 mb-4">
+        <Button
+          variant={filterMode === 'all' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilterMode('all')}
+        >
+          All Tasks ({orders.length})
+        </Button>
+        <Button
+          variant={filterMode === 'completed' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilterMode('completed')}
+        >
+          Completed ({orders.filter(o => o.status === 'completed').length})
+        </Button>
+        <Button
+          variant={filterMode === 'active' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilterMode('active')}
+        >
+          Active ({orders.filter(o => o.status !== 'completed').length})
+        </Button>
+      </div>
+
       {/* Search and Filter Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4">
@@ -145,8 +185,26 @@ export function EnhancedOrderList({ orders, onOrderClick, className = '' }: Enha
             </div>
           </div>
 
-          {/* Filter Toggle and Sort */}
+          {/* View Mode, Filter Toggle and Sort */}
           <div className="flex gap-2">
+            {/* View Mode Toggle */}
+            <div className="flex border border-gray-300 rounded-md">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : ''}`}
+                title="Grid view"
+              >
+                <Grid className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : ''}`}
+                title="List view"
+              >
+                <List className="h-4 w-4" />
+              </button>
+            </div>
+
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2"
@@ -256,9 +314,12 @@ export function EnhancedOrderList({ orders, onOrderClick, className = '' }: Enha
       {filteredOrders.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
           <p className="text-gray-500">No orders found matching your criteria.</p>
-          {(searchQuery || activeFiltersCount > 0) && (
+          {(searchQuery || activeFiltersCount > 0 || filterMode !== 'all') && (
             <button
-              onClick={clearFilters}
+              onClick={() => {
+                clearFilters()
+                setFilterMode('all')
+              }}
               className="mt-4 text-sm text-blue-600 hover:text-blue-800"
             >
               Clear filters and try again
@@ -266,15 +327,105 @@ export function EnhancedOrderList({ orders, onOrderClick, className = '' }: Enha
           )}
         </div>
       ) : (
-        <div className="space-y-4">
-          {filteredOrders.map(order => (
-            <EnhancedOrderCard
-              key={order.id}
-              order={order}
-              onClick={() => onOrderClick?.(order)}
-            />
-          ))}
-        </div>
+        <>
+          {viewMode === 'grid' ? (
+            <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredOrders.map(order => (
+                <EnhancedOrderCard
+                  key={order.id}
+                  order={order}
+                  onClick={() => onOrderClick?.(order)}
+                />
+              ))}
+            </div>
+          ) : (
+            // List view for better title/URL visibility
+            <div className="hidden sm:block space-y-2">
+              {filteredOrders.map((order) => {
+                const getStatusVariant = (status: string) => {
+                  switch (status) {
+                    case 'completed':
+                      return 'success';
+                    case 'in_progress':
+                    case 'review':
+                      return 'default';
+                    case 'cancelled':
+                      return 'destructive';
+                    default:
+                      return 'secondary';
+                  }
+                };
+
+                return (
+                  <Card key={order.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onOrderClick?.(order)}>
+                    <div className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-lg">
+                              {order.pageTitle || order.title}
+                            </h3>
+                            <Badge variant={getStatusVariant(order.status)}>
+                              {order.status.replace('_', ' ')}
+                            </Badge>
+                            <Badge variant="outline">
+                              {order.taskCategory || order.taskType}
+                            </Badge>
+                          </div>
+                          
+                          {order.contentUrl && order.status === 'completed' && (
+                            <a
+                              href={order.contentUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-primary hover:underline inline-flex items-center gap-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {order.contentUrl}
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          )}
+                          
+                          {order.description && (
+                            <p className="text-sm text-muted-foreground">
+                              {order.description}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div className="flex gap-2 ml-4">
+                          {order.contentUrl && order.status === 'completed' && (
+                            <Button size="sm" variant="default" asChild onClick={(e) => e.stopPropagation()}>
+                              <a href={order.contentUrl} target="_blank" rel="noopener noreferrer">
+                                View
+                              </a>
+                            </Button>
+                          )}
+                          <Button size="sm" variant="outline" onClick={(e) => {
+                            e.stopPropagation();
+                            onOrderClick?.(order);
+                          }}>
+                            Details
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
+          {/* Mobile Optimized View */}
+          <div className="block sm:hidden space-y-3">
+            {filteredOrders.map(order => (
+              <MobileOrderCard
+                key={order.id}
+                order={order}
+                onClick={() => onOrderClick?.(order)}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
