@@ -65,7 +65,7 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/orders')
+      const response = await fetch('/api/requests')
       
       if (!response.ok) {
         throw new Error('Failed to fetch orders')
