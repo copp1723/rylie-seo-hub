@@ -178,7 +178,12 @@ export interface Dataset {
   label: string;
   data: number[];
   borderColor?: string;
-  backgroundColor?: string;
+  /**
+   * Background color(s) for the dataset.
+   * Chart.js accepts either a single color or an array
+   * (e.g. pie charts need one color per slice).
+   */
+  backgroundColor?: string | string[];
   [key: string]: any;
 }
 

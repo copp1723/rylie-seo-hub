@@ -492,7 +492,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                       </div>
                     )}
                     <p className="whitespace-pre-wrap">{message.content}</p>
-                    {message.metadata && message.type !== 'analytics' && (
+                    {message.metadata && (
                       <div className="mt-3 pt-3 border-t border-current/10 text-sm space-y-1">
                         {Object.entries(message.metadata)
                           .filter(([, value]) => value)

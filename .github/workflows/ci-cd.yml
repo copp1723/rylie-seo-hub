@@ -1,0 +1,148 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Create test env file
+      run: |
+        cat > .env.test << EOF
+        DATABASE_URL="postgresql://testuser:testpass@localhost:5432/testdb?schema=public"
+        NEXTAUTH_URL="http://localhost:3000"
+        NEXTAUTH_SECRET="test-secret-key-for-ci"
+        NEXT_PUBLIC_SUPABASE_URL="https://test.supabase.co"
+        NEXT_PUBLIC_SUPABASE_ANON_KEY="test-anon-key"
+        EOF
+        
+    - name: Run linter
+      run: npm run lint
+      continue-on-error: true
+      
+    - name: Run type check
+      run: npm run type-check || npx tsc --noEmit
+      
+    - name: Run tests
+      run: npm test -- --passWithNoTests
+      env:
+        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb?schema=public
+        
+    - name: Build application
+      run: npm run build
+      env:
+        NEXT_PUBLIC_USE_REQUESTS_TERMINOLOGY: true
+        DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb?schema=public
+        
+    - name: Check build output
+      run: |
+        echo "Checking build artifacts..."
+        if [ ! -d ".next" ]; then
+          echo "❌ Build failed: .next directory not found"
+          exit 1
+        fi
+        echo "✅ Build artifacts found"
+        
+    - name: Run smoke tests
+      run: |
+        # Start the app in background
+        npm start &
+        SERVER_PID=$!
+        
+        # Wait for server to be ready
+        echo "Waiting for server to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:3000 > /dev/null 2>&1; then
+            echo "✅ Server is running"
+            break
+          fi
+          if [ $i -eq 30 ]; then
+            echo "❌ Server failed to start"
+            kill $SERVER_PID 2>/dev/null || true
+            exit 1
+          fi
+          sleep 1
+        done
+        
+        # Run smoke tests
+        echo "Running smoke tests..."
+        
+        # Test homepage
+        if curl -f http://localhost:3000 | grep -q "SEO Hub"; then
+          echo "✅ Homepage loads correctly"
+        else
+          echo "❌ Homepage test failed"
+          kill $SERVER_PID
+          exit 1
+        fi
+        
+        # Test auth page
+        if curl -f http://localhost:3000/auth/signin > /dev/null 2>&1; then
+          echo "✅ Auth page accessible"
+        else
+          echo "❌ Auth page test failed"
+          kill $SERVER_PID
+          exit 1
+        fi
+        
+        # Kill the server
+        kill $SERVER_PID
+        
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Deploy to Render
+      env:
+        deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      run: |
+        if [ -z "$deploy_url" ]; then
+          echo "❌ RENDER_DEPLOY_HOOK_URL secret not set!"
+          exit 1
+        fi
+        
+        echo "🚀 All tests passed! Triggering Render deployment..."
+        curl -f "$deploy_url" || exit 1
+        echo "✅ Deployment triggered successfully!"
