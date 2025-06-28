@@ -81,13 +81,61 @@ export function ChartVisualization({
     return `${sign}${value.toFixed(1)}%`
   }
 
-  // Common chart options
-  const commonOptions: ChartOptions<'line' | 'bar' | 'pie'> = {
+  // Type-specific chart options
+  const lineOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+      },
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+    },
+  }
+
+  const barOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+    },
+  }
+
+  const pieOptions: ChartOptions<'pie'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right' as const,
       },
       tooltip: {
         mode: 'index',
@@ -103,19 +151,7 @@ export function ChartVisualization({
         return (
           <Line
             data={data as ChartData<'line'>}
-            options={{
-              ...commonOptions,
-              scales: {
-                y: {
-                  beginAtZero: false,
-                },
-                x: {
-                  grid: {
-                    display: false,
-                  },
-                },
-              },
-            }}
+            options={lineOptions}
             height={height}
           />
         )
@@ -124,19 +160,7 @@ export function ChartVisualization({
         return (
           <Bar
             data={data as ChartData<'bar'>}
-            options={{
-              ...commonOptions,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                },
-                x: {
-                  grid: {
-                    display: false,
-                  },
-                },
-              },
-            }}
+            options={barOptions}
             height={height}
           />
         )
@@ -145,15 +169,7 @@ export function ChartVisualization({
         return (
           <Pie
             data={data as ChartData<'pie'>}
-            options={{
-              ...commonOptions,
-              plugins: {
-                ...commonOptions.plugins,
-                legend: {
-                  position: 'right' as const,
-                },
-              },
-            }}
+            options={pieOptions}
             height={height}
           />
         )
