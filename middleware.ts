@@ -173,7 +173,8 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      * - auth routes (sign in/out pages)
+     * - health check endpoint
      */
-    '/((?!_next/static|_next/image|favicon.ico|public/|auth/signin|auth/error|auth/verify-request).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public/|auth/signin|auth/error|auth/verify-request|api/health).*)',
   ],
 }

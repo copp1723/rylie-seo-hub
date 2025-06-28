@@ -6,7 +6,7 @@ services:
     region: oregon
     buildCommand: npm ci --legacy-peer-deps && npm run build && npx prisma generate
     startCommand: npm start
-    healthCheckPath: /
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
