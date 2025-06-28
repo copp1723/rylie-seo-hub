@@ -1,10 +1,10 @@
 'use client'
 
 import { signIn } from 'next-auth/react'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function SignIn() {
+function SignInForm() {
   const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
@@ -56,5 +56,17 @@ export default function SignIn() {
         </button>
       </div>
     </div>
+  )
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    }>
+      <SignInForm />
+    </Suspense>
   )
 }
