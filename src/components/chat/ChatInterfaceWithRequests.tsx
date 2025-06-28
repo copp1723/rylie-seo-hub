@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { RequestForm, RequestData } from '@/components/requests/RequestForm'
+import { AnalyticsBubble } from '@/components/analytics/AnalyticsBubble'
+import { AnalyticsVisualization } from '@/lib/analytics/types'
 import {
   Send,
   Loader2,
@@ -17,6 +19,7 @@ import {
   Sparkles,
   Target,
   AlertCircle,
+  BarChart3,
 } from 'lucide-react'
 
 interface ChatInterfaceProps {
@@ -28,14 +31,17 @@ interface Message {
   role: 'user' | 'assistant' | 'system'
   content: string
   timestamp: Date
-  type?: 'text' | 'request-form' | 'clarifying-question'
+  type?: 'text' | 'request-form' | 'clarifying-question' | 'analytics'
   metadata?: any
   model?: string
   tokens?: number
+  visualizations?: AnalyticsVisualization[]
+  followUpQuestions?: string[]
+  isAnalytics?: boolean
 }
 
 interface ConversationContext {
-  intent?: 'request' | 'general'
+  intent?: 'request' | 'general' | 'analytics'
   requestType?: string
   clarificationStage?: number
   requestData?: Partial<RequestData>
@@ -64,9 +70,9 @@ const suggestionCards = [
     prompt: 'What Key Performance Indicators do you track for SEO and how do I measure success?',
   },
   {
-    icon: Wrench,
-    title: 'Traffic is down - should I worry?',
-    prompt: 'My organic traffic is down this month. Should I be concerned?',
+    icon: BarChart3,
+    title: 'How is our traffic trending?',
+    prompt: 'How has our organic traffic changed over the last month?',
   },
   {
     icon: ShoppingCart,
@@ -250,6 +256,11 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
     }
   }
 
+  const handleFollowUpClick = (question: string) => {
+    setInput(question)
+    textareaRef.current?.focus()
+  }
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
 
@@ -309,19 +320,35 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
 
         const data = await response.json()
 
-        const assistantMessage: Message = {
-          id: data.assistantMessage?.id || (Date.now() + 1).toString(),
-          role: 'assistant',
-          content:
-            data.assistantMessage?.content ||
-            data.content ||
-            'Sorry, I could not generate a response.',
-          timestamp: new Date(data.assistantMessage?.createdAt || Date.now()),
-          model: data.assistantMessage?.model || data.model,
-          tokens: data.assistantMessage?.tokens || data.tokens,
+        // Check if this is an analytics response
+        if (data.analytics === true && data.visualizations) {
+          const analyticsMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: data.content,
+            timestamp: new Date(),
+            type: 'analytics',
+            model: data.model,
+            visualizations: data.visualizations,
+            followUpQuestions: data.followUp,
+            isAnalytics: true
+          }
+          setMessages(prev => [...prev, analyticsMessage])
+        } else {
+          // Regular chat response
+          const assistantMessage: Message = {
+            id: data.assistantMessage?.id || (Date.now() + 1).toString(),
+            role: 'assistant',
+            content:
+              data.assistantMessage?.content ||
+              data.content ||
+              'Sorry, I could not generate a response.',
+            timestamp: new Date(data.assistantMessage?.createdAt || Date.now()),
+            model: data.assistantMessage?.model || data.model,
+            tokens: data.assistantMessage?.tokens || data.tokens,
+          }
+          setMessages(prev => [...prev, assistantMessage])
         }
-
-        setMessages(prev => [...prev, assistantMessage])
 
         // Update conversation ID if this was a new conversation
         if (!conversationId && data.conversation?.id) {
@@ -436,40 +463,54 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div
-                  className={`max-w-[80%] rounded-lg p-4 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : message.type === 'clarifying-question'
-                        ? 'bg-blue-50 border border-blue-200 text-blue-900'
-                        : 'bg-muted'
-                  }`}
-                >
-                  {message.type === 'clarifying-question' && (
-                    <div className="flex items-center gap-2 mb-2">
-                      <AlertCircle className="h-4 w-4" />
-                      <span className="text-sm font-semibold">Clarifying Question</span>
-                    </div>
-                  )}
-                  <p className="whitespace-pre-wrap">{message.content}</p>
-                  {message.metadata && (
-                    <div className="mt-3 pt-3 border-t border-current/10 text-sm space-y-1">
-                      {Object.entries(message.metadata)
-                        .filter(([, value]) => value)
-                        .map(([key, value]) => (
-                          <div key={key}>
-                            <span className="font-semibold">
-                              {key.replace(/([A-Z])/g, ' $1').trim()}:
-                            </span>{' '}
-                            {String(value)}
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                  <p className="text-xs opacity-70 mt-2">
-                    {message.timestamp.toLocaleTimeString()}
-                  </p>
-                </div>
+                {message.type === 'analytics' ? (
+                  <AnalyticsBubble
+                    response={{
+                      text: message.content,
+                      visualizations: message.visualizations || [],
+                      query: message.metadata?.query || {},
+                      followUpQuestions: message.followUpQuestions
+                    }}
+                    timestamp={message.timestamp}
+                    onFollowUpClick={handleFollowUpClick}
+                    className="max-w-[90%]"
+                  />
+                ) : (
+                  <div
+                    className={`max-w-[80%] rounded-lg p-4 ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : message.type === 'clarifying-question'
+                          ? 'bg-blue-50 border border-blue-200 text-blue-900'
+                          : 'bg-muted'
+                    }`}
+                  >
+                    {message.type === 'clarifying-question' && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertCircle className="h-4 w-4" />
+                        <span className="text-sm font-semibold">Clarifying Question</span>
+                      </div>
+                    )}
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    {message.metadata && message.type !== 'analytics' && (
+                      <div className="mt-3 pt-3 border-t border-current/10 text-sm space-y-1">
+                        {Object.entries(message.metadata)
+                          .filter(([, value]) => value)
+                          .map(([key, value]) => (
+                            <div key={key}>
+                              <span className="font-semibold">
+                                {key.replace(/([A-Z])/g, ' $1').trim()}:
+                              </span>{' '}
+                              {String(value)}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                    <p className="text-xs opacity-70 mt-2">
+                      {message.timestamp.toLocaleTimeString()}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
             {isLoading && (
@@ -500,7 +541,7 @@ export function ChatInterface({ user }: ChatInterfaceProps) {
                 placeholder={
                   conversationContext.intent === 'request'
                     ? 'Type your response here...'
-                    : 'Ask me anything about SEO...'
+                    : 'Ask me anything about SEO or analytics...'
                 }
                 className="flex-1 min-h-[56px] max-h-[200px] resize-none"
                 disabled={isLoading}

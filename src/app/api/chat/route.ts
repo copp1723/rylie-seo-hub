@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { getTaskContext, buildEnhancedSystemPrompt } from '@/lib/ai/taskContextService'
 import { getCachedTaskContext } from '@/lib/ai/contextCache'
+import { parseAnalyticsQuery, isValidQuery } from '@/lib/analytics/parser'
+import { analyticsAssistant } from '@/lib/analytics/assistant'
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +16,33 @@ export async function POST(req: NextRequest) {
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
+    }
+
+    /**
+     * ------------------------------------------------------------------
+     * 1. Detect if the incoming message is an analytics-related query.
+     *    If so, delegate to the Conversational Analytics Assistant.
+     * ------------------------------------------------------------------
+     */
+    try {
+      const parsedQuery = parseAnalyticsQuery(message, session.user.agencyId)
+      if (isValidQuery(parsedQuery) && parsedQuery.intent !== 'unknown') {
+        const analyticsResponse = await analyticsAssistant.processQuery(
+          message,
+          session.user.agencyId
+        )
+
+        return NextResponse.json({
+          content: analyticsResponse.text,
+          visualizations: analyticsResponse.visualizations,
+          followUp: analyticsResponse.followUpQuestions,
+          analytics: true,
+          query: analyticsResponse.query,
+        })
+      }
+    } catch (err) {
+      // If the analytics parsing throws, fall back to regular chat flow
+      console.error('Analytics assistant error (fallback to LLM):', err)
     }
 
     // Build messages array
