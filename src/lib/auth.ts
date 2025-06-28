@@ -30,10 +30,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    session: async ({ session, token }) => {
-      if (session?.user && token?.sub) {
-        const user = await prisma.user.findUnique({
-          where: { id: token.sub },
+    jwt: async ({ token, user, account }) => {
+      // Initial sign in
+      if (account && user) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
           select: {
             id: true,
             role: true,
@@ -42,12 +43,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
         })
 
-        if (user) {
-          session.user.id = user.id
-          session.user.role = user.role
-          session.user.agencyId = user.agencyId
-          session.user.isSuperAdmin = user.isSuperAdmin
+        if (dbUser) {
+          token.id = dbUser.id
+          token.role = dbUser.role
+          token.agencyId = dbUser.agencyId
+          token.isSuperAdmin = dbUser.isSuperAdmin
         }
+      }
+      return token
+    },
+    session: async ({ session, token }) => {
+      // Just read from token, no DB call
+      if (session?.user && token) {
+        session.user.id = token.id as string
+        session.user.role = token.role as string
+        session.user.agencyId = token.agencyId as string | null
+        session.user.isSuperAdmin = token.isSuperAdmin as boolean
       }
       return session
     },

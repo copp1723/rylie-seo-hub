@@ -14,6 +14,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Application Enums
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum RequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum RequestPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum PackageType {
+  SILVER
+  GOLD
+  PLATINUM
+}
+
 // Multi-tenant foundation models
 model Agency {
   id          String   @id @default(cuid())
@@ -76,7 +102,7 @@ model User {
   agency        Agency?   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   
   // User role within agency
-  role          String    @default("user") // admin, user, viewer
+  role          UserRole  @default(USER)
   
   // Super admin flag (platform level)
   isSuperAdmin  Boolean   @default(false)
@@ -102,6 +128,10 @@ model User {
   reportSchedules ReportSchedule[]
   escalations   Escalation[]
   
+  // Relations for Deliverables and TimeEntries
+  uploadedDeliverables Deliverable[] @relation("UserDeliverables")
+  timeEntries          TimeEntry[]   @relation("UserTimeEntries")
+
   @@map("users")
 }
 
@@ -212,15 +242,15 @@ model Order {
   agency         Agency?  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   
   // User relationship
-  userId         String?
-  userEmail      String
-  user           User?    @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  userId         String?  // This field will now be used for the relation
+  user           User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userEmail      String   // Kept for historical data, not part of the relation anymore
   
   // Task details
   taskType       String   // blog, page, gbp, maintenance, seo
   title          String
   description    String
-  priority       String   @default("medium") // low, medium, high
+  priority       RequestPriority @default(MEDIUM)
   
   // SEO specific fields
   keywords       Json?    // Array of keywords
@@ -231,10 +261,10 @@ model Order {
   pageTitle      String?   // SEO-optimized title of the content
   contentUrl     String?   // Direct URL to the published content
   taskCategory   String?   // Normalized category (pages, blogs, gbpPosts)
-  packageType    String?   // SILVER, GOLD, PLATINUM
+  packageType    PackageType?
   
   // Status tracking
-  status         String   @default("pending") // pending, assigned, in_progress, review, completed, cancelled
+  status         RequestStatus @default(PENDING)
   assignedTo     String?  // Internal team member email
   assignedAt     DateTime?
   seoworksTaskId String?  // SEOWerks task ID for tracking
@@ -372,7 +402,7 @@ model DealershipOnboarding {
   
   // Business Information
   businessName         String
-  package              String   // SILVER, GOLD, PLATINUM
+  package              PackageType
   mainBrand            String
   otherBrand           String?
   
@@ -461,7 +491,7 @@ model UserInvite {
   
   // Invite details
   email           String
-  role            String   @default("user") // user, admin, super_admin
+  role            UserRole @default(USER)
   isSuperAdmin    Boolean  @default(false)
   
   // Agency association (optional for super admins)
@@ -534,7 +564,9 @@ model Deliverable {
   
   // Metadata
   description    String?
-  uploadedBy     String   // User email
+  uploadedById   String
+  uploadedBy     User     @relation("UserDeliverables", fields: [uploadedById], references: [id], onDelete: Cascade)
+  uploadedByEmail String?  // Storing the email at the time of upload, if necessary
   
   // Timestamps
   createdAt      DateTime @default(now())
@@ -553,7 +585,8 @@ model TimeEntry {
   
   // User relationship
   userId         String
-  userEmail      String
+  user           User     @relation("UserTimeEntries", fields: [userId], references: [id], onDelete: Cascade)
+  userEmail      String   // Kept for historical data or direct logging
   
   // Time details
   hours          Float
@@ -683,7 +716,7 @@ model Escalation {
   
   // Status Tracking
   status          String   @default("pending") // pending, assigned, in_progress, resolved
-  priority        String   @default("normal") // low, normal, high, urgent
+  priority        RequestPriority @default(MEDIUM)
   assignedTo      String?  // SEO team member email
   assignedAt      DateTime?
   
